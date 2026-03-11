@@ -6,7 +6,6 @@ set -euo pipefail
 #   GH_TOKEN       - GitHub PAT（Projects 操作権限が必要）
 #   PROJECT_OWNER  - Project を作成する Owner
 #   PROJECT_TITLE  - 作成する Project のタイトル
-#   OWNER_TYPE     - Owner の種類（user / organization）
 
 # --- バリデーション ---
 
@@ -25,21 +24,13 @@ if [[ -z "${PROJECT_TITLE:-}" ]]; then
   exit 1
 fi
 
-if [[ "${OWNER_TYPE:-}" != "user" && "${OWNER_TYPE:-}" != "organization" ]]; then
-  echo "::error::OWNER_TYPE は 'user' または 'organization' を指定してください。現在の値: '${OWNER_TYPE:-}'"
-  exit 1
-fi
-
 # --- Project 作成 ---
 
 echo "GitHub Project を作成します..."
 echo "  Owner: ${PROJECT_OWNER}"
 echo "  Title: ${PROJECT_TITLE}"
-echo "  Type:  ${OWNER_TYPE}"
 
-OWNER_FLAG="--owner"
-
-if ! OUTPUT=$(gh project create --title "${PROJECT_TITLE}" "${OWNER_FLAG}" "${PROJECT_OWNER}" --format json 2>&1); then
+if ! OUTPUT=$(gh project create --title "${PROJECT_TITLE}" --owner "${PROJECT_OWNER}" --format json 2>&1); then
   echo "::error::GitHub Project の作成に失敗しました。"
   echo "::error::詳細: ${OUTPUT}"
   echo ""
