@@ -1,0 +1,53 @@
+name: 機能リクエスト
+description: 新しい機能や改善の提案
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        機能リクエストをお寄せいただきありがとうございます。
+        以下の項目をできるだけ詳しくご記入ください。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: リクエストする機能の概要を簡潔に記述してください
+      placeholder: 例）GitHub Project 作成時にカスタムフィールドを自動設定できるようにしたい
+    validations:
+      required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景・動機
+      description: この機能が必要な理由や、現在困っていることを記述してください
+      placeholder: 例）毎回手動でカスタムフィールドを設定しており、手間がかかっている
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 期待する動作
+      description: 機能が実装された場合、どのように動作することを期待しますか
+      placeholder: 例）スクリプト実行時にカスタムフィールドの定義を渡すと、自動的に設定される
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 代替案
+      description: 検討した代替案や回避策があれば記述してください
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 補足情報
+      description: スクリーンショット、参考リンク、関連 Issue など、補足情報があれば記述してください
+    validations:
+      required: false
