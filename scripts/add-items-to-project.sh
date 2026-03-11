@@ -8,7 +8,7 @@ set -euo pipefail
 #   PROJECT_NUMBER - 対象 Project の Number
 #   TARGET_REPO    - 対象リポジトリ（owner/repo 形式）
 #   ITEM_STATE     - 取得するアイテムの状態（open/closed/all、デフォルト: open）
-#   ITEM_LABEL     - フィルタするラベル（省略可）
+#   ITEM_LABEL     - 絞り込みラベル（指定ラベルの Issue/PR のみ追加、省略可）
 
 # --- バリデーション ---
 
@@ -39,6 +39,11 @@ fi
 
 ITEM_STATE="${ITEM_STATE:-open}"
 ITEM_LABEL="${ITEM_LABEL:-}"
+
+if ! command -v jq &>/dev/null; then
+  echo "::error::jq がインストールされていません。重複チェックに必要です。"
+  exit 1
+fi
 
 # --- ヘルパー関数 ---
 
@@ -174,12 +179,13 @@ fi
 
 ISSUE_ADDED=0
 ISSUE_SKIPPED=0
+ISSUE_FAILED=0
 
 if [[ -n "${ISSUE_URLS}" ]]; then
   while IFS= read -r url; do
     [[ -z "${url}" ]] && continue
 
-    if [[ -n "${EXISTING_ITEMS}" ]] && echo "${EXISTING_ITEMS}" | grep -qF "${url}"; then
+    if [[ -n "${EXISTING_ITEMS}" ]] && echo "${EXISTING_ITEMS}" | grep -Fxq "${url}"; then
       echo "  スキップ（追加済み）: ${url}"
       ISSUE_SKIPPED=$((ISSUE_SKIPPED + 1))
       continue
@@ -190,13 +196,14 @@ if [[ -n "${ISSUE_URLS}" ]]; then
       ISSUE_ADDED=$((ISSUE_ADDED + 1))
     else
       echo "::warning::追加失敗: ${url}"
+      ISSUE_FAILED=$((ISSUE_FAILED + 1))
     fi
 
     sleep 1
   done <<< "${ISSUE_URLS}"
 fi
 
-echo "  Issue 追加: ${ISSUE_ADDED} 件、スキップ: ${ISSUE_SKIPPED} 件"
+echo "  Issue 追加: ${ISSUE_ADDED} 件、スキップ: ${ISSUE_SKIPPED} 件、失敗: ${ISSUE_FAILED} 件"
 
 # --- Pull Request 取得・追加 ---
 
@@ -216,12 +223,13 @@ fi
 
 PR_ADDED=0
 PR_SKIPPED=0
+PR_FAILED=0
 
 if [[ -n "${PR_URLS}" ]]; then
   while IFS= read -r url; do
     [[ -z "${url}" ]] && continue
 
-    if [[ -n "${EXISTING_ITEMS}" ]] && echo "${EXISTING_ITEMS}" | grep -qF "${url}"; then
+    if [[ -n "${EXISTING_ITEMS}" ]] && echo "${EXISTING_ITEMS}" | grep -Fxq "${url}"; then
       echo "  スキップ（追加済み）: ${url}"
       PR_SKIPPED=$((PR_SKIPPED + 1))
       continue
@@ -232,26 +240,28 @@ if [[ -n "${PR_URLS}" ]]; then
       PR_ADDED=$((PR_ADDED + 1))
     else
       echo "::warning::追加失敗: ${url}"
+      PR_FAILED=$((PR_FAILED + 1))
     fi
 
     sleep 1
   done <<< "${PR_URLS}"
 fi
 
-echo "  PR 追加: ${PR_ADDED} 件、スキップ: ${PR_SKIPPED} 件"
+echo "  PR 追加: ${PR_ADDED} 件、スキップ: ${PR_SKIPPED} 件、失敗: ${PR_FAILED} 件"
 
 # --- サマリー ---
 
 TOTAL_ADDED=$((ISSUE_ADDED + PR_ADDED))
 TOTAL_SKIPPED=$((ISSUE_SKIPPED + PR_SKIPPED))
+TOTAL_FAILED=$((ISSUE_FAILED + PR_FAILED))
 
 echo ""
 echo "========================================="
 echo "  完了サマリー"
 echo "========================================="
-echo "  Issue  - 追加: ${ISSUE_ADDED}, スキップ: ${ISSUE_SKIPPED}"
-echo "  PR     - 追加: ${PR_ADDED}, スキップ: ${PR_SKIPPED}"
-echo "  合計   - 追加: ${TOTAL_ADDED}, スキップ: ${TOTAL_SKIPPED}"
+echo "  Issue  - 追加: ${ISSUE_ADDED}, スキップ: ${ISSUE_SKIPPED}, 失敗: ${ISSUE_FAILED}"
+echo "  PR     - 追加: ${PR_ADDED}, スキップ: ${PR_SKIPPED}, 失敗: ${PR_FAILED}"
+echo "  合計   - 追加: ${TOTAL_ADDED}, スキップ: ${TOTAL_SKIPPED}, 失敗: ${TOTAL_FAILED}"
 echo "========================================="
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
@@ -269,11 +279,19 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     fi
     echo "| Issue 追加 | ${ISSUE_ADDED} 件 |"
     echo "| Issue スキップ | ${ISSUE_SKIPPED} 件 |"
+    echo "| Issue 失敗 | ${ISSUE_FAILED} 件 |"
     echo "| PR 追加 | ${PR_ADDED} 件 |"
     echo "| PR スキップ | ${PR_SKIPPED} 件 |"
+    echo "| PR 失敗 | ${PR_FAILED} 件 |"
     echo "| **合計追加** | **${TOTAL_ADDED} 件** |"
+    echo "| **合計失敗** | **${TOTAL_FAILED} 件** |"
   } >> "${GITHUB_STEP_SUMMARY}"
 fi
 
 echo ""
+if [[ "${TOTAL_FAILED}" -gt 0 ]]; then
+  echo "::error::アイテムの追加に ${TOTAL_FAILED} 件失敗しました（追加: ${TOTAL_ADDED} 件、スキップ: ${TOTAL_SKIPPED} 件）。"
+  exit 1
+fi
+
 echo "::notice::アイテムの一括追加が完了しました（追加: ${TOTAL_ADDED} 件、スキップ: ${TOTAL_SKIPPED} 件）。"

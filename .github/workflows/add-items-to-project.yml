@@ -8,7 +8,7 @@ on:
         required: true
         type: number
       target_repo:
-        description: "対象リポジトリ（owner/repo 形式）"
+        description: "対象リポジトリ（owner/repo 形式、1回の実行で1リポジトリ）"
         required: true
         type: string
       item_state:
@@ -21,7 +21,7 @@ on:
           - all
         default: "open"
       item_label:
-        description: "フィルタするラベル（省略可）"
+        description: "絞り込みラベル（指定ラベルの Issue/PR のみ追加、省略可）"
         required: false
         type: string
 
