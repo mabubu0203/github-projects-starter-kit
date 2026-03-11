@@ -1,6 +1,10 @@
 # github-projects-starter-kit
 
+[![Pages Deploy](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/pages/pages-build-deployment)
+
 GitHub Projects Starter Kit
+
+📄 **ドキュメント**: [https://mabubu0203.github.io/github-projects-starter-kit/](https://mabubu0203.github.io/github-projects-starter-kit/)
 
 ## 概要
 
