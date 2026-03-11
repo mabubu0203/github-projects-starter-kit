@@ -3,10 +3,12 @@ set -euo pipefail
 
 # GitHub Project ステータスカラム設定スクリプト
 # 環境変数:
-#   GH_TOKEN         - GitHub PAT（Projects 操作権限が必要）
-#   PROJECT_OWNER    - Project の所有者
-#   PROJECT_NUMBER   - 対象 Project の Number
-#   TEMPLATE_PATTERN - テンプレートパターン（kanban / sprint / simple、デフォルト: simple）
+#   GH_TOKEN       - GitHub PAT（Projects 操作権限が必要）
+#   PROJECT_OWNER  - Project の所有者
+#   PROJECT_NUMBER - 対象 Project の Number（数値）
+#   STATUS_OPTIONS - ステータスカラム定義（JSON配列）
+#                    例: [{"name":"Todo","color":"BLUE","description":"未着手"}]
+#                    対応カラー: GRAY, BLUE, GREEN, YELLOW, ORANGE, RED, PINK, PURPLE
 
 # --- ヘルパー関数 ---
 
@@ -17,46 +19,6 @@ sanitize_for_workflow_command() {
   value="${value//$'\n'/'%0A'}"
   value="${value//$'\r'/'%0D'}"
   echo "${value}"
-}
-
-# テンプレートパターンに応じたステータスカラム定義を返す
-# 出力形式: JSON配列（name, color, description のオブジェクト）
-get_status_options() {
-  local pattern="$1"
-
-  case "${pattern}" in
-    kanban)
-      cat <<'JSON'
-[
-  {"name": "Backlog", "color": "GRAY", "description": "未着手のアイテム"},
-  {"name": "Todo", "color": "BLUE", "description": "次に取り組むアイテム"},
-  {"name": "In Progress", "color": "YELLOW", "description": "作業中のアイテム"},
-  {"name": "In Review", "color": "ORANGE", "description": "レビュー中のアイテム"},
-  {"name": "Done", "color": "GREEN", "description": "完了したアイテム"}
-]
-JSON
-      ;;
-    sprint)
-      cat <<'JSON'
-[
-  {"name": "Sprint Backlog", "color": "GRAY", "description": "スプリントバックログ"},
-  {"name": "In Progress", "color": "YELLOW", "description": "作業中のアイテム"},
-  {"name": "In Review", "color": "ORANGE", "description": "レビュー中のアイテム"},
-  {"name": "Done", "color": "GREEN", "description": "完了したアイテム"},
-  {"name": "Blocked", "color": "RED", "description": "ブロックされたアイテム"}
-]
-JSON
-      ;;
-    simple)
-      cat <<'JSON'
-[
-  {"name": "Todo", "color": "BLUE", "description": "未着手のアイテム"},
-  {"name": "In Progress", "color": "YELLOW", "description": "作業中のアイテム"},
-  {"name": "Done", "color": "GREEN", "description": "完了したアイテム"}
-]
-JSON
-      ;;
-  esac
 }
 
 # --- バリデーション ---
@@ -76,15 +38,32 @@ if [[ -z "${PROJECT_NUMBER:-}" ]]; then
   exit 1
 fi
 
+if ! [[ "${PROJECT_NUMBER}" =~ ^[0-9]+$ ]]; then
+  SAFE_PROJECT_NUMBER=$(sanitize_for_workflow_command "${PROJECT_NUMBER}")
+  echo "::error::PROJECT_NUMBER の値が不正です: ${SAFE_PROJECT_NUMBER}（数値のみを指定してください）"
+  exit 1
+fi
+
+if [[ -z "${STATUS_OPTIONS:-}" ]]; then
+  echo "::error::STATUS_OPTIONS が指定されていません。JSON 配列で指定してください。"
+  echo "::error::例: [{\"name\":\"Todo\",\"color\":\"BLUE\",\"description\":\"未着手\"}]"
+  exit 1
+fi
+
 if ! command -v jq &>/dev/null; then
   echo "::error::jq がインストールされていません。JSON の解析に必要です。"
   exit 1
 fi
 
-TEMPLATE_PATTERN="${TEMPLATE_PATTERN:-simple}"
-if [[ "${TEMPLATE_PATTERN}" != "kanban" && "${TEMPLATE_PATTERN}" != "sprint" && "${TEMPLATE_PATTERN}" != "simple" ]]; then
-  SAFE_TEMPLATE_PATTERN=$(sanitize_for_workflow_command "${TEMPLATE_PATTERN}")
-  echo "::error::TEMPLATE_PATTERN の値が不正です: ${SAFE_TEMPLATE_PATTERN}（kanban / sprint / simple を指定してください）"
+# STATUS_OPTIONS の JSON バリデーション
+if ! echo "${STATUS_OPTIONS}" | jq -e 'type == "array" and length > 0' >/dev/null 2>&1; then
+  echo "::error::STATUS_OPTIONS が有効な JSON 配列ではありません。"
+  exit 1
+fi
+
+# 各要素に必須フィールド（name, color）が存在するか確認
+if ! echo "${STATUS_OPTIONS}" | jq -e 'all(has("name") and has("color"))' >/dev/null 2>&1; then
+  echo "::error::STATUS_OPTIONS の各要素には name と color が必須です。"
   exit 1
 fi
 
@@ -154,6 +133,16 @@ if ! FIELD_RESULT=$(gh api graphql -f query="${FIELD_QUERY}" 2>&1); then
   exit 1
 fi
 
+# GraphQL 応答内の errors チェック
+if echo "${FIELD_RESULT}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
+  SAFE_RESULT=$(sanitize_for_workflow_command "${FIELD_RESULT}")
+  echo "::error::Project 情報の取得中に GraphQL エラーが発生しました: ${SAFE_RESULT}"
+  echo ""
+  echo "GraphQL errors:"
+  echo "${FIELD_RESULT}" | jq '.errors' || true
+  exit 1
+fi
+
 # Project ID の取得
 PROJECT_ID=$(echo "${FIELD_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.id // empty")
 if [[ -z "${PROJECT_ID}" ]]; then
@@ -179,21 +168,20 @@ echo "${FIELD_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.fields.node
 # --- ステータスカラムの更新 ---
 
 echo ""
-echo "テンプレート '${TEMPLATE_PATTERN}' でステータスカラムを更新します..."
-
-STATUS_OPTIONS=$(get_status_options "${TEMPLATE_PATTERN}")
+echo "ステータスカラムを更新します..."
 
 # カラム名を表示
 echo ""
 echo "設定するステータスカラム:"
-echo "${STATUS_OPTIONS}" | jq -r '.[] | "  - \(.name) (\(.color)): \(.description)"'
+echo "${STATUS_OPTIONS}" | jq -r '.[] | "  - \(.name) (\(.color))\(if .description then ": \(.description)" else "" end)"'
 
 # GraphQL mutation 用の singleSelectOptions を構築
-SINGLE_SELECT_OPTIONS=$(echo "${STATUS_OPTIONS}" | jq -c '[.[] | {name: .name, color: .color, description: .description}]')
+SINGLE_SELECT_OPTIONS=$(echo "${STATUS_OPTIONS}" | jq -c '[.[] | {name: .name, color: .color, description: (.description // "")}]')
 
 UPDATE_MUTATION=$(cat <<GRAPHQL
 mutation {
   updateProjectV2Field(input: {
+    projectId: "${PROJECT_ID}"
     fieldId: "${STATUS_FIELD_ID}"
     singleSelectOptions: ${SINGLE_SELECT_OPTIONS}
   }) {
@@ -226,9 +214,8 @@ if ! UPDATE_RESULT=$(gh api graphql -f query="${UPDATE_MUTATION}" 2>&1); then
 fi
 
 # エラーチェック
-ERRORS=$(echo "${UPDATE_RESULT}" | jq -r '.errors // empty' 2>/dev/null)
-if [[ -n "${ERRORS}" && "${ERRORS}" != "null" ]]; then
-  SAFE_ERRORS=$(sanitize_for_workflow_command "${ERRORS}")
+if echo "${UPDATE_RESULT}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
+  SAFE_ERRORS=$(sanitize_for_workflow_command "$(echo "${UPDATE_RESULT}" | jq -c '.errors')")
   echo "::error::GraphQL エラーが発生しました: ${SAFE_ERRORS}"
   exit 1
 fi
@@ -253,7 +240,6 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo "|------|-----|"
     echo "| Project Owner | \`${PROJECT_OWNER}\` |"
     echo "| Project Number | ${PROJECT_NUMBER} |"
-    echo "| Template | ${TEMPLATE_PATTERN} |"
     echo "| カラム構成 | ${COLUMN_NAMES} |"
   } >> "${GITHUB_STEP_SUMMARY}"
 fi
@@ -262,10 +248,9 @@ echo ""
 echo "========================================="
 echo "  完了サマリー"
 echo "========================================="
-echo "  Owner:    ${PROJECT_OWNER}"
-echo "  Project:  #${PROJECT_NUMBER}"
-echo "  Template: ${TEMPLATE_PATTERN}"
-echo "  カラム:   ${COLUMN_NAMES}"
+echo "  Owner:  ${PROJECT_OWNER}"
+echo "  Project: #${PROJECT_NUMBER}"
+echo "  カラム: ${COLUMN_NAMES}"
 echo "========================================="
 echo ""
 echo "セットアップが完了しました。"
