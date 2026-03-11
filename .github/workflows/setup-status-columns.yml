@@ -1,0 +1,38 @@
+name: Setup Status Columns
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_number:
+        description: "対象 Project の Number"
+        required: true
+        type: number
+      template_pattern:
+        description: "テンプレートパターン"
+        required: true
+        type: choice
+        default: "simple"
+        options:
+          - "simple"
+          - "kanban"
+          - "sprint"
+
+permissions:
+  contents: read
+
+jobs:
+  setup-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup Status Columns
+        env:
+          GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+          PROJECT_OWNER: ${{ github.repository_owner }}
+          PROJECT_NUMBER: ${{ inputs.project_number }}
+          TEMPLATE_PATTERN: ${{ inputs.template_pattern }}
+        run: |
+          chmod +x scripts/setup-status-columns.sh
+          bash scripts/setup-status-columns.sh
