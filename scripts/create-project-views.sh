@@ -18,7 +18,7 @@ sanitize_for_workflow_command() {
   value="${value//'%'/'%25'}"
   value="${value//$'\n'/'%0A'}"
   value="${value//$'\r'/'%0D'}"
-  echo "${value}"
+  printf '%s\n' "${value}"
 }
 
 # --- バリデーション ---
@@ -41,6 +41,11 @@ fi
 if ! [[ "${PROJECT_NUMBER}" =~ ^[0-9]+$ ]]; then
   SAFE_PROJECT_NUMBER=$(sanitize_for_workflow_command "${PROJECT_NUMBER}")
   echo "::error::PROJECT_NUMBER の値が不正です: ${SAFE_PROJECT_NUMBER}（数値のみを指定してください）"
+  exit 1
+fi
+
+if ! command -v gh &>/dev/null; then
+  echo "::error::GitHub CLI (gh) がインストールされていないか、PATH に含まれていません。https://cli.github.com/ を参照してインストールし、PATH を設定してください。"
   exit 1
 fi
 
@@ -79,6 +84,14 @@ if ! echo "${VIEW_DEFINITIONS}" | jq -e --argjson valid "${VALID_LAYOUTS}" 'all(
   exit 1
 fi
 
+# VIEW_DEFINITIONS 内の name 重複チェック
+UNIQUE_NAMES=$(echo "${VIEW_DEFINITIONS}" | jq -r '[.[].name] | length')
+DISTINCT_NAMES=$(echo "${VIEW_DEFINITIONS}" | jq -r '[.[].name] | unique | length')
+if [[ "${UNIQUE_NAMES}" -ne "${DISTINCT_NAMES}" ]]; then
+  echo "::error::VIEW_DEFINITIONS 内に重複する name が含まれています。各 View 名は一意にしてください。"
+  exit 1
+fi
+
 # --- オーナータイプ判定 ---
 
 echo "オーナータイプを判定しています..."
@@ -104,21 +117,37 @@ else
   exit 1
 fi
 
-# --- 既存 View 情報の取得 ---
+# --- 既存 View 情報の取得（ページネーション対応） ---
 
 echo ""
 echo "Project #${PROJECT_NUMBER} の既存 View を取得しています..."
 
-VIEW_QUERY=$(cat <<GRAPHQL
+PROJECT_ID=""
+ALL_VIEW_NODES="[]"
+HAS_NEXT_PAGE="true"
+END_CURSOR=""
+
+while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
+  if [[ -z "${END_CURSOR}" ]]; then
+    AFTER_CLAUSE=""
+  else
+    AFTER_CLAUSE=", after: \"${END_CURSOR}\""
+  fi
+
+  VIEW_QUERY=$(cat <<GRAPHQL
 query {
   ${OWNER_QUERY_FIELD}(login: "${PROJECT_OWNER}") {
     projectV2(number: ${PROJECT_NUMBER}) {
       id
-      views(first: 50) {
+      views(first: 100${AFTER_CLAUSE}) {
         nodes {
           id
           name
           layout
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
         }
       }
     }
@@ -127,41 +156,52 @@ query {
 GRAPHQL
 )
 
-if ! VIEW_RESULT=$(gh api graphql -f query="${VIEW_QUERY}" 2>&1); then
-  SAFE_RESULT=$(sanitize_for_workflow_command "${VIEW_RESULT}")
-  echo "::error::Project 情報の取得に失敗しました: ${SAFE_RESULT}"
-  echo ""
-  echo "考えられる原因:"
-  echo "  - PROJECT_NUMBER が正しくない"
-  echo "  - PAT に Projects > Read and write 権限が付与されていない"
-  echo "  - ネットワークエラー"
-  exit 1
-fi
+  if ! VIEW_RESULT=$(gh api graphql -f query="${VIEW_QUERY}" 2>&1); then
+    SAFE_RESULT=$(sanitize_for_workflow_command "${VIEW_RESULT}")
+    echo "::error::Project 情報の取得に失敗しました: ${SAFE_RESULT}"
+    echo ""
+    echo "考えられる原因:"
+    echo "  - PROJECT_NUMBER が正しくない"
+    echo "  - PAT に Projects > Read and write 権限が付与されていない"
+    echo "  - ネットワークエラー"
+    exit 1
+  fi
 
-# GraphQL 応答内の errors チェック
-if echo "${VIEW_RESULT}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
-  SAFE_RESULT=$(sanitize_for_workflow_command "${VIEW_RESULT}")
-  echo "::error::Project 情報の取得中に GraphQL エラーが発生しました: ${SAFE_RESULT}"
-  echo ""
-  echo "GraphQL errors:"
-  echo "${VIEW_RESULT}" | jq '.errors' || true
-  exit 1
-fi
+  # GraphQL 応答内の errors チェック
+  if echo "${VIEW_RESULT}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
+    SAFE_RESULT=$(sanitize_for_workflow_command "${VIEW_RESULT}")
+    echo "::error::Project 情報の取得中に GraphQL エラーが発生しました: ${SAFE_RESULT}"
+    echo ""
+    echo "GraphQL errors:"
+    echo "${VIEW_RESULT}" | jq '.errors' || true
+    exit 1
+  fi
 
-# Project ID の取得
-PROJECT_ID=$(echo "${VIEW_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.id // empty")
-if [[ -z "${PROJECT_ID}" ]]; then
-  echo "::error::Project ID を取得できませんでした。Project #${PROJECT_NUMBER} が存在するか確認してください。"
-  exit 1
-fi
-echo "  Project ID: ${PROJECT_ID}"
+  # Project ID の取得（初回のみ）
+  if [[ -z "${PROJECT_ID}" ]]; then
+    PROJECT_ID=$(echo "${VIEW_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.id // empty")
+    if [[ -z "${PROJECT_ID}" ]]; then
+      echo "::error::Project ID を取得できませんでした。Project #${PROJECT_NUMBER} が存在するか確認してください。"
+      exit 1
+    fi
+    echo "  Project ID: ${PROJECT_ID}"
+  fi
+
+  # View ノードを蓄積
+  PAGE_NODES=$(echo "${VIEW_RESULT}" | jq -c ".data.${OWNER_QUERY_FIELD}.projectV2.views.nodes")
+  ALL_VIEW_NODES=$(echo "${ALL_VIEW_NODES}" "${PAGE_NODES}" | jq -s '.[0] + .[1]')
+
+  # ページネーション情報
+  HAS_NEXT_PAGE=$(echo "${VIEW_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.views.pageInfo.hasNextPage")
+  END_CURSOR=$(echo "${VIEW_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.views.pageInfo.endCursor // empty")
+done
 
 # 既存 View 名のリストを取得
-EXISTING_VIEWS=$(echo "${VIEW_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.views.nodes[].name // empty" 2>/dev/null)
+EXISTING_VIEWS=$(echo "${ALL_VIEW_NODES}" | jq -r '.[].name // empty' 2>/dev/null)
 
 echo ""
 echo "既存の View:"
-echo "${VIEW_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.views.nodes[] | \"  - \(.name) (\(.layout))\"" 2>/dev/null || echo "  （取得できませんでした）"
+echo "${ALL_VIEW_NODES}" | jq -r '.[] | "  - \(.name) (\(.layout))"' 2>/dev/null || echo "  （取得できませんでした）"
 
 # --- View の作成 ---
 
@@ -188,25 +228,22 @@ for i in $(seq 0 $((VIEW_COUNT - 1))); do
     continue
   fi
 
-  # GraphQL mutation で View を作成
-  CREATE_MUTATION=$(cat <<GRAPHQL
-mutation {
-  createProjectV2View(input: {
-    projectId: "${PROJECT_ID}"
-    name: "${VIEW_NAME}"
-    layout: ${VIEW_LAYOUT}
-  }) {
+  # GraphQL mutation で View を作成（GraphQL 変数を使用して安全に値を渡す）
+  CREATE_MUTATION='mutation($projectId: ID!, $name: String!, $layout: ProjectV2ViewLayout!) {
+  createProjectV2View(input: {projectId: $projectId, name: $name, layout: $layout}) {
     projectV2View {
       id
       name
       layout
     }
   }
-}
-GRAPHQL
-)
+}'
 
-  if ! CREATE_RESULT=$(gh api graphql -f query="${CREATE_MUTATION}" 2>&1); then
+  if ! CREATE_RESULT=$(gh api graphql \
+    -f query="${CREATE_MUTATION}" \
+    -f projectId="${PROJECT_ID}" \
+    -f name="${VIEW_NAME}" \
+    -f layout="${VIEW_LAYOUT}" 2>&1); then
     SAFE_RESULT=$(sanitize_for_workflow_command "${CREATE_RESULT}")
     echo "  ::error::View '${SAFE_VIEW_NAME}' の作成に失敗しました: ${SAFE_RESULT}"
     FAILED_COUNT=$((FAILED_COUNT + 1))
@@ -224,6 +261,10 @@ GRAPHQL
   CREATED_VIEW_ID=$(echo "${CREATE_RESULT}" | jq -r '.data.createProjectV2View.projectV2View.id // empty')
   echo "  ::notice::View '${SAFE_VIEW_NAME}' を作成しました。(ID: ${CREATED_VIEW_ID})"
   CREATED_COUNT=$((CREATED_COUNT + 1))
+
+  # 作成した View 名を既存リストに追加（後続の重複チェック用）
+  EXISTING_VIEWS="${EXISTING_VIEWS}
+${VIEW_NAME}"
 done
 
 # --- サマリー出力 ---
