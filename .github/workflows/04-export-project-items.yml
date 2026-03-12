@@ -1,0 +1,51 @@
+name: "④ Project アイテム エクスポート"
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_number:
+        description: "対象 Project の Number"
+        required: true
+        type: string
+      output_format:
+        description: "出力形式"
+        required: true
+        type: choice
+        options:
+          - markdown
+          - csv
+          - tsv
+          - json
+        default: "markdown"
+
+permissions:
+  contents: read
+
+jobs:
+  export-items:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      PROJECT_OWNER: ${{ github.repository_owner }}
+      PROJECT_NUMBER: ${{ inputs.project_number }}
+    # 前提: ubuntu-latest には gh (GitHub CLI) と jq がプリインストール済み
+    # スクリプト内の require_command チェックはローカル実行時の UX 向上目的で残している
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Project アイテムをエクスポート
+        env:
+          OUTPUT_FORMAT: ${{ inputs.output_format }}
+        run: |
+          chmod +x scripts/export-project-items.sh
+          bash scripts/export-project-items.sh
+
+      - name: アーティファクトをアップロード
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-items-export
+          path: export-*
+          if-no-files-found: ignore
+          retention-days: 30
