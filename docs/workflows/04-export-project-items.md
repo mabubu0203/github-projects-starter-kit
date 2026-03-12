@@ -17,7 +17,7 @@
 | `output_format` | 出力形式 | ✅ | `markdown`（デフォルト） |
 | `include_issues` | Issue を対象にする | ✅ | `true`（デフォルト） |
 | `include_prs` | Pull Request を対象にする | ✅ | `true`（デフォルト） |
-| `item_state` | 取得するアイテムの状態 | ❌ | `all`（デフォルト） |
+| `item_state` | 取得するアイテムの状態 | ✅ | `all`（デフォルト） |
 
 ### 出力形式
 
