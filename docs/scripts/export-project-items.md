@@ -41,7 +41,7 @@ flowchart TD
 | オーナータイプ判定 | `detect_owner_type` で Organization / User を判別 | `gh api users/{owner}` |
 | アイテム取得 | GraphQL クエリで Project の全アイテムをページネーション付きで取得（100件/ページ、最大 50 ページ）。Issue・PR の `number`・`title`・`url`・`state`・`author`・`assignees`・`labels` 等を取得 | `gh api graphql` — `projectV2.items(first: 100)` |
 | データ正規化 | `DraftIssue`（`__typename` が null）を除外し、各アイテムを統一フォーマットの JSON オブジェクトに変換 | `jq` |
-| Markdown 出力 | Issue と PR を別セクションに分け、テーブル形式で出力。タイトル内のパイプ文字をエスケープ | `format_markdown` 関数 |
+| Markdown 出力 | Issue と PR を別セクションに分け、テーブル形式で出力。タイトル・ラベル・アサイン内の Markdown 特殊文字をエスケープ | `format_markdown` 関数 |
 | CSV / TSV 出力 | jq の `@csv` / `@tsv` フィルタで変換 | `format_csv` / `format_tsv` 関数 |
 | JSON 出力 | jq で整形して出力 | `format_json` 関数 |
 | Step Summary | Markdown の場合は 100 行まで埋め込み、その他は先頭 20 行をコードブロックでプレビュー表示 | — |
@@ -59,6 +59,15 @@ flowchart TD
 |-----------|---------|------|
 | `items(first: N)` | 100 | 1ページあたりの取得件数 |
 | `max_pages` | 50 | ページネーション上限（最大 5,000 件まで取得可能） |
+
+## 出力形式ごとのエスケープ仕様
+
+| 出力形式 | クォート | エスケープ対象 | 備考 |
+|----------|----------|---------------|------|
+| `markdown` | なし | `\`, `` ` ``, `*`, `_`, `[`, `]`, `<`, `>`, `~`, `|` | タイトル・ラベル・アサインの各フィールドに適用（例: `|` → `\|`） |
+| `csv` | `"` で囲む | `"` → `""` | jq `@csv`（RFC 4180 準拠）により自動処理 |
+| `tsv` | なし | タブ → `\t`, 改行 → `\n`, `\` → `\\` | jq `@tsv` により自動処理 |
+| `json` | `"` で囲む | JSON 標準のエスケープ | jq により自動処理 |
 
 ## 使用ワークフロー
 
