@@ -1,0 +1,5 @@
+[
+  {"name": "Todo", "color": "BLUE", "description": "未着手"},
+  {"name": "In Progress", "color": "YELLOW", "description": "作業中"},
+  {"name": "Done", "color": "GREEN", "description": "完了"}
+]

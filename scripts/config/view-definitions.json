@@ -1,0 +1,5 @@
+[
+  {"name": "Table", "layout": "table"},
+  {"name": "Board", "layout": "board"},
+  {"name": "Roadmap", "layout": "roadmap"}
+]

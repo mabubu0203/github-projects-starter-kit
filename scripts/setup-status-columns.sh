@@ -9,14 +9,6 @@ set -euo pipefail
 #   PROJECT_OWNER  - Project の所有者
 #   PROJECT_NUMBER - 対象 Project の Number（数値）
 
-# --- ステータスカラム定義 ---
-
-STATUS_OPTIONS='[
-  {"name": "Todo", "color": "BLUE", "description": "未着手"},
-  {"name": "In Progress", "color": "YELLOW", "description": "作業中"},
-  {"name": "Done", "color": "GREEN", "description": "完了"}
-]'
-
 # --- 共通ライブラリ読み込み ---
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -25,6 +17,15 @@ source "${SCRIPT_DIR}/lib/common.sh"
 # --- バリデーション ---
 
 validate_common_project_env
+
+# --- ステータスカラム定義の読み込み ---
+
+STATUS_OPTIONS_FILE="${SCRIPT_DIR}/config/status-options.json"
+if [[ ! -f "${STATUS_OPTIONS_FILE}" ]]; then
+  echo "::error::ステータスカラム定義ファイルが見つかりません: ${STATUS_OPTIONS_FILE}"
+  exit 1
+fi
+STATUS_OPTIONS=$(cat "${STATUS_OPTIONS_FILE}")
 
 # --- Project ID と Status フィールド情報の取得 ---
 

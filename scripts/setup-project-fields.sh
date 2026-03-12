@@ -9,15 +9,6 @@ set -euo pipefail
 #   PROJECT_OWNER     - Project の所有者
 #   PROJECT_NUMBER    - 対象 Project の Number（数値）
 
-# --- フィールド定義 ---
-
-FIELD_DEFINITIONS='[
-  {"name": "Priority", "dataType": "SINGLE_SELECT", "options": ["P0", "P1", "P2", "P3"]},
-  {"name": "Estimate", "dataType": "SINGLE_SELECT", "options": ["XS", "S", "M", "L", "XL"]},
-  {"name": "Category", "dataType": "SINGLE_SELECT", "options": ["Bug", "Feature", "Chore", "Spike"]},
-  {"name": "Due Date", "dataType": "DATE"}
-]'
-
 # --- 共通ライブラリ読み込み ---
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,6 +17,15 @@ source "${SCRIPT_DIR}/lib/common.sh"
 # --- バリデーション ---
 
 validate_common_project_env
+
+# --- フィールド定義の読み込み ---
+
+FIELD_DEFINITIONS_FILE="${SCRIPT_DIR}/config/field-definitions.json"
+if [[ ! -f "${FIELD_DEFINITIONS_FILE}" ]]; then
+  echo "::error::フィールド定義ファイルが見つかりません: ${FIELD_DEFINITIONS_FILE}"
+  exit 1
+fi
+FIELD_DEFINITIONS=$(cat "${FIELD_DEFINITIONS_FILE}")
 
 # --- 既存フィールド情報の取得 ---
 

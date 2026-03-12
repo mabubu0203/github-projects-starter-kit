@@ -13,14 +13,6 @@ set -euo pipefail
 
 REST_API_VERSION="2026-03-10"
 
-# --- View 定義 ---
-
-VIEW_DEFINITIONS='[
-  {"name": "Table", "layout": "table"},
-  {"name": "Board", "layout": "board"},
-  {"name": "Roadmap", "layout": "roadmap"}
-]'
-
 # --- 共通ライブラリ読み込み ---
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -29,6 +21,15 @@ source "${SCRIPT_DIR}/lib/common.sh"
 # --- バリデーション ---
 
 validate_common_project_env
+
+# --- View 定義の読み込み ---
+
+VIEW_DEFINITIONS_FILE="${SCRIPT_DIR}/config/view-definitions.json"
+if [[ ! -f "${VIEW_DEFINITIONS_FILE}" ]]; then
+  echo "::error::View 定義ファイルが見つかりません: ${VIEW_DEFINITIONS_FILE}"
+  exit 1
+fi
+VIEW_DEFINITIONS=$(cat "${VIEW_DEFINITIONS_FILE}")
 
 # --- REST API パス構築 ---
 

@@ -1,0 +1,6 @@
+[
+  {"name": "Priority", "dataType": "SINGLE_SELECT", "options": ["P0", "P1", "P2", "P3"]},
+  {"name": "Estimate", "dataType": "SINGLE_SELECT", "options": ["XS", "S", "M", "L", "XL"]},
+  {"name": "Category", "dataType": "SINGLE_SELECT", "options": ["Bug", "Feature", "Chore", "Spike"]},
+  {"name": "Due Date", "dataType": "DATE"}
+]
