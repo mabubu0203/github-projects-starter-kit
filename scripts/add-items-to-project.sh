@@ -12,27 +12,18 @@ set -euo pipefail
 #   ITEM_STATE     - 取得するアイテムの状態（open/closed/all、デフォルト: open）
 #   ITEM_LABEL     - 絞り込みラベル（指定ラベルの Issue/PR のみ追加、省略可）
 
+# --- 共通ライブラリ読み込み ---
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/lib/common.sh"
+
 # --- バリデーション ---
 
-if [[ -z "${GH_TOKEN:-}" ]]; then
-  echo "::error::GH_TOKEN が設定されていません。Secrets に PROJECT_PAT を設定してください。"
-  exit 1
-fi
-
-if [[ -z "${PROJECT_OWNER:-}" ]]; then
-  echo "::error::PROJECT_OWNER が指定されていません。"
-  exit 1
-fi
-
-if [[ -z "${PROJECT_NUMBER:-}" ]]; then
-  echo "::error::PROJECT_NUMBER が指定されていません。"
-  exit 1
-fi
-
-if [[ -z "${TARGET_REPO:-}" ]]; then
-  echo "::error::TARGET_REPO が指定されていません（owner/repo 形式）。"
-  exit 1
-fi
+require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
+require_env "PROJECT_OWNER"
+require_env "PROJECT_NUMBER"
+validate_project_number
+require_env "TARGET_REPO"
 
 if [[ ! "${TARGET_REPO}" =~ ^[^/]+/[^/]+$ ]]; then
   echo "::error::TARGET_REPO は owner/repo 形式で指定してください（例: myorg/myrepo）。"
@@ -49,20 +40,10 @@ if [[ "${INCLUDE_ISSUES}" != "true" && "${INCLUDE_PRS}" != "true" ]]; then
   exit 1
 fi
 
-if ! command -v jq &>/dev/null; then
-  echo "::error::jq がインストールされていません。重複チェックに必要です。"
-  exit 1
-fi
+require_command "gh" "GitHub CLI (gh) が必要です。PATH を確認してください。"
+require_command "jq" "重複チェックに必要です。"
 
 # --- ヘルパー関数 ---
-
-sanitize_for_workflow_command() {
-  local value="$1"
-  value="${value//'%'/'%25'}"
-  value="${value//$'\n'/'%0A'}"
-  value="${value//$'\r'/'%0D'}"
-  echo "${value}"
-}
 
 # Project に既に追加済みのアイテム URL を取得する
 get_existing_project_items() {
@@ -129,28 +110,7 @@ GRAPHQL
 
 # --- オーナータイプ判定 ---
 
-echo "オーナータイプを判定しています..."
-
-if ! OWNER_INFO=$(gh api "users/${PROJECT_OWNER}" --jq '.type' 2>&1); then
-  SAFE_OWNER_INFO=$(sanitize_for_workflow_command "${OWNER_INFO}")
-  SAFE_PROJECT_OWNER=$(sanitize_for_workflow_command "${PROJECT_OWNER}")
-  echo "::error::オーナー情報の取得に失敗しました: ${SAFE_OWNER_INFO}"
-  echo "::error::PROJECT_OWNER=${SAFE_PROJECT_OWNER} が正しいか確認してください。"
-  exit 1
-fi
-
-OWNER_TYPE="${OWNER_INFO}"
-echo "  オーナータイプ: ${OWNER_TYPE}"
-
-if [[ "${OWNER_TYPE}" == "User" ]]; then
-  OWNER_QUERY_FIELD="user"
-elif [[ "${OWNER_TYPE}" == "Organization" ]]; then
-  OWNER_QUERY_FIELD="organization"
-else
-  SAFE_OWNER_TYPE=$(sanitize_for_workflow_command "${OWNER_TYPE}")
-  echo "::error::不明なオーナータイプ: ${SAFE_OWNER_TYPE}"
-  exit 1
-fi
+detect_owner_type
 
 # --- 既存アイテム取得（重複防止用） ---
 

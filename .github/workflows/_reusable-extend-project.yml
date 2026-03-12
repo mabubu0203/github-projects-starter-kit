@@ -1,0 +1,39 @@
+name: "Project 拡張（再利用可能）"
+
+on:
+  workflow_call:
+    inputs:
+      project_number:
+        description: "対象 Project の Number"
+        required: true
+        type: string
+    secrets:
+      PROJECT_PAT:
+        description: "GitHub PAT（Projects 操作権限が必要）"
+        required: true
+
+jobs:
+  extend-project:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      PROJECT_OWNER: ${{ github.repository_owner }}
+      PROJECT_NUMBER: ${{ inputs.project_number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: カスタムフィールドを作成
+        run: |
+          chmod +x scripts/setup-project-fields.sh
+          bash scripts/setup-project-fields.sh
+
+      - name: ステータスカラムを設定
+        run: |
+          chmod +x scripts/setup-status-columns.sh
+          bash scripts/setup-status-columns.sh
+
+      - name: View を作成
+        run: |
+          chmod +x scripts/create-project-views.sh
+          bash scripts/create-project-views.sh

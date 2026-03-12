@@ -22,6 +22,8 @@ permissions:
 jobs:
   create-project:
     runs-on: ubuntu-latest
+    outputs:
+      project_number: ${{ steps.create.outputs.project_number }}
     env:
       GH_TOKEN: ${{ secrets.PROJECT_PAT }}
       PROJECT_OWNER: ${{ github.repository_owner }}
@@ -38,23 +40,10 @@ jobs:
           chmod +x scripts/setup-github-project.sh
           bash scripts/setup-github-project.sh
 
-      - name: カスタムフィールドを作成
-        env:
-          PROJECT_NUMBER: ${{ steps.create.outputs.project_number }}
-        run: |
-          chmod +x scripts/setup-project-fields.sh
-          bash scripts/setup-project-fields.sh
-
-      - name: ステータスカラムを設定
-        env:
-          PROJECT_NUMBER: ${{ steps.create.outputs.project_number }}
-        run: |
-          chmod +x scripts/setup-status-columns.sh
-          bash scripts/setup-status-columns.sh
-
-      - name: View を作成
-        env:
-          PROJECT_NUMBER: ${{ steps.create.outputs.project_number }}
-        run: |
-          chmod +x scripts/create-project-views.sh
-          bash scripts/create-project-views.sh
+  extend-project:
+    needs: create-project
+    uses: ./.github/workflows/_reusable-extend-project.yml
+    with:
+      project_number: ${{ needs.create-project.outputs.project_number }}
+    secrets:
+      PROJECT_PAT: ${{ secrets.PROJECT_PAT }}

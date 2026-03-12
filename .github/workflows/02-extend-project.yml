@@ -13,26 +13,8 @@ permissions:
 
 jobs:
   extend-project:
-    runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
-      PROJECT_OWNER: ${{ github.repository_owner }}
-      PROJECT_NUMBER: ${{ inputs.project_number }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6.0.2
-
-      - name: カスタムフィールドを作成
-        run: |
-          chmod +x scripts/setup-project-fields.sh
-          bash scripts/setup-project-fields.sh
-
-      - name: ステータスカラムを設定
-        run: |
-          chmod +x scripts/setup-status-columns.sh
-          bash scripts/setup-status-columns.sh
-
-      - name: View を作成
-        run: |
-          chmod +x scripts/create-project-views.sh
-          bash scripts/create-project-views.sh
+    uses: ./.github/workflows/_reusable-extend-project.yml
+    with:
+      project_number: ${{ inputs.project_number }}
+    secrets:
+      PROJECT_PAT: ${{ secrets.PROJECT_PAT }}

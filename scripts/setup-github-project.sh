@@ -8,38 +8,18 @@ set -euo pipefail
 #   PROJECT_TITLE      - 作成する Project のタイトル
 #   PROJECT_VISIBILITY - Project の公開範囲（PUBLIC / PRIVATE、デフォルト: PRIVATE）
 
-# --- ヘルパー関数 ---
+# --- 共通ライブラリ読み込み ---
 
-# GitHub Actions ワークフローコマンドインジェクションを防ぐためのサニタイズ関数
-sanitize_for_workflow_command() {
-  local value="$1"
-  value="${value//'%'/'%25'}"
-  value="${value//$'\n'/'%0A'}"
-  value="${value//$'\r'/'%0D'}"
-  echo "${value}"
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/lib/common.sh"
 
 # --- バリデーション ---
 
-if [[ -z "${GH_TOKEN:-}" ]]; then
-  echo "::error::GH_TOKEN が設定されていません。Secrets に PROJECT_PAT を設定してください。"
-  exit 1
-fi
-
-if [[ -z "${PROJECT_OWNER:-}" ]]; then
-  echo "::error::PROJECT_OWNER が指定されていません。"
-  exit 1
-fi
-
-if [[ -z "${PROJECT_TITLE:-}" ]]; then
-  echo "::error::PROJECT_TITLE が指定されていません。"
-  exit 1
-fi
-
-if ! command -v jq &>/dev/null; then
-  echo "::error::jq がインストールされていません。Project 情報の抽出に必要です。"
-  exit 1
-fi
+require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
+require_env "PROJECT_OWNER"
+require_env "PROJECT_TITLE"
+require_command "gh" "GitHub CLI (gh) が必要です。"
+require_command "jq" "Project 情報の抽出に必要です。"
 
 # PROJECT_VISIBILITY のデフォルト値設定とバリデーション
 PROJECT_VISIBILITY="${PROJECT_VISIBILITY:-PRIVATE}"

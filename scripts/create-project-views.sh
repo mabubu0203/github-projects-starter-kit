@@ -15,74 +15,23 @@ VIEW_DEFINITIONS='[
   {"name": "Roadmap", "layout": "ROADMAP_LAYOUT"}
 ]'
 
-# --- ヘルパー関数 ---
+# --- 共通ライブラリ読み込み ---
 
-# GitHub Actions ワークフローコマンドインジェクションを防ぐためのサニタイズ関数
-sanitize_for_workflow_command() {
-  local value="$1"
-  value="${value//'%'/'%25'}"
-  value="${value//$'\n'/'%0A'}"
-  value="${value//$'\r'/'%0D'}"
-  printf '%s\n' "${value}"
-}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR}/lib/common.sh"
 
 # --- バリデーション ---
 
-if [[ -z "${GH_TOKEN:-}" ]]; then
-  echo "::error::GH_TOKEN が設定されていません。Secrets に PROJECT_PAT を設定してください。"
-  exit 1
-fi
-
-if [[ -z "${PROJECT_OWNER:-}" ]]; then
-  echo "::error::PROJECT_OWNER が指定されていません。"
-  exit 1
-fi
-
-if [[ -z "${PROJECT_NUMBER:-}" ]]; then
-  echo "::error::PROJECT_NUMBER が指定されていません。"
-  exit 1
-fi
-
-if ! [[ "${PROJECT_NUMBER}" =~ ^[0-9]+$ ]]; then
-  SAFE_PROJECT_NUMBER=$(sanitize_for_workflow_command "${PROJECT_NUMBER}")
-  echo "::error::PROJECT_NUMBER の値が不正です: ${SAFE_PROJECT_NUMBER}（数値のみを指定してください）"
-  exit 1
-fi
-
-if ! command -v gh &>/dev/null; then
-  echo "::error::GitHub CLI (gh) がインストールされていないか、PATH に含まれていません。https://cli.github.com/ を参照してインストールし、PATH を設定してください。"
-  exit 1
-fi
-
-if ! command -v jq &>/dev/null; then
-  echo "::error::jq がインストールされていません。JSON の解析に必要です。"
-  exit 1
-fi
+require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
+require_env "PROJECT_OWNER"
+require_env "PROJECT_NUMBER"
+validate_project_number
+require_command "gh" "https://cli.github.com/ を参照してインストールし、PATH を設定してください。"
+require_command "jq" "JSON の解析に必要です。"
 
 # --- オーナータイプ判定 ---
 
-echo "オーナータイプを判定しています..."
-
-if ! OWNER_INFO=$(gh api "users/${PROJECT_OWNER}" --jq '.type' 2>&1); then
-  SAFE_OWNER_INFO=$(sanitize_for_workflow_command "${OWNER_INFO}")
-  SAFE_PROJECT_OWNER=$(sanitize_for_workflow_command "${PROJECT_OWNER}")
-  echo "::error::オーナー情報の取得に失敗しました: ${SAFE_OWNER_INFO}"
-  echo "::error::PROJECT_OWNER=${SAFE_PROJECT_OWNER} が正しいか確認してください。"
-  exit 1
-fi
-
-OWNER_TYPE="${OWNER_INFO}"
-echo "  オーナータイプ: ${OWNER_TYPE}"
-
-if [[ "${OWNER_TYPE}" == "User" ]]; then
-  OWNER_QUERY_FIELD="user"
-elif [[ "${OWNER_TYPE}" == "Organization" ]]; then
-  OWNER_QUERY_FIELD="organization"
-else
-  SAFE_OWNER_TYPE=$(sanitize_for_workflow_command "${OWNER_TYPE}")
-  echo "::error::不明なオーナータイプ: ${SAFE_OWNER_TYPE}"
-  exit 1
-fi
+detect_owner_type
 
 # --- 既存 View 情報の取得（ページネーション対応） ---
 
