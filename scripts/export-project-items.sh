@@ -256,46 +256,6 @@ esac
 
 echo "ファイル出力: ${OUTPUT_FILE}"
 
-# --- Step Summary ---
-
-if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-  {
-    echo "## Project アイテム エクスポート 完了"
-    echo ""
-    echo "| 項目 | 値 |"
-    echo "|------|-----|"
-    echo "| Project Owner | \`${PROJECT_OWNER}\` |"
-    echo "| Project Number | ${PROJECT_NUMBER} |"
-    echo "| Project Title | ${PROJECT_TITLE} |"
-    echo "| 出力形式 | ${OUTPUT_FORMAT} |"
-    echo "| Issue 件数 | ${ISSUE_COUNT} 件 |"
-    echo "| PR 件数 | ${PR_COUNT} 件 |"
-    echo "| **合計** | **${TOTAL_COUNT} 件** |"
-    echo ""
-
-    if [[ "${OUTPUT_FORMAT}" == "markdown" ]]; then
-      # markdown はそのまま埋め込み（100行まで）
-      line_count=$(wc -l < "${OUTPUT_FILE}" | tr -d ' ')
-      if [[ "${line_count}" -le 100 ]]; then
-        cat "${OUTPUT_FILE}"
-      else
-        head -100 "${OUTPUT_FILE}"
-        echo ""
-        echo "> ... 以降省略（全 ${line_count} 行）。完全なデータは artifact からダウンロードしてください。"
-      fi
-    else
-      # csv/tsv/json はコードブロックでプレビュー
-      echo "### プレビュー（先頭20行）"
-      echo ""
-      echo '```'
-      head -20 "${OUTPUT_FILE}"
-      echo '```'
-      echo ""
-      echo "> 完全なデータは artifact からダウンロードしてください。"
-    fi
-  } >> "${GITHUB_STEP_SUMMARY}"
-fi
-
 # --- コンソールサマリー ---
 
 print_summary "Project" "${PROJECT_TITLE} (#${PROJECT_NUMBER})" \

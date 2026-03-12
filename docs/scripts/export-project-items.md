@@ -30,8 +30,7 @@ flowchart TD
     G -- "json" --> K["JSON 形式\n（整形出力）"]
 
     H & I & J & K --> L["ファイルに出力\nexport-{number}-items.{ext}"]
-    L --> M["Step Summary 出力"]
-    M --> N["完了"]
+    L --> M["完了"]
 ```
 
 ## 処理詳細
@@ -44,7 +43,6 @@ flowchart TD
 | Markdown 出力 | Issue と PR を別セクションに分け、テーブル形式で出力。タイトル・ラベル・アサイン内の Markdown 特殊文字をエスケープ | `format_markdown` 関数 |
 | CSV / TSV 出力 | jq の `@csv` / `@tsv` フィルタで変換 | `format_csv` / `format_tsv` 関数 |
 | JSON 出力 | jq で整形して出力 | `format_json` 関数 |
-| Step Summary | Markdown の場合は 100 行まで埋め込み、その他は先頭 20 行をコードブロックでプレビュー表示 | — |
 
 ## API リファレンス
 

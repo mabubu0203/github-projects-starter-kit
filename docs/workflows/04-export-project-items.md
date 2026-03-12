@@ -60,7 +60,6 @@
 
 ## 出力先
 
-- **GitHub Actions Summary:** 実行結果のサマリーとプレビューが表示されます
 - **artifact:** エクスポートファイルが artifact としてダウンロード可能です（保持期間: 7日）
 
 ## 処理フロー
@@ -68,5 +67,5 @@
 ```mermaid
 flowchart TD
     A["workflow_dispatch\n（project_number・output_format）"] --> B["export-items ジョブ\nProject アイテムを取得し指定形式でエクスポート"]
-    B --> C["Actions Summary に表示\n& Artifact アップロード"]
+    B --> C["Artifact アップロード"]
 ```
