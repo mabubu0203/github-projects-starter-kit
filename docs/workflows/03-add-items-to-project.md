@@ -26,6 +26,6 @@
 
 ```mermaid
 flowchart TD
-    A["workflow_dispatch"] --> B["add-items ジョブ\nパラメータに基づき Issue/PR を取得し\nProject に一括追加（追加済みはスキップ）"]
+    A["workflow_dispatch\n（project_number・target_repo・フィルタ条件）"] --> B["add-items ジョブ\nパラメータに基づき Issue/PR を取得し\nProject に一括追加（追加済みはスキップ）"]
     B --> C["サマリー出力"]
 ```

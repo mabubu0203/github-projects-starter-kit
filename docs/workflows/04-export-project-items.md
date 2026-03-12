@@ -64,7 +64,7 @@
 ## 処理フロー
 
 ```mermaid
-flowchart LR
-    A["workflow_dispatch"] --> B["export-items ジョブ\nProject アイテムを取得し指定形式でエクスポート"]
+flowchart TD
+    A["workflow_dispatch\n（project_number・output_format）"] --> B["export-items ジョブ\nProject アイテムを取得し指定形式でエクスポート"]
     B --> C["Actions Summary に表示\n& Artifact アップロード"]
 ```
