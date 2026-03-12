@@ -13,6 +13,9 @@ Project にカスタムフィールドを自動作成するスクリプトです
 
 ## 作成されるフィールド
 
+フィールド定義は `scripts/config/field-definitions.json` に外部化されています。
+デフォルトでは以下のフィールドが作成されます:
+
 | フィールド名 | データ型 | 選択肢 |
 |-------------|---------|--------|
 | Priority | SINGLE_SELECT | P0, P1, P2, P3 |
@@ -52,7 +55,8 @@ graph TD
 flowchart TD
     A["開始"] --> B["環境変数バリデーション"]
     B --> C["オーナータイプ判定"]
-    C --> D["GraphQL で既存フィールド一覧を取得"]
+    C --> C2["フィールド定義ファイル読み込み\n（config/field-definitions.json）"]
+    C2 --> D["GraphQL で既存フィールド一覧を取得"]
     D --> E{"取得成功?"}
     E -- "No" --> F["エラー出力"]
     F --> G["異常終了"]
@@ -78,6 +82,7 @@ flowchart TD
 | ステップ | 処理内容 | 使用コマンド / API |
 |---------|---------|-------------------|
 | オーナータイプ判定 | `detect_owner_type` で Organization / User を判別し、GraphQL クエリのフィールド名を決定 | `gh api users/{owner}` |
+| フィールド定義ファイル読み込み | `scripts/config/field-definitions.json` からフィールド定義を読み込み | `cat` |
 | 既存フィールド取得 | GraphQL クエリで Project の全フィールド（名前・データ型・選択肢）を取得 | `gh api graphql` — `projectV2.fields(first: 250)` |
 | 重複チェック | 既存フィールド名リストと定義済みフィールド名を `grep -Fqx` で完全一致比較 | — |
 | フィールド作成 | `SINGLE_SELECT` の場合は `--single-select-options` で選択肢を付与して作成 | `gh project field-create {number} --owner --name --data-type` |
