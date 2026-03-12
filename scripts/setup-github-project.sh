@@ -23,33 +23,12 @@ require_env "PROJECT_TITLE"
 require_command "gh" "GitHub CLI (gh) が必要です。"
 require_command "jq" "Project 情報の抽出に必要です。"
 
-# PROJECT_VISIBILITY のデフォルト値設定とバリデーション
 PROJECT_VISIBILITY="${PROJECT_VISIBILITY:-PRIVATE}"
-if [[ "${PROJECT_VISIBILITY}" != "PUBLIC" && "${PROJECT_VISIBILITY}" != "PRIVATE" ]]; then
-  SAFE_PROJECT_VISIBILITY=$(sanitize_for_workflow_command "${PROJECT_VISIBILITY}")
-  echo "::error::PROJECT_VISIBILITY の値が不正です: ${SAFE_PROJECT_VISIBILITY}（PUBLIC または PRIVATE を指定してください）"
-  exit 1
-fi
+validate_enum "PROJECT_VISIBILITY" "${PROJECT_VISIBILITY}" "PUBLIC" "PRIVATE"
 
 # --- オーナータイプ判定 ---
 
-echo "オーナータイプを判定しています..."
-
-if ! OWNER_INFO=$(gh api "users/${PROJECT_OWNER}" --jq '.type' 2>&1); then
-  SAFE_OWNER_INFO=$(sanitize_for_workflow_command "${OWNER_INFO}")
-  SAFE_PROJECT_OWNER=$(sanitize_for_workflow_command "${PROJECT_OWNER}")
-  echo "::error::オーナー情報の取得に失敗しました: ${SAFE_OWNER_INFO}"
-  echo "::error::考えられる原因の例: PROJECT_OWNER のタイプミス / GH_TOKEN の無効化・権限不足 / gh auth 未設定 / レート制限 / ネットワークエラー"
-  echo "次を確認してください:"
-  echo "  - PROJECT_OWNER=${SAFE_PROJECT_OWNER} が存在するユーザー/Organization 名か"
-  echo "  - gh auth status で GitHub CLI の認証状態と GH_TOKEN の有効性・権限 (Projects: Read and write) を確認"
-  echo "  - gh api rate_limit でレート制限に達していないか確認"
-  echo "  - ネットワーク接続やプロキシ設定に問題がないか確認"
-  exit 1
-fi
-
-OWNER_TYPE="${OWNER_INFO}"
-echo "  オーナータイプ: ${OWNER_TYPE}"
+detect_owner_type
 
 if [[ "${OWNER_TYPE}" == "User" ]]; then
   echo ""
@@ -59,9 +38,6 @@ elif [[ "${OWNER_TYPE}" == "Organization" ]]; then
   echo ""
   echo "Organization として検出されました。"
   echo "必要な PAT 権限: Organization permissions > Projects > Read and write"
-else
-  SAFE_OWNER_TYPE=$(sanitize_for_workflow_command "${OWNER_TYPE}")
-  echo "::warning::不明なオーナータイプ: ${SAFE_OWNER_TYPE}"
 fi
 
 echo ""

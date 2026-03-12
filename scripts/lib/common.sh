@@ -84,3 +84,80 @@ detect_owner_type() {
     exit 1
   fi
 }
+
+# GraphQL クエリ／ミューテーションを実行し、エラーチェックを行う
+# 成功時: 結果を標準出力に出力（呼び出し元で変数にキャプチャする）
+# 失敗時: エラーメッセージを出力して exit 1
+# 使用例: RESULT=$(run_graphql "${QUERY}" "Project 情報の取得")
+# 追加引数付き: RESULT=$(run_graphql "${MUTATION}" "View の作成" -f projectId="..." -f name="...")
+run_graphql() {
+  local query="$1"
+  local context="${2:-GraphQL API の呼び出し}"
+  shift 2 || shift $#
+  local extra_args=("$@")
+
+  local result
+  if ! result=$(gh api graphql -f query="${query}" "${extra_args[@]}" 2>&1); then
+    local safe_result
+    safe_result=$(sanitize_for_workflow_command "${result}")
+    echo "::error::${context}に失敗しました: ${safe_result}" >&2
+    exit 1
+  fi
+
+  if echo "${result}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
+    local safe_errors
+    safe_errors=$(sanitize_for_workflow_command "$(echo "${result}" | jq -c '.errors')")
+    echo "::error::${context}中に GraphQL エラーが発生しました: ${safe_errors}" >&2
+    exit 1
+  fi
+
+  echo "${result}"
+}
+
+# 罫線付きコンソールサマリーを出力する
+# 使用例: print_summary "Owner" "${PROJECT_OWNER}" "Project" "#${PROJECT_NUMBER}" "作成" "${COUNT} 件"
+print_summary() {
+  echo ""
+  echo "========================================="
+  echo "  完了サマリー"
+  echo "========================================="
+  while [[ $# -ge 2 ]]; do
+    printf "  %-10s %s\n" "$1:" "$2"
+    shift 2
+  done
+  echo "========================================="
+}
+
+# Project 操作スクリプト共通の環境変数バリデーションを一括実行する
+# GH_TOKEN, PROJECT_OWNER, PROJECT_NUMBER の存在確認、PROJECT_NUMBER の数値チェック、
+# gh / jq コマンドの存在確認、オーナータイプ判定を行う
+# 使用例: validate_common_project_env
+validate_common_project_env() {
+  require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
+  require_env "PROJECT_OWNER"
+  require_env "PROJECT_NUMBER"
+  validate_project_number
+  require_command "gh" "GitHub CLI (gh) が必要です。PATH を確認してください。"
+  require_command "jq" "JSON の解析に必要です。"
+  detect_owner_type
+}
+
+# 環境変数の値が許可リストに含まれるかチェックする
+# 使用例: validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
+validate_enum() {
+  local var_name="$1"
+  local value="$2"
+  shift 2
+  local allowed=("$@")
+
+  for v in "${allowed[@]}"; do
+    [[ "${value}" == "${v}" ]] && return 0
+  done
+
+  local safe_value
+  safe_value=$(sanitize_for_workflow_command "${value}")
+  local allowed_str
+  allowed_str=$(IFS=" / "; echo "${allowed[*]}")
+  echo "::error::${var_name} の値が不正です: ${safe_value}（${allowed_str} を指定してください）"
+  exit 1
+}

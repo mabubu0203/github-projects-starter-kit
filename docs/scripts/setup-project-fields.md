@@ -83,6 +83,19 @@ flowchart TD
 | フィールド作成 | `SINGLE_SELECT` の場合は `--single-select-options` で選択肢を付与して作成 | `gh project field-create {number} --owner --name --data-type` |
 | サマリー出力 | 作成・スキップ・失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
 
+## API リファレンス
+
+| API / コマンド | 用途 | リファレンス |
+|---------------|------|-------------|
+| `projectV2.fields` (GraphQL) | 既存フィールド一覧の取得 | [ProjectV2](https://docs.github.com/en/graphql/reference/objects#projectv2) |
+| `gh project field-create` | カスタムフィールドの作成 | [gh project field-create](https://cli.github.com/manual/gh_project_field-create) |
+
+### パラメータ上限
+
+| パラメータ | 現在の値 | 備考 |
+|-----------|---------|------|
+| `fields(first: N)` | 250 | Project のフィールド数上限に合わせた値 |
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../01-create-project)

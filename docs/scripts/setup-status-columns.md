@@ -69,6 +69,19 @@ sequenceDiagram
 | カラム更新 | `singleSelectOptions` に Todo（BLUE）・In Progress（YELLOW）・Done（GREEN）を指定して一括更新 | `gh api graphql` — `updateProjectV2Field` mutation |
 | サマリー出力 | カラム構成（`Todo → In Progress → Done`）をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
 
+## API リファレンス
+
+| API / コマンド | 用途 | リファレンス |
+|---------------|------|-------------|
+| `ProjectV2SingleSelectField` (GraphQL) | Status フィールド情報の取得 | [ProjectV2SingleSelectField](https://docs.github.com/en/graphql/reference/objects#projectv2singleselectfield) |
+| `updateProjectV2Field` (GraphQL Mutation) | ステータスカラムの一括更新 | [updateProjectV2Field](https://docs.github.com/en/graphql/reference/mutations#updateprojectv2field) |
+
+### パラメータ上限
+
+| パラメータ | 現在の値 | 備考 |
+|-----------|---------|------|
+| `fields(first: N)` | 50 | Status フィールド検索用（ビルトイン＋カスタムフィールドを取得） |
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../01-create-project)

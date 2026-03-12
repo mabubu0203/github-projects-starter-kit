@@ -21,10 +21,7 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 # --- バリデーション ---
 
-require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
-require_env "PROJECT_OWNER"
-require_env "PROJECT_NUMBER"
-validate_project_number
+validate_common_project_env
 require_env "TARGET_REPO"
 
 if [[ ! "${TARGET_REPO}" =~ ^[^/]+/[^/]+$ ]]; then
@@ -41,9 +38,6 @@ if [[ "${INCLUDE_ISSUES}" != "true" && "${INCLUDE_PRS}" != "true" ]]; then
   echo "::error::INCLUDE_ISSUES と INCLUDE_PRS の少なくとも一方を true にしてください。"
   exit 1
 fi
-
-require_command "gh" "GitHub CLI (gh) が必要です。PATH を確認してください。"
-require_command "jq" "重複チェックに必要です。"
 
 # --- ヘルパー関数 ---
 
@@ -109,10 +103,6 @@ GRAPHQL
 
   echo "${items}"
 }
-
-# --- オーナータイプ判定 ---
-
-detect_owner_type
 
 # --- 既存アイテム取得（重複防止用） ---
 
@@ -236,14 +226,10 @@ TOTAL_ADDED=$((ISSUE_ADDED + PR_ADDED))
 TOTAL_SKIPPED=$((ISSUE_SKIPPED + PR_SKIPPED))
 TOTAL_FAILED=$((ISSUE_FAILED + PR_FAILED))
 
-echo ""
-echo "========================================="
-echo "  完了サマリー"
-echo "========================================="
-echo "  Issue  - 追加: ${ISSUE_ADDED}, スキップ: ${ISSUE_SKIPPED}, 失敗: ${ISSUE_FAILED}"
-echo "  PR     - 追加: ${PR_ADDED}, スキップ: ${PR_SKIPPED}, 失敗: ${PR_FAILED}"
-echo "  合計   - 追加: ${TOTAL_ADDED}, スキップ: ${TOTAL_SKIPPED}, 失敗: ${TOTAL_FAILED}"
-echo "========================================="
+print_summary \
+  "Issue" "追加: ${ISSUE_ADDED}, スキップ: ${ISSUE_SKIPPED}, 失敗: ${ISSUE_FAILED}" \
+  "PR" "追加: ${PR_ADDED}, スキップ: ${PR_SKIPPED}, 失敗: ${PR_FAILED}" \
+  "合計" "追加: ${TOTAL_ADDED}, スキップ: ${TOTAL_SKIPPED}, 失敗: ${TOTAL_FAILED}"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   {

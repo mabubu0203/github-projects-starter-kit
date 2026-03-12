@@ -54,6 +54,20 @@ flowchart TD
 | View 作成 | GraphQL mutation で View を作成。GraphQL 変数（`$projectId`・`$name`・`$layout`）を使用して安全に値を渡す | `gh api graphql` — `createProjectV2View` mutation |
 | サマリー出力 | 作成・スキップ・失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
 
+## API リファレンス
+
+| API / コマンド | 用途 | リファレンス |
+|---------------|------|-------------|
+| `projectV2.views` (GraphQL) | 既存 View 一覧の取得 | [ProjectV2](https://docs.github.com/en/graphql/reference/objects#projectv2) |
+| `createProjectV2View` (GraphQL Mutation) | View の作成 | [createProjectV2View](https://docs.github.com/en/graphql/reference/mutations#createprojectv2view) |
+| `ProjectV2ViewLayout` (GraphQL Enum) | View レイアウト種別 | [ProjectV2ViewLayout](https://docs.github.com/en/graphql/reference/enums#projectv2viewlayout) |
+
+### パラメータ上限
+
+| パラメータ | 現在の値 | 備考 |
+|-----------|---------|------|
+| `views(first: N)` | 100 | View のページサイズ（ページネーション対応） |
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../01-create-project)

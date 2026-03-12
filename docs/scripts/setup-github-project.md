@@ -51,6 +51,14 @@ flowchart TD
 | Visibility 設定 | 作成した Project の公開範囲を指定値に変更 | `gh project edit {number} --owner --visibility` |
 | サマリー出力 | `GITHUB_OUTPUT` へ後続ステップ連携用の値を設定、`GITHUB_STEP_SUMMARY` にテーブル出力 | — |
 
+## API リファレンス
+
+| API / コマンド | 用途 | リファレンス |
+|---------------|------|-------------|
+| `gh api users/{owner}` | オーナータイプ判定 | [Get a user - REST API](https://docs.github.com/en/rest/users/users#get-a-user) |
+| `gh project create` | Project 新規作成 | [gh project create](https://cli.github.com/manual/gh_project_create) |
+| `gh project edit` | Visibility 設定 | [gh project edit](https://cli.github.com/manual/gh_project_edit) |
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../01-create-project)

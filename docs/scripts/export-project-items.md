@@ -46,6 +46,20 @@ flowchart TD
 | JSON 出力 | jq で整形して出力 | `format_json` 関数 |
 | Step Summary | Markdown の場合は 100 行まで埋め込み、その他は先頭 20 行をコードブロックでプレビュー表示 | — |
 
+## API リファレンス
+
+| API / コマンド | 用途 | リファレンス |
+|---------------|------|-------------|
+| `projectV2.items` (GraphQL) | Project アイテムの取得 | [ProjectV2](https://docs.github.com/en/graphql/reference/objects#projectv2) |
+| GraphQL ページネーション | カーソルベースのページ送り | [Using pagination in the GraphQL API](https://docs.github.com/en/graphql/guides/using-pagination-in-the-graphql-api) |
+
+### パラメータ上限
+
+| パラメータ | 現在の値 | 備考 |
+|-----------|---------|------|
+| `items(first: N)` | 100 | 1ページあたりの取得件数 |
+| `max_pages` | 50 | ページネーション上限（最大 5,000 件まで取得可能） |
+
 ## 使用ワークフロー
 
 - [④ Project アイテム エクスポート](../04-export-project-items)

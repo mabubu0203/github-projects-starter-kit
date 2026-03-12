@@ -61,6 +61,23 @@ flowchart TD
 | アイテム追加 | 重複していない各 Issue/PR を Project に追加（1件ごとに 1秒の sleep を挟みレート制限を回避） | `gh project item-add {number} --owner --url` |
 | サマリー出力 | Issue・PR それぞれの追加・スキップ・失敗件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
 
+## API リファレンス
+
+| API / コマンド | 用途 | リファレンス |
+|---------------|------|-------------|
+| `projectV2.items` (GraphQL) | 既存アイテム URL の取得（重複防止） | [ProjectV2](https://docs.github.com/en/graphql/reference/objects#projectv2) |
+| `gh issue list` | Issue 一覧の取得 | [gh issue list](https://cli.github.com/manual/gh_issue_list) |
+| `gh pr list` | PR 一覧の取得 | [gh pr list](https://cli.github.com/manual/gh_pr_list) |
+| `gh project item-add` | アイテムの Project への追加 | [gh project item-add](https://cli.github.com/manual/gh_project_item-add) |
+
+### パラメータ上限
+
+| パラメータ | 現在の値 | 備考 |
+|-----------|---------|------|
+| `items(first: N)` | 100 | 既存アイテム取得のページサイズ |
+| `--limit` | 500 | `gh issue list` / `gh pr list` の最大取得件数 |
+| `sleep` | 1秒 | アイテム追加間のレート制限回避待機時間 |
+
 ## 使用ワークフロー
 
 - [③ Issue/PR 一括紐付け](../03-add-items-to-project)
