@@ -30,6 +30,45 @@ graph LR
     Todo --> InProgress --> Done
 ```
 
+## 処理フロー
+
+```mermaid
+sequenceDiagram
+    participant Script as setup-status-columns.sh
+    participant GH as GitHub GraphQL API
+
+    Script->>Script: 環境変数バリデーション
+    Script->>GH: オーナータイプ判定（REST API）
+    GH-->>Script: User / Organization
+
+    Script->>GH: Project の Status フィールド取得（query）
+    GH-->>Script: Project ID / Status Field ID / 現在のカラム一覧
+
+    alt Status フィールドが見つからない
+        Script->>Script: エラー終了
+    end
+
+    Script->>Script: 設定するカラム定義を構築（Todo, In Progress, Done）
+    Script->>GH: updateProjectV2Field（mutation）
+    GH-->>Script: 更新後のカラム一覧
+
+    alt GraphQL エラー発生
+        Script->>Script: エラー終了
+    end
+
+    Script->>Script: 更新後のカラムを表示
+    Script->>Script: サマリー出力
+```
+
+## 処理詳細
+
+| ステップ | 処理内容 | 使用コマンド / API |
+|---------|---------|-------------------|
+| オーナータイプ判定 | `detect_owner_type` で Organization / User を判別 | `gh api users/{owner}` |
+| Status フィールド取得 | GraphQL クエリで Project の `SingleSelectField` から `Status` を検索し、Field ID と現在のカラム一覧を取得 | `gh api graphql` — `projectV2.fields(first: 50)` |
+| カラム更新 | `singleSelectOptions` に Todo（BLUE）・In Progress（YELLOW）・Done（GREEN）を指定して一括更新 | `gh api graphql` — `updateProjectV2Field` mutation |
+| サマリー出力 | カラム構成（`Todo → In Progress → Done`）をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../01-create-project)
