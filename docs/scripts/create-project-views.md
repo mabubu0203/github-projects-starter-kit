@@ -17,6 +17,43 @@ Project に View を自動作成するスクリプトです。
 - `Board`（BOARD_LAYOUT）
 - `Roadmap`（ROADMAP_LAYOUT）
 
+## 処理フロー
+
+```mermaid
+flowchart TD
+    A["開始"] --> B["環境変数バリデーション"]
+    B --> C["オーナータイプ判定"]
+    C --> D["GraphQL で既存 View 一覧を取得\n（ページネーション対応）"]
+    D --> E{"取得成功?"}
+    E -- "No" --> F["エラー出力"]
+    F --> G["異常終了"]
+
+    E -- "Yes" --> H["View 定義をループ\n（Table / Board / Roadmap）"]
+    H --> I{"同名 View\n既に存在?"}
+    I -- "Yes" --> J["スキップ"]
+    I -- "No" --> K["GraphQL mutation で\nView を作成"]
+    K --> L{"作成成功?"}
+    L -- "Yes" --> M["作成カウント +1"]
+    L -- "No" --> N["失敗カウント +1"]
+
+    J & M & N --> O{"次の View\nあり?"}
+    O -- "Yes" --> H
+    O -- "No" --> P["サマリー出力"]
+    P --> Q{"失敗あり?"}
+    Q -- "Yes" --> G
+    Q -- "No" --> R["完了"]
+```
+
+## 処理詳細
+
+| ステップ | 処理内容 | 使用コマンド / API |
+|---------|---------|-------------------|
+| オーナータイプ判定 | `detect_owner_type` で Organization / User を判別 | `gh api users/{owner}` |
+| 既存 View 取得 | GraphQL クエリで Project の全 View（名前・レイアウト）をページネーション付きで取得（100件ずつ） | `gh api graphql` — `projectV2.views(first: 100)` |
+| 重複チェック | 既存 View 名リストと定義済み View 名を `grep -Fqx` で完全一致比較 | — |
+| View 作成 | GraphQL mutation で View を作成。GraphQL 変数（`$projectId`・`$name`・`$layout`）を使用して安全に値を渡す | `gh api graphql` — `createProjectV2View` mutation |
+| サマリー出力 | 作成・スキップ・失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../01-create-project)

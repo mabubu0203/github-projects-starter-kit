@@ -12,6 +12,40 @@ DraftIssue は出力対象外となります。
 | `PROJECT_NUMBER` | 対象 Project の Number（数値） | ✅ |
 | `OUTPUT_FORMAT` | 出力形式（`markdown`/`csv`/`tsv`/`json`） | ❌（デフォルト: `markdown`） |
 
+## 処理フロー
+
+```mermaid
+flowchart TD
+    A["開始"] --> B["環境変数バリデーション\nOUTPUT_FORMAT チェック"]
+    B --> C["オーナータイプ判定"]
+    C --> D["GraphQL で Project アイテム取得\n（100件ずつページネーション）"]
+    D --> E{"次ページあり?"}
+    E -- "Yes" --> D
+    E -- "No" --> F["DraftIssue を除外\nアイテムを正規化"]
+
+    F --> G{"OUTPUT_FORMAT"}
+    G -- "markdown" --> H["Markdown テーブル形式\n（Issue / PR 別セクション）"]
+    G -- "csv" --> I["CSV 形式\n（@csv フィルタ）"]
+    G -- "tsv" --> J["TSV 形式\n（@tsv フィルタ）"]
+    G -- "json" --> K["JSON 形式\n（整形出力）"]
+
+    H & I & J & K --> L["ファイルに出力\nexport-{number}-items.{ext}"]
+    L --> M["Step Summary 出力"]
+    M --> N["完了"]
+```
+
+## 処理詳細
+
+| ステップ | 処理内容 | 使用コマンド / API |
+|---------|---------|-------------------|
+| オーナータイプ判定 | `detect_owner_type` で Organization / User を判別 | `gh api users/{owner}` |
+| アイテム取得 | GraphQL クエリで Project の全アイテムをページネーション付きで取得（100件/ページ、最大 50 ページ）。Issue・PR の `number`・`title`・`url`・`state`・`author`・`assignees`・`labels` 等を取得 | `gh api graphql` — `projectV2.items(first: 100)` |
+| データ正規化 | `DraftIssue`（`__typename` が null）を除外し、各アイテムを統一フォーマットの JSON オブジェクトに変換 | `jq` |
+| Markdown 出力 | Issue と PR を別セクションに分け、テーブル形式で出力。タイトル内のパイプ文字をエスケープ | `format_markdown` 関数 |
+| CSV / TSV 出力 | jq の `@csv` / `@tsv` フィルタで変換 | `format_csv` / `format_tsv` 関数 |
+| JSON 出力 | jq で整形して出力 | `format_json` 関数 |
+| Step Summary | Markdown の場合は 100 行まで埋め込み、その他は先頭 20 行をコードブロックでプレビュー表示 | — |
+
 ## 使用ワークフロー
 
 - [④ Project アイテム エクスポート](../04-export-project-items)

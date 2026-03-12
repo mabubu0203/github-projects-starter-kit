@@ -46,6 +46,43 @@ graph TD
     Category --> Spike["Spike"]
 ```
 
+## 処理フロー
+
+```mermaid
+flowchart TD
+    A["開始"] --> B["環境変数バリデーション"]
+    B --> C["オーナータイプ判定"]
+    C --> D["GraphQL で既存フィールド一覧を取得"]
+    D --> E{"取得成功?"}
+    E -- "No" --> F["エラー出力"]
+    F --> G["異常終了"]
+
+    E -- "Yes" --> H["フィールド定義をループ"]
+    H --> I{"同名フィールド\n既に存在?"}
+    I -- "Yes" --> J["スキップ"]
+    I -- "No" --> K["gh project field-create\nでフィールド作成"]
+    K --> L{"作成成功?"}
+    L -- "Yes" --> M["作成カウント +1"]
+    L -- "No" --> N["失敗カウント +1"]
+
+    J & M & N --> O{"次のフィールド\nあり?"}
+    O -- "Yes" --> H
+    O -- "No" --> P["サマリー出力"]
+    P --> Q{"失敗あり?"}
+    Q -- "Yes" --> G
+    Q -- "No" --> R["完了"]
+```
+
+## 処理詳細
+
+| ステップ | 処理内容 | 使用コマンド / API |
+|---------|---------|-------------------|
+| オーナータイプ判定 | `detect_owner_type` で Organization / User を判別し、GraphQL クエリのフィールド名を決定 | `gh api users/{owner}` |
+| 既存フィールド取得 | GraphQL クエリで Project の全フィールド（名前・データ型・選択肢）を取得 | `gh api graphql` — `projectV2.fields(first: 250)` |
+| 重複チェック | 既存フィールド名リストと定義済みフィールド名を `grep -Fqx` で完全一致比較 | — |
+| フィールド作成 | `SINGLE_SELECT` の場合は `--single-select-options` で選択肢を付与して作成 | `gh project field-create {number} --owner --name --data-type` |
+| サマリー出力 | 作成・スキップ・失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../01-create-project)
