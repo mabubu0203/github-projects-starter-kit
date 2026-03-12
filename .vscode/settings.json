@@ -1,0 +1,12 @@
+{
+  "editor.colorDecorators": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false
+}

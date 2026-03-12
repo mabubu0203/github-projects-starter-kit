@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "Anthropic.claude-code",
+    "mervin.markdown-formatter",
+    "ms-ceintl.vscode-language-pack-ja",
+    "redhat.vscode-yaml",
+    "vscode-icons-team.vscode-icons"
+  ]
+}
