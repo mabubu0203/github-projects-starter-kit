@@ -20,6 +20,32 @@ Project にカスタムフィールドを自動作成するスクリプトです
 | Category | SINGLE_SELECT | Bug, Feature, Chore, Spike |
 | Due Date | DATE | - |
 
+## フィールド構成図
+
+```mermaid
+graph TD
+    Project["Project"] --> Priority["Priority\n(SINGLE_SELECT)"]
+    Project --> Estimate["Estimate\n(SINGLE_SELECT)"]
+    Project --> Category["Category\n(SINGLE_SELECT)"]
+    Project --> DueDate["Due Date\n(DATE)"]
+
+    Priority --> P0["P0"]
+    Priority --> P1["P1"]
+    Priority --> P2["P2"]
+    Priority --> P3["P3"]
+
+    Estimate --> XS["XS"]
+    Estimate --> S["S"]
+    Estimate --> M["M"]
+    Estimate --> L["L"]
+    Estimate --> XL["XL"]
+
+    Category --> Bug["Bug"]
+    Category --> Feature["Feature"]
+    Category --> Chore["Chore"]
+    Category --> Spike["Spike"]
+```
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../01-create-project)
