@@ -97,9 +97,9 @@ flowchart TD
 | API / コマンド | 用途 | リファレンス |
 |---------------|------|-------------|
 | `GET /orgs/{org}/projectsV2/{project_number}/views` | 既存 View 一覧の取得（Organization） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
-| `GET /users/{user_id}/projectsV2/{project_number}/views` | 既存 View 一覧の取得（User） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
+| `GET /users/{username}/projectsV2/{project_number}/views` | 既存 View 一覧の取得（User） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
 | `POST /orgs/{org}/projectsV2/{project_number}/views` | View の作成（Organization） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
-| `POST /users/{user_id}/projectsV2/{project_number}/views` | View の作成（User） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
+| `POST /users/{username}/projectsV2/{project_number}/views` | View の作成（User） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
 
 ### API バージョン要件
 

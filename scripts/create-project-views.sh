@@ -120,8 +120,7 @@ for i in $(seq 0 $((VIEW_COUNT - 1))); do
   CREATED_COUNT=$((CREATED_COUNT + 1))
 
   # 作成した View 名を既存リストに追加（後続の重複チェック用）
-  EXISTING_VIEWS="${EXISTING_VIEWS}
-${VIEW_NAME}"
+  EXISTING_VIEWS+=$'\n'"${VIEW_NAME}"
 done
 
 # --- サマリー出力 ---
