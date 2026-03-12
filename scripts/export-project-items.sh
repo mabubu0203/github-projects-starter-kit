@@ -161,9 +161,13 @@ format_markdown() {
   issue_count=$(echo "${items}" | jq '[.[] | select(.type == "Issue")] | length')
   pr_count=$(echo "${items}" | jq '[.[] | select(.type == "PullRequest")] | length')
 
-  # Markdown テーブル行の jq フィルタ（パイプ文字をエスケープし、日付を YYYY-MM-DD に変換）
-  local md_row_filter='
-    "| [#\(.number)](\(.url)) | \(.title | gsub("\\|"; "\\|")) | \(.state) | \(.repository) | \(.author) | \(.assignees) | \(.labels) | \(.created_at | split("T")[0]) | \(.updated_at | split("T")[0]) |"'
+  # Markdown テーブルセル用エスケープ関数（jq 内で使用）
+  # パイプ文字および Markdown 特殊文字（\, `, *, _, [, ], <, >, ~）をバックスラッシュでエスケープ
+  local md_escape='def md_escape: gsub("\\\\"; "\\\\") | gsub("`"; "\\`") | gsub("\\*"; "\\*") | gsub("_"; "\\_") | gsub("\\["; "\\[") | gsub("\\]"; "\\]") | gsub("<"; "\\<") | gsub(">"; "\\>") | gsub("~"; "\\~") | gsub("\\|"; "\\|");'
+
+  # Markdown テーブル行の jq フィルタ（特殊文字をエスケープし、日付を YYYY-MM-DD に変換）
+  local md_row_filter="${md_escape}"'
+    "| [#\(.number)](\(.url)) | \(.title | md_escape) | \(.state) | \(.repository) | \(.author) | \(.assignees | md_escape) | \(.labels | md_escape) | \(.created_at | split("T")[0]) | \(.updated_at | split("T")[0]) |"'
 
   {
     echo "# Project アイテム一覧"
