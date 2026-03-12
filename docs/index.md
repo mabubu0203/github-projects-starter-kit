@@ -11,6 +11,36 @@ GitHub Projects の初期セットアップを GitHub Actions で自動実行す
 | [③ Issue/PR 一括紐付け](03-add-items-to-project) | リポジトリの Issue/PR を Project に一括追加 | `workflow_dispatch`（手動実行） |
 | [④ Project アイテム エクスポート](04-export-project-items) | Project の Issue/PR 一覧をエクスポート | `workflow_dispatch`（手動実行） |
 
+## ワークフロー全体像
+
+```mermaid
+flowchart TD
+    A["① Project 新規作成"] --> B["② Project 拡張"]
+    B --> C["③ Issue/PR 一括紐付け"]
+    C --> D["④ アイテム エクスポート"]
+
+    A -- "再利用可能ワークフロー" --> R["_reusable-extend-project"]
+    B -- "再利用可能ワークフロー" --> R
+
+    subgraph scripts ["スクリプト層"]
+        S1["setup-github-project.sh"]
+        S2["setup-project-fields.sh"]
+        S3["setup-status-columns.sh"]
+        S4["create-project-views.sh"]
+        S5["add-items-to-project.sh"]
+        S6["export-project-items.sh"]
+        SL["lib/common.sh"]
+    end
+
+    A --> S1
+    R --> S2
+    R --> S3
+    R --> S4
+    C --> S5
+    D --> S6
+    S1 & S2 & S3 & S4 & S5 & S6 --> SL
+```
+
 ## クイックスタート
 
 ### 1. リポジトリを fork する
