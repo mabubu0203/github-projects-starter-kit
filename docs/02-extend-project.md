@@ -18,6 +18,9 @@
 
 ## 処理フロー
 
+<details>
+<summary>フローチャートを表示</summary>
+
 ```mermaid
 flowchart TD
     A["workflow_dispatch\n（project_number）"] --> B["extend-project ジョブ\n（_reusable-extend-project.yml）\n※ Project 作成ステップなし（既存 Project を使用）"]
@@ -26,3 +29,5 @@ flowchart TD
     D --> E["create-project-views.sh\nView を作成"]
     E --> F["完了"]
 ```
+
+</details>

@@ -21,6 +21,9 @@
 
 ## 処理フロー
 
+<details>
+<summary>フローチャートを表示</summary>
+
 ```mermaid
 flowchart TD
     A["workflow_dispatch\n（タイトル・公開範囲）"] --> B["create-project ジョブ"]
@@ -33,3 +36,5 @@ flowchart TD
     G --> H["create-project-views.sh\nView を作成"]
     H --> I["完了"]
 ```
+
+</details>
