@@ -35,7 +35,7 @@
 
 | スクリプト | 概要 |
 |-----------|------|
-| [setup-github-project.sh](scripts/setup-github-project.md) | Owner 種別を自動判定し、Project を新規作成する |
-| [setup-project-fields.sh](scripts/setup-project-fields.md) | Priority・Estimate・Category・Due Date のカスタムフィールドを作成する |
-| [setup-status-columns.sh](scripts/setup-status-columns.md) | Todo・In Progress・Done のステータスカラムを設定する |
-| [create-project-views.sh](scripts/create-project-views.md) | Table・Board・Roadmap の 3 種類の View を作成する |
+| [setup-github-project.sh](scripts/setup-github-project.html) | Owner 種別を自動判定し、Project を新規作成する |
+| [setup-project-fields.sh](scripts/setup-project-fields.html) | Priority・Estimate・Category・Due Date のカスタムフィールドを作成する |
+| [setup-status-columns.sh](scripts/setup-status-columns.html) | Todo・In Progress・Done のステータスカラムを設定する |
+| [create-project-views.sh](scripts/create-project-views.html) | Table・Board・Roadmap の 3 種類の View を作成する |
