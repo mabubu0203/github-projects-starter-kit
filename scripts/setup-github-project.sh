@@ -113,57 +113,62 @@ echo "${OUTPUT}" | jq '.' 2>/dev/null || echo "${OUTPUT}"
 
 if command -v jq &>/dev/null; then
   if ! PROJECT_NUMBER=$(echo "${OUTPUT}" | jq -r '.number // empty'); then
-    echo "::warning::jq による Project Number の取得に失敗しました。"
-    PROJECT_NUMBER=""
+    echo "::error::jq による Project Number の取得に失敗しました。"
+    exit 1
   fi
   PROJECT_URL=$(echo "${OUTPUT}" | jq -r '.url // empty')
 else
-  echo "::warning::jq がインストールされていないため、Project 情報の取得をスキップします。"
-  PROJECT_NUMBER=""
-  PROJECT_URL=""
+  echo "::error::jq がインストールされていません。Project 情報の取得に必要です。"
+  exit 1
+fi
+
+if [[ -z "${PROJECT_NUMBER}" ]]; then
+  echo "::error::Project Number を抽出できませんでした。gh project create の出力を確認してください。"
+  echo "::error::出力: $(echo "${OUTPUT}" | head -5)"
+  exit 1
 fi
 
 # --- Visibility 設定 ---
 
-if [[ -n "${PROJECT_NUMBER}" ]]; then
-  echo ""
-  echo "Visibility を ${PROJECT_VISIBILITY} に設定します..."
+echo ""
+echo "Visibility を ${PROJECT_VISIBILITY} に設定します..."
 
-  if ! EDIT_OUTPUT=$(gh project edit "${PROJECT_NUMBER}" --owner "${PROJECT_OWNER}" --visibility "${PROJECT_VISIBILITY}" 2>&1); then
-    SAFE_EDIT_OUTPUT=$(sanitize_for_workflow_command "${EDIT_OUTPUT}")
-    echo "::error::Visibility の設定に失敗しました: ${SAFE_EDIT_OUTPUT}"
-    echo "::error::Project は作成されましたが、Visibility はデフォルト（PRIVATE）のままです。"
-    echo "手動で設定してください: gh project edit ${PROJECT_NUMBER} --owner ${PROJECT_OWNER} --visibility ${PROJECT_VISIBILITY}"
-    exit 1
-  fi
-
-  echo "::notice::Visibility を ${PROJECT_VISIBILITY} に設定しました。"
-else
-  echo "::warning::Project Number を取得できなかったため、Visibility の設定をスキップしました。"
+if ! EDIT_OUTPUT=$(gh project edit "${PROJECT_NUMBER}" --owner "${PROJECT_OWNER}" --visibility "${PROJECT_VISIBILITY}" 2>&1); then
+  SAFE_EDIT_OUTPUT=$(sanitize_for_workflow_command "${EDIT_OUTPUT}")
+  echo "::error::Visibility の設定に失敗しました: ${SAFE_EDIT_OUTPUT}"
+  echo "::error::Project は作成されましたが、Visibility はデフォルト（PRIVATE）のままです。"
+  echo "手動で設定してください: gh project edit ${PROJECT_NUMBER} --owner ${PROJECT_OWNER} --visibility ${PROJECT_VISIBILITY}"
+  exit 1
 fi
+
+echo "::notice::Visibility を ${PROJECT_VISIBILITY} に設定しました。"
 
 # --- サマリー出力 ---
 
-if [[ -n "${PROJECT_URL}" ]]; then
-  echo ""
-  echo "Project URL: ${PROJECT_URL}"
-  echo "Project Number: ${PROJECT_NUMBER}"
+echo ""
+echo "Project URL: ${PROJECT_URL}"
+echo "Project Number: ${PROJECT_NUMBER}"
 
-  # GitHub Actions のサマリーに出力
-  if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-    {
-      echo "## GitHub Project 作成完了"
-      echo ""
-      echo "| 項目 | 値 |"
-      echo "|------|-----|"
-      echo "| Owner | \`${PROJECT_OWNER}\` |"
-      echo "| Title | ${PROJECT_TITLE} |"
-      echo "| Type | ${OWNER_TYPE} |"
-      echo "| Visibility | ${PROJECT_VISIBILITY} |"
-      echo "| Number | ${PROJECT_NUMBER} |"
-      echo "| URL | ${PROJECT_URL} |"
-    } >> "${GITHUB_STEP_SUMMARY}"
-  fi
+# GitHub Actions の出力変数に設定（後続ステップ連携用）
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+  echo "project_number=${PROJECT_NUMBER}" >> "${GITHUB_OUTPUT}"
+  echo "project_url=${PROJECT_URL}" >> "${GITHUB_OUTPUT}"
+fi
+
+# GitHub Actions のサマリーに出力
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  {
+    echo "## GitHub Project 作成完了"
+    echo ""
+    echo "| 項目 | 値 |"
+    echo "|------|-----|"
+    echo "| Owner | \`${PROJECT_OWNER}\` |"
+    echo "| Title | ${PROJECT_TITLE} |"
+    echo "| Type | ${OWNER_TYPE} |"
+    echo "| Visibility | ${PROJECT_VISIBILITY} |"
+    echo "| Number | ${PROJECT_NUMBER} |"
+    echo "| URL | ${PROJECT_URL} |"
+  } >> "${GITHUB_STEP_SUMMARY}"
 fi
 
 echo ""

@@ -1,4 +1,4 @@
-name: Add Items to Project
+name: "③ Issue/PR 一括紐付け"
 
 on:
   workflow_dispatch:
@@ -41,15 +41,16 @@ permissions:
 jobs:
   add-items:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      PROJECT_OWNER: ${{ github.repository_owner }}
+      PROJECT_NUMBER: ${{ inputs.project_number }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
 
-      - name: Add items to Project
+      - name: Issue/PR を Project に追加
         env:
-          GH_TOKEN: ${{ secrets.PROJECT_PAT }}
-          PROJECT_OWNER: ${{ github.repository_owner }}
-          PROJECT_NUMBER: ${{ inputs.project_number }}
           TARGET_REPO: ${{ inputs.target_repo }}
           INCLUDE_ISSUES: ${{ inputs.include_issues }}
           INCLUDE_PRS: ${{ inputs.include_prs }}

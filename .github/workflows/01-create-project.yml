@@ -1,0 +1,78 @@
+name: "① GitHub Project 新規作成"
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_title:
+        description: "作成する Project のタイトル"
+        required: true
+        type: string
+      visibility:
+        description: "Project の公開範囲"
+        required: true
+        type: choice
+        default: "PRIVATE"
+        options:
+          - "PRIVATE"
+          - "PUBLIC"
+      field_definitions:
+        description: "カスタムフィールド定義（JSON 配列）"
+        required: false
+        type: string
+        default: '[{"name":"Priority","dataType":"SINGLE_SELECT","options":["P0","P1","P2","P3"]},{"name":"Estimate","dataType":"SINGLE_SELECT","options":["XS","S","M","L","XL"]},{"name":"Category","dataType":"SINGLE_SELECT","options":["Bug","Feature","Chore","Spike"]},{"name":"Due Date","dataType":"DATE"}]'
+      status_options:
+        description: "ステータスカラム定義（JSON 配列）"
+        required: false
+        type: string
+        default: '[{"name":"Todo","color":"BLUE","description":"未着手"},{"name":"In Progress","color":"YELLOW","description":"作業中"},{"name":"Done","color":"GREEN","description":"完了"}]'
+      view_definitions:
+        description: "View 定義（JSON 配列）"
+        required: false
+        type: string
+        default: '[{"name":"Table","layout":"TABLE_LAYOUT"},{"name":"Board","layout":"BOARD_LAYOUT"},{"name":"Roadmap","layout":"ROADMAP_LAYOUT"}]'
+
+permissions:
+  contents: read
+
+jobs:
+  create-project:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      PROJECT_OWNER: ${{ github.repository_owner }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Project を作成
+        id: create
+        env:
+          PROJECT_TITLE: ${{ inputs.project_title }}
+          PROJECT_VISIBILITY: ${{ inputs.visibility }}
+        run: |
+          chmod +x scripts/setup-github-project.sh
+          bash scripts/setup-github-project.sh
+
+      - name: カスタムフィールドを作成
+        env:
+          PROJECT_NUMBER: ${{ steps.create.outputs.project_number }}
+          FIELD_DEFINITIONS: ${{ inputs.field_definitions }}
+        run: |
+          chmod +x scripts/setup-project-fields.sh
+          bash scripts/setup-project-fields.sh
+
+      - name: ステータスカラムを設定
+        env:
+          PROJECT_NUMBER: ${{ steps.create.outputs.project_number }}
+          STATUS_OPTIONS: ${{ inputs.status_options }}
+        run: |
+          chmod +x scripts/setup-status-columns.sh
+          bash scripts/setup-status-columns.sh
+
+      - name: View を作成
+        env:
+          PROJECT_NUMBER: ${{ steps.create.outputs.project_number }}
+          VIEW_DEFINITIONS: ${{ inputs.view_definitions }}
+        run: |
+          chmod +x scripts/create-project-views.sh
+          bash scripts/create-project-views.sh
