@@ -17,19 +17,10 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 # --- バリデーション ---
 
-require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
-require_env "PROJECT_OWNER"
-require_env "PROJECT_NUMBER"
-validate_project_number
-require_command "gh" "GitHub CLI (gh) が必要です。PATH を確認してください。"
-require_command "jq" "JSON の解析に必要です。"
+validate_common_project_env
 
 OUTPUT_FORMAT="${OUTPUT_FORMAT:-markdown}"
-if [[ "${OUTPUT_FORMAT}" != "markdown" && "${OUTPUT_FORMAT}" != "csv" && "${OUTPUT_FORMAT}" != "tsv" && "${OUTPUT_FORMAT}" != "json" ]]; then
-  SAFE_FORMAT=$(sanitize_for_workflow_command "${OUTPUT_FORMAT}")
-  echo "::error::OUTPUT_FORMAT の値が不正です: ${SAFE_FORMAT}（markdown / csv / tsv / json を指定してください）"
-  exit 1
-fi
+validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 
 # --- ヘルパー関数 ---
 
@@ -128,21 +119,26 @@ GRAPHQL
       PROJECT_TITLE="${project_id}"
     fi
 
-    # アイテムを正規化して追加
+    # アイテムを正規化して追加（DraftIssue を除外し、統一フォーマットに変換）
+    local normalize_filter
+    normalize_filter="[.data.${OWNER_QUERY_FIELD}.projectV2.items.nodes[]
+      | select(.content != null)
+      | select(.content.__typename != null)
+      | {
+          type:       .content.__typename,
+          number:     .content.number,
+          title:      .content.title,
+          url:        .content.url,
+          state:      .content.state,
+          repository: .content.repository.nameWithOwner,
+          author:     (.content.author.login // \"\"),
+          assignees:  ([.content.assignees.nodes[].login] | join(\", \")),
+          labels:     ([.content.labels.nodes[].name] | join(\", \")),
+          created_at: .content.createdAt,
+          updated_at: .content.updatedAt
+        }]"
     local page_items
-    page_items=$(echo "${result}" | jq "[.data.${OWNER_QUERY_FIELD}.projectV2.items.nodes[] | select(.content != null) | select(.content.__typename != null) | {
-      type: .content.__typename,
-      number: .content.number,
-      title: .content.title,
-      url: .content.url,
-      state: .content.state,
-      repository: .content.repository.nameWithOwner,
-      author: (.content.author.login // \"\"),
-      assignees: ([.content.assignees.nodes[].login] | join(\", \")),
-      labels: ([.content.labels.nodes[].name] | join(\", \")),
-      created_at: .content.createdAt,
-      updated_at: .content.updatedAt
-    }]" 2>/dev/null || echo "[]")
+    page_items=$(echo "${result}" | jq "${normalize_filter}" 2>/dev/null || echo "[]")
 
     local page_count
     page_count=$(echo "${page_items}" | jq 'length')
@@ -165,6 +161,10 @@ format_markdown() {
   issue_count=$(echo "${items}" | jq '[.[] | select(.type == "Issue")] | length')
   pr_count=$(echo "${items}" | jq '[.[] | select(.type == "PullRequest")] | length')
 
+  # Markdown テーブル行の jq フィルタ（パイプ文字をエスケープし、日付を YYYY-MM-DD に変換）
+  local md_row_filter='
+    "| [#\(.number)](\(.url)) | \(.title | gsub("\\|"; "\\|")) | \(.state) | \(.repository) | \(.author) | \(.assignees) | \(.labels) | \(.created_at | split("T")[0]) | \(.updated_at | split("T")[0]) |"'
+
   {
     echo "# Project アイテム一覧"
     echo ""
@@ -180,7 +180,7 @@ format_markdown() {
       echo ""
       echo "| # | タイトル | 状態 | リポジトリ | 作成者 | アサイン | ラベル | 作成日 | 更新日 |"
       echo "|---|---------|------|-----------|--------|---------|--------|--------|--------|"
-      echo "${items}" | jq -r '.[] | select(.type == "Issue") | "| [#\(.number)](\(.url)) | \(.title | gsub("\\|"; "\\|")) | \(.state) | \(.repository) | \(.author) | \(.assignees) | \(.labels) | \(.created_at | split("T")[0]) | \(.updated_at | split("T")[0]) |"'
+      echo "${items}" | jq -r ".[] | select(.type == \"Issue\") | ${md_row_filter}"
       echo ""
     fi
 
@@ -189,7 +189,7 @@ format_markdown() {
       echo ""
       echo "| # | タイトル | 状態 | リポジトリ | 作成者 | アサイン | ラベル | 作成日 | 更新日 |"
       echo "|---|---------|------|-----------|--------|---------|--------|--------|--------|"
-      echo "${items}" | jq -r '.[] | select(.type == "PullRequest") | "| [#\(.number)](\(.url)) | \(.title | gsub("\\|"; "\\|")) | \(.state) | \(.repository) | \(.author) | \(.assignees) | \(.labels) | \(.created_at | split("T")[0]) | \(.updated_at | split("T")[0]) |"'
+      echo "${items}" | jq -r ".[] | select(.type == \"PullRequest\") | ${md_row_filter}"
       echo ""
     fi
   }
@@ -211,10 +211,6 @@ format_json() {
   local items="$1"
   echo "${items}" | jq '.'
 }
-
-# --- オーナータイプ判定 ---
-
-detect_owner_type
 
 # --- アイテム取得 ---
 
@@ -298,17 +294,9 @@ fi
 
 # --- コンソールサマリー ---
 
-echo ""
-echo "========================================="
-echo "  完了サマリー"
-echo "========================================="
-echo "  Project:  ${PROJECT_TITLE} (#${PROJECT_NUMBER})"
-echo "  形式:     ${OUTPUT_FORMAT}"
-echo "  Issue:    ${ISSUE_COUNT} 件"
-echo "  PR:       ${PR_COUNT} 件"
-echo "  合計:     ${TOTAL_COUNT} 件"
-echo "  出力先:   ${OUTPUT_FILE}"
-echo "========================================="
+print_summary "Project" "${PROJECT_TITLE} (#${PROJECT_NUMBER})" \
+  "形式" "${OUTPUT_FORMAT}" "Issue" "${ISSUE_COUNT} 件" \
+  "PR" "${PR_COUNT} 件" "合計" "${TOTAL_COUNT} 件" "出力先" "${OUTPUT_FILE}"
 
 echo ""
 echo "::notice::Project アイテムのエクスポートが完了しました（${TOTAL_COUNT} 件、形式: ${OUTPUT_FORMAT}）。"

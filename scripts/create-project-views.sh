@@ -24,16 +24,7 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 # --- バリデーション ---
 
-require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
-require_env "PROJECT_OWNER"
-require_env "PROJECT_NUMBER"
-validate_project_number
-require_command "gh" "https://cli.github.com/ を参照してインストールし、PATH を設定してください。"
-require_command "jq" "JSON の解析に必要です。"
-
-# --- オーナータイプ判定 ---
-
-detect_owner_type
+validate_common_project_env
 
 # --- 既存 View 情報の取得（ページネーション対応） ---
 
@@ -74,26 +65,7 @@ query {
 GRAPHQL
 )
 
-  if ! VIEW_RESULT=$(gh api graphql -f query="${VIEW_QUERY}" 2>&1); then
-    SAFE_RESULT=$(sanitize_for_workflow_command "${VIEW_RESULT}")
-    echo "::error::Project 情報の取得に失敗しました: ${SAFE_RESULT}"
-    echo ""
-    echo "考えられる原因:"
-    echo "  - PROJECT_NUMBER が正しくない"
-    echo "  - PAT に Projects > Read and write 権限が付与されていない"
-    echo "  - ネットワークエラー"
-    exit 1
-  fi
-
-  # GraphQL 応答内の errors チェック
-  if echo "${VIEW_RESULT}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
-    SAFE_RESULT=$(sanitize_for_workflow_command "${VIEW_RESULT}")
-    echo "::error::Project 情報の取得中に GraphQL エラーが発生しました: ${SAFE_RESULT}"
-    echo ""
-    echo "GraphQL errors:"
-    echo "${VIEW_RESULT}" | jq '.errors' || true
-    exit 1
-  fi
+  VIEW_RESULT=$(run_graphql "${VIEW_QUERY}" "Project 情報の取得")
 
   # Project ID の取得（初回のみ）
   if [[ -z "${PROJECT_ID}" ]]; then
@@ -187,16 +159,8 @@ done
 
 # --- サマリー出力 ---
 
-echo ""
-echo "========================================="
-echo "  完了サマリー"
-echo "========================================="
-echo "  Owner:    ${PROJECT_OWNER}"
-echo "  Project:  #${PROJECT_NUMBER}"
-echo "  作成:     ${CREATED_COUNT} 件"
-echo "  スキップ: ${SKIPPED_COUNT} 件（既存）"
-echo "  失敗:     ${FAILED_COUNT} 件"
-echo "========================================="
+print_summary "Owner" "${PROJECT_OWNER}" "Project" "#${PROJECT_NUMBER}" \
+  "作成" "${CREATED_COUNT} 件" "スキップ" "${SKIPPED_COUNT} 件（既存）" "失敗" "${FAILED_COUNT} 件"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   {
