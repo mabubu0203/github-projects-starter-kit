@@ -45,6 +45,8 @@ jobs:
       GH_TOKEN: ${{ secrets.PROJECT_PAT }}
       PROJECT_OWNER: ${{ github.repository_owner }}
       PROJECT_NUMBER: ${{ inputs.project_number }}
+    # 前提: ubuntu-latest には gh (GitHub CLI) と jq がプリインストール済み
+    # スクリプト内の require_command チェックはローカル実行時の UX 向上目的で残している
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2

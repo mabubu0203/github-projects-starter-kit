@@ -29,6 +29,9 @@ require_env() {
 }
 
 # コマンドの存在チェック
+# ローカル実行時に親切なエラーメッセージを表示するための防御的チェック。
+# GitHub Actions の ubuntu-latest には gh・jq ともにプリインストール済みのため
+# CI 上では実質スキップされるが、ローカル環境での利便性を考慮して残している。
 # 使用例: require_command "jq" "JSON の解析に必要です。"
 require_command() {
   local cmd="$1"
