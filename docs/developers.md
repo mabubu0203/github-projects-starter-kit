@@ -42,6 +42,10 @@ flowchart TD
   ├── 03-add-items-to-project.yml  # ③ Issue/PR 一括紐付けワークフロー
   └── 04-export-project-items.yml  # ④ Project アイテム エクスポートワークフロー
 scripts/
+  ├── config/
+  │   ├── field-definitions.json   # カスタムフィールド定義
+  │   ├── status-options.json      # ステータスカラム定義
+  │   └── view-definitions.json    # View 定義
   ├── lib/
   │   └── common.sh                # 共通関数ライブラリ
   ├── setup-github-project.sh      # Project 作成スクリプト
@@ -90,7 +94,7 @@ scripts/
 04-export-project-items.yml
   └── export-items ジョブ
       ├── scripts/export-project-items.sh    # アイテム取得・エクスポート
-      └── artifact アップロード              # エクスポートファイルを保存
+      └── artifact アップロード                # エクスポートファイルを保存
 ```
 
 ## スクリプト詳細
