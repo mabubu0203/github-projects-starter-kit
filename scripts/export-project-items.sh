@@ -238,26 +238,26 @@ echo "  合計: ${TOTAL_BEFORE_FILTER} 件（フィルタ前）"
 
 # --- type / state フィルタリング ---
 
-# type フィルタ
-if [[ "${INCLUDE_ISSUES}" == "false" ]]; then
-  ITEMS=$(echo "${ITEMS}" | jq '[.[] | select(.type != "Issue")]')
-fi
-if [[ "${INCLUDE_PRS}" == "false" ]]; then
-  ITEMS=$(echo "${ITEMS}" | jq '[.[] | select(.type != "PullRequest")]')
-fi
-
-# state フィルタ（closed は CLOSED + MERGED を含む）
-case "${ITEM_STATE}" in
-  open)
-    ITEMS=$(echo "${ITEMS}" | jq '[.[] | select(.state == "OPEN")]')
-    ;;
-  closed)
-    ITEMS=$(echo "${ITEMS}" | jq '[.[] | select(.state == "CLOSED" or .state == "MERGED")]')
-    ;;
-  all)
-    # フィルタなし
-    ;;
-esac
+# type / state フィルタを 1 回の jq 実行で適用
+ITEMS=$(echo "${ITEMS}" | jq \
+  --argjson includeIssues "$( [[ "${INCLUDE_ISSUES}" == "true" ]] && echo true || echo false )" \
+  --argjson includePRs "$( [[ "${INCLUDE_PRS}" == "true" ]] && echo true || echo false )" \
+  --arg itemState "${ITEM_STATE}" '
+  map(
+    select(
+      # type フィルタ
+      ( ($includeIssues or .type != "Issue")
+        and ($includePRs or .type != "PullRequest")
+      )
+      and
+      # state フィルタ（closed は CLOSED + MERGED を含む）
+      ( $itemState == "all"
+        or ($itemState == "open" and .state == "OPEN")
+        or ($itemState == "closed" and (.state == "CLOSED" or .state == "MERGED"))
+      )
+    )
+  )
+')
 
 TOTAL_COUNT=$(echo "${ITEMS}" | jq 'length')
 ISSUE_COUNT=$(echo "${ITEMS}" | jq '[.[] | select(.type == "Issue")] | length')

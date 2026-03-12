@@ -19,7 +19,7 @@ DraftIssue は出力対象外となります。
 
 ```mermaid
 flowchart TD
-    A["開始"] --> B["環境変数バリデーション\nOUTPUT_FORMAT チェック"]
+    A["開始"] --> B["環境変数バリデーション\nOUTPUT_FORMAT / INCLUDE_ISSUES / INCLUDE_PRS / ITEM_STATE チェック"]
     B --> C["オーナータイプ判定"]
     C --> D["GraphQL で Project アイテム取得\n（100件ずつページネーション）"]
     D --> E{"次ページあり?"}
