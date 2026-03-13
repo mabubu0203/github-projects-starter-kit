@@ -11,8 +11,7 @@
 | `PROJECT_OWNER` | Project の所有者 | ✅ |
 | `PROJECT_NUMBER` | 対象 Project の Number（数値） | ✅ |
 | `TARGET_REPO` | 対象リポジトリ（owner/repo 形式） | ✅ |
-| `INCLUDE_ISSUES` | Issue を追加対象にする（`true`/`false`） | ❌（デフォルト: `true`） |
-| `INCLUDE_PRS` | PR を追加対象にする（`true`/`false`） | ❌（デフォルト: `true`） |
+| `ITEM_TYPE` | 対象アイテムの種別（`all`/`issues`/`prs`） | ❌（デフォルト: `all`） |
 | `ITEM_STATE` | 取得するアイテムの状態（`open`/`closed`/`all`） | ❌（デフォルト: `open`） |
 | `ITEM_LABEL` | 絞り込みラベル | ❌ |
 
@@ -24,7 +23,7 @@ flowchart TD
     B --> C["オーナータイプ判定"]
     C --> D["GraphQL で Project の\n既存アイテム URL 一覧を取得\n（ページネーション対応）"]
 
-    D --> E{"INCLUDE_ISSUES = true?"}
+    D --> E{"ITEM_TYPE = all or issues?"}
     E -- "Yes" --> F["gh issue list で\nIssue URL 一覧を取得"]
     F --> G["各 Issue をループ"]
     G --> H{"既存アイテムに\n含まれる?"}
@@ -32,7 +31,7 @@ flowchart TD
     H -- "No" --> J["gh project item-add\nで追加"]
     I & J --> K{"次の Issue\nあり?"}
     K -- "Yes" --> G
-    K -- "No" --> L{"INCLUDE_PRS = true?"}
+    K -- "No" --> L{"ITEM_TYPE = all or prs?"}
 
     E -- "No" --> L
 

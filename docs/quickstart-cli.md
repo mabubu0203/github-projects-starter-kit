@@ -69,8 +69,7 @@ gh workflow run 02-extend-project.yml \
 gh workflow run 03-add-items-to-project.yml \
   --field project_number="<PROJECT_NUMBER>" \
   --field target_repo="<owner/repo>" \
-  --field include_issues=true \
-  --field include_prs=true \
+  --field item_type="all" \
   --field item_state="open"
 ```
 
@@ -80,8 +79,7 @@ gh workflow run 03-add-items-to-project.yml \
 gh workflow run 04-export-project-items.yml \
   --field project_number="<PROJECT_NUMBER>" \
   --field output_format="markdown" \
-  --field include_issues=true \
-  --field include_prs=true \
+  --field item_type="all" \
   --field item_state="all"
 ```
 
