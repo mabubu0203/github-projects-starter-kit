@@ -46,6 +46,6 @@ jobs:
     needs: create-project
     uses: ./.github/workflows/_reusable-extend-project.yml
     with:
-      project_number: ${{ needs.create-project.outputs.project_number }}
+      project_number: ${{ fromJSON(needs.create-project.outputs.project_number) }}
     secrets:
       PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
