@@ -98,6 +98,14 @@ detect_owner_type() {
   fi
 }
 
+# クエリテンプレート内の __OWNER_FIELD__ を OWNER_QUERY_FIELD に置換する
+# GraphQL ではフィールド名を変数化できないため、テンプレートプレースホルダーで対応する
+# 使用例: QUERY=$(apply_owner_field "${QUERY_TEMPLATE}")
+apply_owner_field() {
+  local template="$1"
+  echo "${template//__OWNER_FIELD__/${OWNER_QUERY_FIELD}}"
+}
+
 # GraphQL レスポンスのエラーチェックを行う（内部ヘルパー）
 # gh api の終了コードが 0 でもレスポンス内に GraphQL エラーが含まれる場合がある
 # 使用例: _check_graphql_errors "${result}" "Project 情報の取得"

@@ -37,30 +37,35 @@ EXISTING_VIEWS=""
 HAS_NEXT_PAGE="true"
 END_CURSOR=""
 
-while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
-  AFTER_CLAUSE=""
-  if [[ -n "${END_CURSOR}" ]]; then
-    AFTER_CLAUSE=", after: \"${END_CURSOR}\""
-  fi
-
-  VIEW_QUERY="query {
-    ${OWNER_QUERY_FIELD}(login: \"${PROJECT_OWNER}\") {
-      projectV2(number: ${PROJECT_NUMBER}) {
-        id
-        views(first: 100${AFTER_CLAUSE}) {
-          pageInfo {
-            hasNextPage
-            endCursor
-          }
-          nodes {
-            name
-          }
+VIEW_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
+query($login: String!, $number: Int!, $after: String) {
+  __OWNER_FIELD__(login: $login) {
+    projectV2(number: $number) {
+      id
+      views(first: 100, after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          name
         }
       }
     }
-  }"
+  }
+}
+GRAPHQL
+)
+VIEW_QUERY=$(apply_owner_field "${VIEW_QUERY_TEMPLATE}")
 
-  VIEW_RESULT=$(run_graphql "${VIEW_QUERY}" "既存 View の取得")
+while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
+  VARIABLES_JSON=$(jq -n \
+    --arg login "${PROJECT_OWNER}" \
+    --argjson number "${PROJECT_NUMBER}" \
+    --arg after "${END_CURSOR}" \
+    'if $after == "" then {login: $login, number: $number} else {login: $login, number: $number, after: $after} end')
+
+  VIEW_RESULT=$(run_graphql_json "${VIEW_QUERY}" "既存 View の取得" "${VARIABLES_JSON}")
 
   # Project ID、ページネーション情報、View 名を一括取得
   IFS=$'\t' read -r PAGE_PROJECT_ID PAGE_HAS_NEXT PAGE_END_CURSOR < <(

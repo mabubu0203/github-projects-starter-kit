@@ -45,10 +45,10 @@ should_include_prs() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "prs" ]];
 echo ""
 echo "Project #${PROJECT_NUMBER} の Status フィールドを取得しています..."
 
-STATUS_FIELD_QUERY=$(cat <<GRAPHQL
-query {
-  ${OWNER_QUERY_FIELD}(login: "${PROJECT_OWNER}") {
-    projectV2(number: ${PROJECT_NUMBER}) {
+STATUS_FIELD_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
+query($login: String!, $number: Int!) {
+  __OWNER_FIELD__(login: $login) {
+    projectV2(number: $number) {
       id
       fields(first: 50) {
         nodes {
@@ -67,8 +67,14 @@ query {
 }
 GRAPHQL
 )
+STATUS_FIELD_QUERY=$(apply_owner_field "${STATUS_FIELD_QUERY_TEMPLATE}")
 
-STATUS_FIELD_RESULT=$(run_graphql "${STATUS_FIELD_QUERY}" "Status フィールド情報の取得")
+VARIABLES_JSON=$(jq -n \
+  --arg login "${PROJECT_OWNER}" \
+  --argjson number "${PROJECT_NUMBER}" \
+  '{login: $login, number: $number}')
+
+STATUS_FIELD_RESULT=$(run_graphql_json "${STATUS_FIELD_QUERY}" "Status フィールド情報の取得" "${VARIABLES_JSON}")
 
 # Project ID・Status フィールド ID・Option ID を一括抽出
 IFS=$'\t' read -r PROJECT_ID STATUS_FIELD_ID INITIAL_STATUS_OPTION_ID DONE_STATUS_OPTION_ID < <(
@@ -132,11 +138,15 @@ mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
 GRAPHQL
   )
 
-  run_graphql "${mutation}" "ステータスの設定" \
-    -f "projectId=${PROJECT_ID}" \
-    -f "itemId=${item_id}" \
-    -f "fieldId=${STATUS_FIELD_ID}" \
-    -f "optionId=${option_id}" > /dev/null
+  local variables_json
+  variables_json=$(jq -n \
+    --arg projectId "${PROJECT_ID}" \
+    --arg itemId "${item_id}" \
+    --arg fieldId "${STATUS_FIELD_ID}" \
+    --arg optionId "${option_id}" \
+    '{projectId: $projectId, itemId: $itemId, fieldId: $fieldId, optionId: $optionId}')
+
+  run_graphql_json "${mutation}" "ステータスの設定" "${variables_json}" > /dev/null
 }
 
 # Project に既に追加済みのアイテム URL を取得する
@@ -145,18 +155,12 @@ get_existing_project_items() {
   local cursor=""
   local has_next="true"
 
-  while [[ "${has_next}" == "true" ]]; do
-    local after_clause=""
-    if [[ -n "${cursor}" ]]; then
-      after_clause=", after: \"${cursor}\""
-    fi
-
-    local query
-    query=$(cat <<GRAPHQL
-query {
-  ${OWNER_QUERY_FIELD}(login: "${PROJECT_OWNER}") {
-    projectV2(number: ${PROJECT_NUMBER}) {
-      items(first: 100${after_clause}) {
+  local query_template
+  query_template=$(cat <<'GRAPHQL'
+query($login: String!, $number: Int!, $after: String) {
+  __OWNER_FIELD__(login: $login) {
+    projectV2(number: $number) {
+      items(first: 100, after: $after) {
         pageInfo {
           hasNextPage
           endCursor
@@ -177,16 +181,26 @@ query {
 }
 GRAPHQL
 )
+  local query
+  query=$(apply_owner_field "${query_template}")
+
+  while [[ "${has_next}" == "true" ]]; do
+    local variables_json
+    variables_json=$(jq -n \
+      --arg login "${PROJECT_OWNER}" \
+      --argjson number "${PROJECT_NUMBER}" \
+      --arg after "${cursor}" \
+      'if $after == "" then {login: $login, number: $number} else {login: $login, number: $number, after: $after} end')
 
     local result
-    if ! result=$(run_graphql "${query}" "Project の既存アイテム取得" 2>&1); then
+    if ! result=$(run_graphql_json "${query}" "Project の既存アイテム取得" "${variables_json}" 2>&1); then
       echo "::warning::Project の既存アイテム取得に失敗しました。重複チェックをスキップします。" >&2
       echo ""
       return
     fi
 
     local page_items
-    page_items=$(echo "${result}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.items.nodes[].content.url // empty" 2>/dev/null || true)
+    page_items=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.nodes[].content.url // empty' 2>/dev/null || true)
     if [[ -n "${page_items}" ]]; then
       if [[ -n "${items}" ]]; then
         items="${items}"$'\n'"${page_items}"
@@ -195,8 +209,8 @@ GRAPHQL
       fi
     fi
 
-    has_next=$(echo "${result}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.items.pageInfo.hasNextPage" 2>/dev/null || echo "false")
-    cursor=$(echo "${result}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.items.pageInfo.endCursor // empty" 2>/dev/null || true)
+    has_next=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.pageInfo.hasNextPage' 2>/dev/null || echo "false")
+    cursor=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.pageInfo.endCursor // empty' 2>/dev/null || true)
   done
 
   echo "${items}"

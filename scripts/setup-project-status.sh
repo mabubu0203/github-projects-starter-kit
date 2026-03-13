@@ -32,10 +32,10 @@ STATUS_OPTIONS=$(cat "${STATUS_OPTIONS_FILE}")
 echo ""
 echo "Project #${PROJECT_NUMBER} の Status フィールドを取得しています..."
 
-FIELD_QUERY=$(cat <<GRAPHQL
-query {
-  ${OWNER_QUERY_FIELD}(login: "${PROJECT_OWNER}") {
-    projectV2(number: ${PROJECT_NUMBER}) {
+FIELD_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
+query($login: String!, $number: Int!) {
+  __OWNER_FIELD__(login: $login) {
+    projectV2(number: $number) {
       id
       fields(first: 50) {
         nodes {
@@ -56,8 +56,14 @@ query {
 }
 GRAPHQL
 )
+FIELD_QUERY=$(apply_owner_field "${FIELD_QUERY_TEMPLATE}")
 
-FIELD_RESULT=$(run_graphql "${FIELD_QUERY}" "Project 情報の取得")
+VARIABLES_JSON=$(jq -n \
+  --arg login "${PROJECT_OWNER}" \
+  --argjson number "${PROJECT_NUMBER}" \
+  '{login: $login, number: $number}')
+
+FIELD_RESULT=$(run_graphql_json "${FIELD_QUERY}" "Project 情報の取得" "${VARIABLES_JSON}")
 
 # Project ID と Status フィールド ID を一括取得
 IFS=$'\t' read -r PROJECT_ID STATUS_FIELD_ID < <(
@@ -81,7 +87,7 @@ echo "  Status Field ID: ${STATUS_FIELD_ID}"
 # 現在のステータスカラムを表示
 echo ""
 echo "現在のステータスカラム:"
-echo "${FIELD_RESULT}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.fields.nodes[] | select(.name == \"Status\") | .options[] | \"  - \(.name) (\(.color))\"" 2>/dev/null || echo "  （取得できませんでした）"
+echo "${FIELD_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.fields.nodes[] | select(.name == "Status") | .options[] | "  - \(.name) (\(.color))"' 2>/dev/null || echo "  （取得できませんでした）"
 
 # --- ステータスカラムの更新 ---
 

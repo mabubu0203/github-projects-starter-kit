@@ -50,24 +50,28 @@ EXISTING_PROJECT=""
 HAS_NEXT_PAGE="true"
 END_CURSOR=""
 
-while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
-  AFTER_CLAUSE=""
-  if [[ -n "${END_CURSOR}" ]]; then
-    AFTER_CLAUSE=", after: \"${END_CURSOR}\""
-  fi
-
-  EXISTING_QUERY="query {
-    ${OWNER_QUERY_FIELD}(login: \"${PROJECT_OWNER}\") {
-      projectsV2(first: 100${AFTER_CLAUSE}) {
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
-        nodes { title number url }
+EXISTING_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
+query($login: String!, $after: String) {
+  __OWNER_FIELD__(login: $login) {
+    projectsV2(first: 100, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
       }
+      nodes { title number url }
     }
-  }"
-  EXISTING_PROJECTS=$(run_graphql "${EXISTING_QUERY}" "既存 Project の一覧取得")
+  }
+}
+GRAPHQL
+)
+EXISTING_QUERY=$(apply_owner_field "${EXISTING_QUERY_TEMPLATE}")
+
+while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
+  VARIABLES_JSON=$(jq -n \
+    --arg login "${PROJECT_OWNER}" \
+    --arg after "${END_CURSOR}" \
+    'if $after == "" then {login: $login} else {login: $login, after: $after} end')
+  EXISTING_PROJECTS=$(run_graphql_json "${EXISTING_QUERY}" "既存 Project の一覧取得" "${VARIABLES_JSON}")
 
   EXISTING_PROJECT=$(echo "${EXISTING_PROJECTS}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" --arg title "${PROJECT_TITLE}" '[.data.[($owner)].projectsV2.nodes[] | select(.title == $title)] | first // ""')
 
@@ -75,8 +79,8 @@ while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
     break
   fi
 
-  HAS_NEXT_PAGE=$(echo "${EXISTING_PROJECTS}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectsV2.pageInfo.hasNextPage" 2>/dev/null || echo "false")
-  END_CURSOR=$(echo "${EXISTING_PROJECTS}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectsV2.pageInfo.endCursor // empty" 2>/dev/null || true)
+  HAS_NEXT_PAGE=$(echo "${EXISTING_PROJECTS}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectsV2.pageInfo.hasNextPage' 2>/dev/null || echo "false")
+  END_CURSOR=$(echo "${EXISTING_PROJECTS}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectsV2.pageInfo.endCursor // empty' 2>/dev/null || true)
 done
 
 if [[ -n "${EXISTING_PROJECT}" ]]; then
@@ -107,7 +111,11 @@ CREATE_MUTATION='mutation($ownerId: ID!, $title: String!) {
     projectV2 { id number url }
   }
 }'
-OUTPUT=$(run_graphql "${CREATE_MUTATION}" "GitHub Project の作成" -f ownerId="${OWNER_NODE_ID}" -f title="${PROJECT_TITLE}")
+VARIABLES_JSON=$(jq -n \
+  --arg ownerId "${OWNER_NODE_ID}" \
+  --arg title "${PROJECT_TITLE}" \
+  '{ownerId: $ownerId, title: $title}')
+OUTPUT=$(run_graphql_json "${CREATE_MUTATION}" "GitHub Project の作成" "${VARIABLES_JSON}")
 
 # --- Project 情報の抽出 ---
 
@@ -141,12 +149,19 @@ IS_PUBLIC="false"
 if [[ "${PROJECT_VISIBILITY}" == "PUBLIC" ]]; then
   IS_PUBLIC="true"
 fi
-UPDATE_MUTATION="mutation {
-  updateProjectV2(input: {projectId: \"${PROJECT_ID}\", public: ${IS_PUBLIC}}) {
+UPDATE_MUTATION=$(cat <<'GRAPHQL'
+mutation($projectId: ID!, $public: Boolean!) {
+  updateProjectV2(input: {projectId: $projectId, public: $public}) {
     projectV2 { public }
   }
-}"
-EDIT_OUTPUT=$(run_graphql "${UPDATE_MUTATION}" "Visibility の設定")
+}
+GRAPHQL
+)
+VARIABLES_JSON=$(jq -n \
+  --arg projectId "${PROJECT_ID}" \
+  --argjson public "${IS_PUBLIC}" \
+  '{projectId: $projectId, public: $public}')
+EDIT_OUTPUT=$(run_graphql_json "${UPDATE_MUTATION}" "Visibility の設定" "${VARIABLES_JSON}")
 
 # Visibility 設定結果の検証
 ACTUAL_PUBLIC=$(echo "${EDIT_OUTPUT}" | jq '.data.updateProjectV2.projectV2.public')

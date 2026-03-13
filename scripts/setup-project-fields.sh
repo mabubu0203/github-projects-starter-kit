@@ -32,10 +32,10 @@ FIELD_DEFINITIONS=$(cat "${FIELD_DEFINITIONS_FILE}")
 echo ""
 echo "Project #${PROJECT_NUMBER} の既存フィールドを取得しています..."
 
-FIELD_QUERY=$(cat <<GRAPHQL
-query {
-  ${OWNER_QUERY_FIELD}(login: "${PROJECT_OWNER}") {
-    projectV2(number: ${PROJECT_NUMBER}) {
+FIELD_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
+query($login: String!, $number: Int!) {
+  __OWNER_FIELD__(login: $login) {
+    projectV2(number: $number) {
       id
       fields(first: 100) {
         nodes {
@@ -65,8 +65,14 @@ query {
 }
 GRAPHQL
 )
+FIELD_QUERY=$(apply_owner_field "${FIELD_QUERY_TEMPLATE}")
 
-FIELD_RESULT=$(run_graphql "${FIELD_QUERY}" "Project 情報の取得")
+VARIABLES_JSON=$(jq -n \
+  --arg login "${PROJECT_OWNER}" \
+  --argjson number "${PROJECT_NUMBER}" \
+  '{login: $login, number: $number}')
+
+FIELD_RESULT=$(run_graphql_json "${FIELD_QUERY}" "Project 情報の取得" "${VARIABLES_JSON}")
 
 # Project ID と既存フィールド名を一括取得
 PROJECT_ID=$(echo "${FIELD_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.id // empty')

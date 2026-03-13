@@ -42,25 +42,13 @@ fetch_project_items() {
   local page=0
   local max_pages=50
 
-  while [[ "${has_next}" == "true" ]]; do
-    page=$((page + 1))
-    if [[ "${page}" -gt "${max_pages}" ]]; then
-      echo "::warning::ページネーション上限（${max_pages} ページ）に達しました。一部のアイテムが取得されていない可能性があります。" >&2
-      break
-    fi
-
-    local after_clause=""
-    if [[ -n "${cursor}" ]]; then
-      after_clause=", after: \"${cursor}\""
-    fi
-
-    local query
-    query=$(cat <<GRAPHQL
-query {
-  ${OWNER_QUERY_FIELD}(login: "${PROJECT_OWNER}") {
-    projectV2(number: ${PROJECT_NUMBER}) {
+  local query_template
+  query_template=$(cat <<'GRAPHQL'
+query($login: String!, $number: Int!, $after: String) {
+  __OWNER_FIELD__(login: $login) {
+    projectV2(number: $number) {
       title
-      items(first: 100${after_clause}) {
+      items(first: 100, after: $after) {
         pageInfo {
           hasNextPage
           endCursor
@@ -101,27 +89,32 @@ query {
 }
 GRAPHQL
 )
+  local query
+  query=$(apply_owner_field "${query_template}")
 
-    local result
-    if ! result=$(gh api graphql -f query="${query}" 2>&1); then
-      local safe_result
-      safe_result=$(sanitize_for_workflow_command "${result}")
-      echo "::error::GraphQL API の呼び出しに失敗しました: ${safe_result}" >&2
-      return 1
+  while [[ "${has_next}" == "true" ]]; do
+    page=$((page + 1))
+    if [[ "${page}" -gt "${max_pages}" ]]; then
+      echo "::warning::ページネーション上限（${max_pages} ページ）に達しました。一部のアイテムが取得されていない可能性があります。" >&2
+      break
     fi
 
-    # GraphQL エラーチェック（他スクリプトと統一）
-    if echo "${result}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
-      local safe_errors
-      safe_errors=$(sanitize_for_workflow_command "$(echo "${result}" | jq -c '.errors')")
-      echo "::error::GraphQL エラーが発生しました: ${safe_errors}" >&2
+    local variables_json
+    variables_json=$(jq -n \
+      --arg login "${PROJECT_OWNER}" \
+      --argjson number "${PROJECT_NUMBER}" \
+      --arg after "${cursor}" \
+      'if $after == "" then {login: $login, number: $number} else {login: $login, number: $number, after: $after} end')
+
+    local result
+    if ! result=$(run_graphql_json "${query}" "Project アイテムの取得" "${variables_json}"); then
       return 1
     fi
 
     # Project の存在チェック（初回のみ）
     if [[ "${page}" -eq 1 ]]; then
       local project_id
-      project_id=$(echo "${result}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.title // empty" 2>/dev/null || true)
+      project_id=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.title // empty' 2>/dev/null || true)
       if [[ -z "${project_id}" ]]; then
         echo "::error::Project が見つかりません。PROJECT_OWNER（${PROJECT_OWNER}）と PROJECT_NUMBER（${PROJECT_NUMBER}）を確認してください。" >&2
         return 1
@@ -131,7 +124,7 @@ GRAPHQL
 
     # アイテムを正規化して追加（DraftIssue を除外し、統一フォーマットに変換）
     local normalize_filter
-    normalize_filter="[.data.${OWNER_QUERY_FIELD}.projectV2.items.nodes[]
+    normalize_filter="[.data.[(\$owner)].projectV2.items.nodes[]
       | select(.content != null)
       | select(.content.__typename != null)
       | {
@@ -148,7 +141,7 @@ GRAPHQL
           updated_at: .content.updatedAt
         }]"
     local page_items
-    page_items=$(echo "${result}" | jq "${normalize_filter}" 2>/dev/null || echo "[]")
+    page_items=$(echo "${result}" | jq --arg owner "${OWNER_QUERY_FIELD}" "${normalize_filter}" 2>/dev/null || echo "[]")
 
     local page_count
     page_count=$(echo "${page_items}" | jq 'length')
@@ -156,8 +149,8 @@ GRAPHQL
 
     all_items=$(echo "${all_items}" "${page_items}" | jq -s '.[0] + .[1]')
 
-    has_next=$(echo "${result}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.items.pageInfo.hasNextPage" 2>/dev/null || echo "false")
-    cursor=$(echo "${result}" | jq -r ".data.${OWNER_QUERY_FIELD}.projectV2.items.pageInfo.endCursor // empty" 2>/dev/null || true)
+    has_next=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.pageInfo.hasNextPage' 2>/dev/null || echo "false")
+    cursor=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.pageInfo.endCursor // empty' 2>/dev/null || true)
   done
 
   echo "${all_items}"
