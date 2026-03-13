@@ -328,6 +328,7 @@ TOTAL_SKIPPED=$((ISSUE_SKIPPED + PR_SKIPPED))
 TOTAL_FAILED=$((ISSUE_FAILED + PR_FAILED))
 
 print_summary \
+  "対象Repo" "${TARGET_REPO}" \
   "Issue" "追加: ${ISSUE_ADDED}, スキップ: ${ISSUE_SKIPPED}, 失敗: ${ISSUE_FAILED}" \
   "PR" "追加: ${PR_ADDED}, スキップ: ${PR_SKIPPED}, 失敗: ${PR_FAILED}" \
   "合計" "追加: ${TOTAL_ADDED}, スキップ: ${TOTAL_SKIPPED}, 失敗: ${TOTAL_FAILED}"
@@ -338,8 +339,6 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo ""
     echo "| 項目 | 値 |"
     echo "|------|-----|"
-    echo "| Project Owner | \`${PROJECT_OWNER}\` |"
-    echo "| Project Number | ${PROJECT_NUMBER} |"
     echo "| Target Repo | \`${TARGET_REPO}\` |"
     echo "| State Filter | ${ITEM_STATE} |"
     echo "| Status | open → Backlog / closed・merged → Done |"

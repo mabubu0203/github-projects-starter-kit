@@ -187,7 +187,6 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo ""
     echo "| 項目 | 値 |"
     echo "|------|-----|"
-    echo "| Owner | \`${PROJECT_OWNER}\` |"
     echo "| Title | ${PROJECT_TITLE} |"
     echo "| Type | ${OWNER_TYPE} |"
     echo "| Visibility | ${PROJECT_VISIBILITY} |"

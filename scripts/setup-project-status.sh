@@ -151,13 +151,11 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo ""
     echo "| 項目 | 値 |"
     echo "|------|-----|"
-    echo "| Project Owner | \`${PROJECT_OWNER}\` |"
-    echo "| Project Number | ${PROJECT_NUMBER} |"
     echo "| カラム構成 | ${COLUMN_NAMES} |"
   } >> "${GITHUB_STEP_SUMMARY}"
 fi
 
-print_summary "Owner" "${PROJECT_OWNER}" "Project" "#${PROJECT_NUMBER}" "カラム" "${COLUMN_NAMES}"
+print_summary "カラム" "${COLUMN_NAMES}"
 
 echo ""
 echo "セットアップが完了しました。"

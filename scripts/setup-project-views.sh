@@ -162,8 +162,7 @@ done
 
 # --- サマリー出力 ---
 
-print_summary "Owner" "${PROJECT_OWNER}" "Project" "#${PROJECT_NUMBER}" \
-  "作成" "${CREATED_COUNT} 件" "スキップ" "${SKIPPED_COUNT} 件（既存）" "失敗" "${FAILED_COUNT} 件"
+print_summary "作成" "${CREATED_COUNT} 件" "スキップ" "${SKIPPED_COUNT} 件（既存）" "失敗" "${FAILED_COUNT} 件"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   {
@@ -171,8 +170,6 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo ""
     echo "| 項目 | 値 |"
     echo "|------|-----|"
-    echo "| Project Owner | \`${PROJECT_OWNER}\` |"
-    echo "| Project Number | ${PROJECT_NUMBER} |"
     echo "| 作成 | ${CREATED_COUNT} 件 |"
     echo "| スキップ | ${SKIPPED_COUNT} 件（既存） |"
     echo "| 失敗 | ${FAILED_COUNT} 件 |"
