@@ -70,7 +70,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  failure-summary:
+  workflow-summary-failure:
     needs: [export-items]
     if: failure()
     runs-on: ubuntu-latest
@@ -79,7 +79,23 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: 失敗サマリーを出力
-        uses: ./.github/actions/failure-summary
+        uses: ./.github/actions/workflow-summary
         with:
+          status: failure
+          job-results: |
+            {"export-items": "${{ needs.export-items.result }}"}
+
+  workflow-summary-success:
+    needs: [export-items]
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 成功サマリーを出力
+        uses: ./.github/actions/workflow-summary
+        with:
+          status: success
           job-results: |
             {"export-items": "${{ needs.export-items.result }}"}

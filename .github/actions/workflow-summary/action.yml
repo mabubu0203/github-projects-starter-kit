@@ -1,6 +1,9 @@
-name: 'Failure Summary'
-description: '失敗時の共通サマリー出力'
+name: 'Workflow Summary'
+description: '成功・失敗の共通ワークフローサマリー出力'
 inputs:
+  status:
+    description: 'ワークフローの結果ステータス（success / failure）'
+    required: true
   job-results:
     description: '各ジョブの結果（JSON形式、複数ジョブ時に使用）'
     required: false
@@ -10,6 +13,7 @@ runs:
   steps:
     - shell: bash
       env:
+        STATUS: ${{ inputs.status }}
         JOB_RESULTS: ${{ inputs.job-results }}
       run: |
         # Markdownテーブル用エスケープ: | を \| に、改行をスペースに置換
@@ -17,8 +21,16 @@ runs:
           printf '%s' "$1" | tr '\n' ' ' | sed 's/|/\\|/g'
         }
 
+        if [[ "${STATUS}" == "success" ]]; then
+          ICON=":white_check_mark:"
+          TITLE="ワークフロー成功レポート"
+        else
+          ICON=":x:"
+          TITLE="ワークフロー失敗レポート"
+        fi
+
         {
-          echo "## :x: ワークフロー失敗レポート"
+          echo "## ${ICON} ${TITLE}"
           echo ""
           echo "| 項目 | 値 |"
           echo "|------|-----|"
@@ -27,6 +39,8 @@ runs:
           echo "| コミット | \`${GITHUB_SHA::7}\` |"
           echo "| 実行者 | \`$(escape_md "${{ github.actor }}")\` |"
           echo "| 実行URL | [Actions Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |"
+          echo "| gh バージョン | \`$(gh --version | head -1)\` |"
+          echo "| jq バージョン | \`$(jq --version)\` |"
 
           if [[ -n "${JOB_RESULTS}" ]]; then
             echo ""
