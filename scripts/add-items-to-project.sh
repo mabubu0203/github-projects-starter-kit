@@ -152,8 +152,20 @@ GRAPHQL
 # Project に既に追加済みのアイテム URL を取得する
 get_existing_project_items() {
   local items=""
-  local cursor=""
-  local has_next="true"
+
+  _on_existing_items_page() {
+    local result="$1"
+    local page_items
+    page_items=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" \
+      '.data.[($owner)].projectV2.items.nodes[].content.url // empty' 2>/dev/null || true)
+    if [[ -n "${page_items}" ]]; then
+      if [[ -n "${items}" ]]; then
+        items="${items}"$'\n'"${page_items}"
+      else
+        items="${page_items}"
+      fi
+    fi
+  }
 
   local query_template
   query_template=$(cat <<'GRAPHQL'
@@ -184,34 +196,18 @@ GRAPHQL
   local query
   query=$(apply_owner_field "${query_template}")
 
-  while [[ "${has_next}" == "true" ]]; do
-    local variables_json
-    variables_json=$(jq -n \
-      --arg login "${PROJECT_OWNER}" \
-      --argjson number "${PROJECT_NUMBER}" \
-      --arg after "${cursor}" \
-      'if $after == "" then {login: $login, number: $number} else {login: $login, number: $number, after: $after} end')
+  local variables_json
+  variables_json=$(jq -n \
+    --arg login "${PROJECT_OWNER}" \
+    --argjson number "${PROJECT_NUMBER}" \
+    '{login: $login, number: $number}')
 
-    local result
-    if ! result=$(run_graphql_json "${query}" "Project の既存アイテム取得" "${variables_json}" 2>&1); then
-      echo "::warning::Project の既存アイテム取得に失敗しました。重複チェックをスキップします。" >&2
-      echo ""
-      return
-    fi
-
-    local page_items
-    page_items=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.nodes[].content.url // empty' 2>/dev/null || true)
-    if [[ -n "${page_items}" ]]; then
-      if [[ -n "${items}" ]]; then
-        items="${items}"$'\n'"${page_items}"
-      else
-        items="${page_items}"
-      fi
-    fi
-
-    has_next=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.pageInfo.hasNextPage' 2>/dev/null || echo "false")
-    cursor=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.pageInfo.endCursor // empty' 2>/dev/null || true)
-  done
+  if ! run_graphql_paginated "${query}" "Project の既存アイテム取得" "${variables_json}" \
+    '.data.[($owner)].projectV2.items.pageInfo' _on_existing_items_page; then
+    echo "::warning::Project の既存アイテム取得に失敗しました。重複チェックをスキップします。" >&2
+    echo ""
+    return
+  fi
 
   echo "${items}"
 }

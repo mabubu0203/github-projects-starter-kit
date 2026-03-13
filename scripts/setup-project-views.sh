@@ -34,8 +34,6 @@ echo "Project #${PROJECT_NUMBER} の既存 View を取得しています..."
 
 PROJECT_ID=""
 EXISTING_VIEWS=""
-HAS_NEXT_PAGE="true"
-END_CURSOR=""
 
 VIEW_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
 query($login: String!, $number: Int!, $after: String) {
@@ -58,25 +56,11 @@ GRAPHQL
 )
 VIEW_QUERY=$(apply_owner_field "${VIEW_QUERY_TEMPLATE}")
 
-while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
-  VARIABLES_JSON=$(jq -n \
-    --arg login "${PROJECT_OWNER}" \
-    --argjson number "${PROJECT_NUMBER}" \
-    --arg after "${END_CURSOR}" \
-    'if $after == "" then {login: $login, number: $number} else {login: $login, number: $number, after: $after} end')
-
-  VIEW_RESULT=$(run_graphql_json "${VIEW_QUERY}" "既存 View の取得" "${VARIABLES_JSON}")
-
-  # Project ID、ページネーション情報、View 名を一括取得
-  IFS=$'\t' read -r PAGE_PROJECT_ID PAGE_HAS_NEXT PAGE_END_CURSOR < <(
-    echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '
-      .data.[($owner)].projectV2 as $proj |
-      [($proj.id // ""), ($proj.views.pageInfo.hasNextPage | tostring), ($proj.views.pageInfo.endCursor // "")] | @tsv
-    '
-  )
+_on_view_page() {
+  local result="$1"
 
   if [[ -z "${PROJECT_ID}" ]]; then
-    PROJECT_ID="${PAGE_PROJECT_ID}"
+    PROJECT_ID=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.id // empty')
     if [[ -z "${PROJECT_ID}" ]]; then
       echo "::error::Project ID を取得できませんでした。Project #${PROJECT_NUMBER} が存在するか確認してください。"
       exit 1
@@ -84,18 +68,20 @@ while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
     echo "  Project ID: ${PROJECT_ID}"
   fi
 
-  PAGE_VIEWS=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.nodes[].name // empty' 2>/dev/null)
-  if [[ -n "${PAGE_VIEWS}" ]]; then
+  local page_views
+  page_views=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.nodes[].name // empty' 2>/dev/null)
+  if [[ -n "${page_views}" ]]; then
     if [[ -n "${EXISTING_VIEWS}" ]]; then
-      EXISTING_VIEWS+=$'\n'"${PAGE_VIEWS}"
+      EXISTING_VIEWS+=$'\n'"${page_views}"
     else
-      EXISTING_VIEWS="${PAGE_VIEWS}"
+      EXISTING_VIEWS="${page_views}"
     fi
   fi
+}
 
-  HAS_NEXT_PAGE="${PAGE_HAS_NEXT}"
-  END_CURSOR="${PAGE_END_CURSOR}"
-done
+VARIABLES_JSON=$(jq -n --arg login "${PROJECT_OWNER}" --argjson number "${PROJECT_NUMBER}" '{login: $login, number: $number}')
+run_graphql_paginated "${VIEW_QUERY}" "既存 View の取得" "${VARIABLES_JSON}" \
+  '.data.[($owner)].projectV2.views.pageInfo' _on_view_page
 
 echo ""
 echo "既存の View:"

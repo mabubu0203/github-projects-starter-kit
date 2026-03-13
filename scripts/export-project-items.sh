@@ -37,10 +37,49 @@ should_include_prs() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "prs" ]];
 # Project のアイテム一覧を取得する（ページネーション対応）
 fetch_project_items() {
   local all_items="[]"
-  local cursor=""
-  local has_next="true"
-  local page=0
-  local max_pages=50
+
+  _on_export_page() {
+    local result="$1"
+    local page="$2"
+
+    # Project の存在チェック（初回のみ）
+    if [[ "${page}" -eq 1 ]]; then
+      local project_title_check
+      project_title_check=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.title // empty' 2>/dev/null || true)
+      if [[ -z "${project_title_check}" ]]; then
+        echo "::error::Project が見つかりません。PROJECT_OWNER（${PROJECT_OWNER}）と PROJECT_NUMBER（${PROJECT_NUMBER}）を確認してください。" >&2
+        return 1
+      fi
+      PROJECT_TITLE="${project_title_check}"
+    fi
+
+    # アイテムを正規化して追加（DraftIssue を除外し、統一フォーマットに変換）
+    local normalize_filter
+    normalize_filter="[.data.[(\$owner)].projectV2.items.nodes[]
+      | select(.content != null)
+      | select(.content.__typename != null)
+      | {
+          type:       .content.__typename,
+          number:     .content.number,
+          title:      .content.title,
+          url:        .content.url,
+          state:      .content.state,
+          repository: .content.repository.nameWithOwner,
+          author:     (.content.author.login // \"\"),
+          assignees:  ([.content.assignees.nodes[].login] | join(\", \")),
+          labels:     ([.content.labels.nodes[].name] | join(\", \")),
+          created_at: .content.createdAt,
+          updated_at: .content.updatedAt
+        }]"
+    local page_items
+    page_items=$(echo "${result}" | jq --arg owner "${OWNER_QUERY_FIELD}" "${normalize_filter}" 2>/dev/null || echo "[]")
+
+    local page_count
+    page_count=$(echo "${page_items}" | jq 'length')
+    echo "  ページ ${page} 取得完了（${page_count} 件）" >&2
+
+    all_items=$(echo "${all_items}" "${page_items}" | jq -s '.[0] + .[1]')
+  }
 
   local query_template
   query_template=$(cat <<'GRAPHQL'
@@ -92,66 +131,16 @@ GRAPHQL
   local query
   query=$(apply_owner_field "${query_template}")
 
-  while [[ "${has_next}" == "true" ]]; do
-    page=$((page + 1))
-    if [[ "${page}" -gt "${max_pages}" ]]; then
-      echo "::warning::ページネーション上限（${max_pages} ページ）に達しました。一部のアイテムが取得されていない可能性があります。" >&2
-      break
-    fi
+  local variables_json
+  variables_json=$(jq -n \
+    --arg login "${PROJECT_OWNER}" \
+    --argjson number "${PROJECT_NUMBER}" \
+    '{login: $login, number: $number}')
 
-    local variables_json
-    variables_json=$(jq -n \
-      --arg login "${PROJECT_OWNER}" \
-      --argjson number "${PROJECT_NUMBER}" \
-      --arg after "${cursor}" \
-      'if $after == "" then {login: $login, number: $number} else {login: $login, number: $number, after: $after} end')
-
-    local result
-    if ! result=$(run_graphql_json "${query}" "Project アイテムの取得" "${variables_json}"); then
-      return 1
-    fi
-
-    # Project の存在チェック（初回のみ）
-    if [[ "${page}" -eq 1 ]]; then
-      local project_id
-      project_id=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.title // empty' 2>/dev/null || true)
-      if [[ -z "${project_id}" ]]; then
-        echo "::error::Project が見つかりません。PROJECT_OWNER（${PROJECT_OWNER}）と PROJECT_NUMBER（${PROJECT_NUMBER}）を確認してください。" >&2
-        return 1
-      fi
-      PROJECT_TITLE="${project_id}"
-    fi
-
-    # アイテムを正規化して追加（DraftIssue を除外し、統一フォーマットに変換）
-    local normalize_filter
-    normalize_filter="[.data.[(\$owner)].projectV2.items.nodes[]
-      | select(.content != null)
-      | select(.content.__typename != null)
-      | {
-          type:       .content.__typename,
-          number:     .content.number,
-          title:      .content.title,
-          url:        .content.url,
-          state:      .content.state,
-          repository: .content.repository.nameWithOwner,
-          author:     (.content.author.login // \"\"),
-          assignees:  ([.content.assignees.nodes[].login] | join(\", \")),
-          labels:     ([.content.labels.nodes[].name] | join(\", \")),
-          created_at: .content.createdAt,
-          updated_at: .content.updatedAt
-        }]"
-    local page_items
-    page_items=$(echo "${result}" | jq --arg owner "${OWNER_QUERY_FIELD}" "${normalize_filter}" 2>/dev/null || echo "[]")
-
-    local page_count
-    page_count=$(echo "${page_items}" | jq 'length')
-    echo "  ページ ${page} 取得完了（${page_count} 件）" >&2
-
-    all_items=$(echo "${all_items}" "${page_items}" | jq -s '.[0] + .[1]')
-
-    has_next=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.pageInfo.hasNextPage' 2>/dev/null || echo "false")
-    cursor=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.items.pageInfo.endCursor // empty' 2>/dev/null || true)
-  done
+  if ! run_graphql_paginated "${query}" "Project アイテムの取得" "${variables_json}" \
+    '.data.[($owner)].projectV2.items.pageInfo' _on_export_page 50; then
+    return 1
+  fi
 
   echo "${all_items}"
 }

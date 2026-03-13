@@ -177,6 +177,57 @@ run_graphql_json() {
   echo "${result}"
 }
 
+# ページネーション付き GraphQL クエリを実行し、コールバックでページごとの結果を処理する
+# 引数:
+#   $1 - GraphQL クエリ
+#   $2 - コンテキスト（エラーメッセージ用）
+#   $3 - ベース変数 JSON（after は自動付与される）
+#   $4 - pageInfo への jq フィルタ（$owner 変数で OWNER_QUERY_FIELD を参照可能）
+#   $5 - コールバック関数名（引数: $1=ページ結果 JSON, $2=ページ番号）
+#        コールバックが非ゼロを返すとページネーションループを中断する
+#   $6 - 最大ページ数（省略または 0 で無制限）
+# 使用例:
+#   _on_page() { ALL_ITEMS+=$(echo "$1" | jq -r '...'); }
+#   run_graphql_paginated "${QUERY}" "アイテム取得" "${VARS}" \
+#     '.data.[($owner)].projectV2.items.pageInfo' _on_page 50
+run_graphql_paginated() {
+  local query="$1"
+  local context="$2"
+  local base_variables="$3"
+  local page_info_jq="$4"
+  local callback="$5"
+  local max_pages="${6:-0}"
+
+  local _pgn_cursor=""
+  local _pgn_has_next="true"
+  local _pgn_page=0
+
+  while [[ "${_pgn_has_next}" == "true" ]]; do
+    _pgn_page=$((_pgn_page + 1))
+    if [[ "${max_pages}" -gt 0 && "${_pgn_page}" -gt "${max_pages}" ]]; then
+      echo "::warning::ページネーション上限（${max_pages} ページ）に達しました。一部のデータが取得されていない可能性があります。" >&2
+      break
+    fi
+
+    local _pgn_variables
+    _pgn_variables=$(echo "${base_variables}" | jq --arg after "${_pgn_cursor}" \
+      'if $after == "" then . else . + {after: $after} end')
+
+    local _pgn_result
+    if ! _pgn_result=$(run_graphql_json "${query}" "${context}" "${_pgn_variables}"); then
+      return 1
+    fi
+
+    # コールバック実行（非ゼロ返却でループ中断）
+    if ! "${callback}" "${_pgn_result}" "${_pgn_page}"; then
+      break
+    fi
+
+    _pgn_has_next=$(echo "${_pgn_result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" "${page_info_jq}.hasNextPage" 2>/dev/null || echo "false")
+    _pgn_cursor=$(echo "${_pgn_result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" "${page_info_jq}.endCursor // empty" 2>/dev/null || true)
+  done
+}
+
 # 罫線付きコンソールサマリーを出力する
 # 使用例: print_summary "Owner" "${PROJECT_OWNER}" "Project" "#${PROJECT_NUMBER}" "作成" "${COUNT} 件"
 print_summary() {

@@ -47,8 +47,6 @@ echo ""
 echo "同名の Project が既に存在するか確認します..."
 
 EXISTING_PROJECT=""
-HAS_NEXT_PAGE="true"
-END_CURSOR=""
 
 EXISTING_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
 query($login: String!, $after: String) {
@@ -66,22 +64,16 @@ GRAPHQL
 )
 EXISTING_QUERY=$(apply_owner_field "${EXISTING_QUERY_TEMPLATE}")
 
-while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
-  VARIABLES_JSON=$(jq -n \
-    --arg login "${PROJECT_OWNER}" \
-    --arg after "${END_CURSOR}" \
-    'if $after == "" then {login: $login} else {login: $login, after: $after} end')
-  EXISTING_PROJECTS=$(run_graphql_json "${EXISTING_QUERY}" "既存 Project の一覧取得" "${VARIABLES_JSON}")
+_on_existing_project_page() {
+  local result="$1"
+  EXISTING_PROJECT=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" --arg title "${PROJECT_TITLE}" \
+    '[.data.[($owner)].projectsV2.nodes[] | select(.title == $title)] | first // ""')
+  [[ -z "${EXISTING_PROJECT}" ]]
+}
 
-  EXISTING_PROJECT=$(echo "${EXISTING_PROJECTS}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" --arg title "${PROJECT_TITLE}" '[.data.[($owner)].projectsV2.nodes[] | select(.title == $title)] | first // ""')
-
-  if [[ -n "${EXISTING_PROJECT}" ]]; then
-    break
-  fi
-
-  HAS_NEXT_PAGE=$(echo "${EXISTING_PROJECTS}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectsV2.pageInfo.hasNextPage' 2>/dev/null || echo "false")
-  END_CURSOR=$(echo "${EXISTING_PROJECTS}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectsV2.pageInfo.endCursor // empty' 2>/dev/null || true)
-done
+VARIABLES_JSON=$(jq -n --arg login "${PROJECT_OWNER}" '{login: $login}')
+run_graphql_paginated "${EXISTING_QUERY}" "既存 Project の一覧取得" "${VARIABLES_JSON}" \
+  '.data.[($owner)].projectsV2.pageInfo' _on_existing_project_page
 
 if [[ -n "${EXISTING_PROJECT}" ]]; then
   EXISTING_NUMBER=$(echo "${EXISTING_PROJECT}" | jq -r '.number // empty')
