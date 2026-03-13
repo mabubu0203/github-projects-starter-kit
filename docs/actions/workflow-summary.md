@@ -46,6 +46,28 @@
 
 ## 使用例
 
+### ① 新規作成ワークフロー（project-number なし・複数ジョブ）
+
+```yaml
+- name: 成功サマリーを出力
+  uses: ./.github/actions/workflow-summary
+  with:
+    status: success
+    project-owner: ${{ github.repository_owner }}
+    job-results: |
+      {"create-project": "${{ needs.create-project.result }}", "extend-project": "${{ needs.extend-project.result }}"}
+
+- name: 失敗サマリーを出力
+  uses: ./.github/actions/workflow-summary
+  with:
+    status: failure
+    project-owner: ${{ github.repository_owner }}
+    job-results: |
+      {"create-project": "${{ needs.create-project.result }}", "extend-project": "${{ needs.extend-project.result }}"}
+```
+
+### ②③④ 既存 Project 操作ワークフロー（project-number あり・単一ジョブ）
+
 ```yaml
 - name: 成功サマリーを出力
   uses: ./.github/actions/workflow-summary
@@ -53,6 +75,8 @@
     status: success
     project-owner: ${{ github.repository_owner }}
     project-number: ${{ inputs.project_number }}
+    job-results: |
+      {"extend-project": "${{ needs.extend-project.result }}"}
 
 - name: 失敗サマリーを出力
   uses: ./.github/actions/workflow-summary
@@ -61,7 +85,7 @@
     project-owner: ${{ github.repository_owner }}
     project-number: ${{ inputs.project_number }}
     job-results: |
-      {"create-project": "${{ needs.create-project.result }}", "extend-project": "${{ needs.extend-project.result }}"}
+      {"extend-project": "${{ needs.extend-project.result }}"}
 ```
 
 ## 使用ワークフロー

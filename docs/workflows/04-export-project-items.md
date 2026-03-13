@@ -84,7 +84,7 @@
 
 ```mermaid
 flowchart TD
-    A["workflow_dispatch\n（project_number・output_format・item_type・item_state）"] --> B["export-items ジョブ\nProject アイテムを取得しフィルタ・指定形式でエクスポート"]
+    A["workflow_dispatch\n（project_number・output_format・item_type・item_state）"] --> B["export-items ジョブ\nProject アイテムを取得しフィルタ・指定形式でエクスポート\nし artifact としてアップロード"]
     B --> C{"結果判定"}
     C -- "成功" --> D["workflow-summary-success ジョブ\n成功サマリーを出力"]
     C -- "失敗" --> E["workflow-summary-failure ジョブ\n失敗サマリーを出力"]
