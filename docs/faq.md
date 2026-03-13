@@ -15,6 +15,10 @@ GitHub Project の URL 末尾の数字が `project_number` です。
 
 **例:** `https://github.com/users/octocat/projects/3` → `project_number` は **3**
 
+> **参考画像:** Organization の Projects 一覧画面では、各プロジェクト名の下に `#番号` が表示されます。
+>
+> ![project_number の確認例](images/faq-project-number.png)
+
 ### CLI で確認する方法
 
 ```bash
@@ -30,6 +34,10 @@ gh project list
 リポジトリページの URL から `owner/repo` 形式で指定します。
 
 **例:** `https://github.com/octocat/my-app` → `target_repo` は **octocat/my-app**
+
+> **参考画像:** リポジトリページのヘッダーに `owner/repo` 形式で表示されています。
+>
+> ![target_repo の確認例](images/faq-target-repo.png)
 
 ### CLI で確認する方法
 
