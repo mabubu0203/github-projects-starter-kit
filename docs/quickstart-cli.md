@@ -44,8 +44,12 @@ gh secret set PROJECT_PAT --repo <owner>/github-projects-starter-kit
 
 フォークしたリポジトリでは GitHub Actions がデフォルトで無効になっています。
 
-1. fork 先リポジトリの **Actions** タブを開く
-2. 「I understand my workflows, go ahead and enable them」ボタンをクリックする
+```bash
+gh api repos/<owner>/github-projects-starter-kit/actions/permissions \
+  --method PUT \
+  --field enabled=true \
+  --field allowed_actions="all"
+```
 
 > **Note:** 詳しくは [FAQ > Q7. フォーク後に GitHub Actions が動きません](faq#q7-フォーク後に-github-actions-が動きません) を参照してください。
 
