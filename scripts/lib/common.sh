@@ -99,7 +99,7 @@ run_graphql() {
   local extra_args=("$@")
 
   local result
-  if ! result=$(gh api graphql -f query="${query}" "${extra_args[@]}" 2>&1); then
+  if ! result=$(gh api graphql -f query="${query}" ${extra_args[@]+"${extra_args[@]}"} 2>&1); then
     local safe_result
     safe_result=$(sanitize_for_workflow_command "${result}")
     echo "::error::${context}に失敗しました: ${safe_result}" >&2

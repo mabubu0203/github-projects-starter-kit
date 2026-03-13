@@ -33,7 +33,7 @@ flowchart TD
     M --> N["異常終了"]
 
     L -- "Yes" --> O["project_number / url を抽出"]
-    O --> P["gh project edit\nで Visibility 設定"]
+    O --> P["GraphQL updateProjectV2\nで Visibility 設定"]
     P --> Q{"設定成功?"}
     Q -- "No" --> R["エラー出力\n手動設定コマンド表示"]
     R --> N
@@ -55,8 +55,8 @@ flowchart TD
 | 重複チェック | 同一 Owner 配下に同名タイトルの Project が存在するか確認し、存在する場合は警告を出して正常終了（ページネーションで全件走査） | GraphQL `projectsV2(first: 100)` + `pageInfo`・`jq 'select(.title == ...)'` |
 | Project 作成 | GraphQL mutation で Project を作成 | GraphQL `createProjectV2(input: {ownerId, title})` |
 | 情報抽出 | 作成結果の JSON から `number` と `url` を取得 | `jq -r '.number'`・`jq -r '.url'` |
-| Visibility 設定 | 作成した Project の公開範囲を指定値に変更 | `gh project edit {number} --owner --visibility --format json` |
-| Visibility 検証 | レスポンス JSON の `visibility` が期待値と一致するか確認 | `jq -r '.visibility'` |
+| Visibility 設定 | 作成した Project の公開範囲を指定値に変更 | GraphQL `updateProjectV2(input: {projectId, public})` |
+| Visibility 検証 | レスポンス JSON の `public` が期待値と一致するか確認 | `jq '.public'` |
 | サマリー出力 | `GITHUB_OUTPUT` へ後続ステップ連携用の値を設定、`GITHUB_STEP_SUMMARY` にテーブル出力 | — |
 
 ## API リファレンス
@@ -66,7 +66,7 @@ flowchart TD
 | `gh api users/{owner}` | オーナータイプ判定 | [Get a user - REST API](https://docs.github.com/en/rest/users/users#get-a-user) |
 | GraphQL `projectsV2` | 既存 Project の一覧取得（重複チェック） | [ProjectV2 - GraphQL API](https://docs.github.com/en/graphql/reference/objects#projectv2) |
 | GraphQL `createProjectV2` | Project 新規作成 | [createProjectV2 - GraphQL API](https://docs.github.com/en/graphql/reference/mutations#createprojectv2) |
-| `gh project edit` | Visibility 設定 | [gh project edit](https://cli.github.com/manual/gh_project_edit) |
+| GraphQL `updateProjectV2` | Visibility 設定 | [updateProjectV2 - GraphQL API](https://docs.github.com/en/graphql/reference/mutations#updateprojectv2) |
 
 ## 使用ワークフロー
 

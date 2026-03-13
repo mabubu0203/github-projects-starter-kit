@@ -104,7 +104,7 @@ echo "  Visibility: ${PROJECT_VISIBILITY}"
 
 CREATE_MUTATION='mutation($ownerId: ID!, $title: String!) {
   createProjectV2(input: {ownerId: $ownerId, title: $title}) {
-    projectV2 { number url }
+    projectV2 { id number url }
   }
 }'
 OUTPUT=$(run_graphql "${CREATE_MUTATION}" "GitHub Project の作成" -f ownerId="${OWNER_NODE_ID}" -f title="${PROJECT_TITLE}")
@@ -114,6 +114,7 @@ echo "${OUTPUT}" | jq '.data.createProjectV2.projectV2' 2>/dev/null || echo "${O
 
 # --- Project 情報の抽出 ---
 
+PROJECT_ID=$(echo "${OUTPUT}" | jq -r '.data.createProjectV2.projectV2.id // empty')
 PROJECT_NUMBER=$(echo "${OUTPUT}" | jq -r '.data.createProjectV2.projectV2.number // empty')
 PROJECT_URL=$(echo "${OUTPUT}" | jq -r '.data.createProjectV2.projectV2.url // empty')
 
@@ -130,21 +131,24 @@ fi
 echo ""
 echo "Visibility を ${PROJECT_VISIBILITY} に設定します..."
 
-if ! EDIT_OUTPUT=$(gh project edit "${PROJECT_NUMBER}" --owner "${PROJECT_OWNER}" --visibility "${PROJECT_VISIBILITY}" --format json 2>&1); then
-  SAFE_EDIT_OUTPUT=$(sanitize_for_workflow_command "${EDIT_OUTPUT}")
-  echo "::error::Visibility の設定に失敗しました: ${SAFE_EDIT_OUTPUT}"
-  echo "::error::Project は作成されましたが、Visibility はデフォルト（PRIVATE）のままです。"
-  echo "手動で設定してください: gh project edit ${PROJECT_NUMBER} --owner ${PROJECT_OWNER} --visibility ${PROJECT_VISIBILITY}"
-  exit 1
+IS_PUBLIC="false"
+if [[ "${PROJECT_VISIBILITY}" == "PUBLIC" ]]; then
+  IS_PUBLIC="true"
 fi
+UPDATE_MUTATION="mutation {
+  updateProjectV2(input: {projectId: \"${PROJECT_ID}\", public: ${IS_PUBLIC}}) {
+    projectV2 { public }
+  }
+}"
+EDIT_OUTPUT=$(run_graphql "${UPDATE_MUTATION}" "Visibility の設定")
 
 # Visibility 設定結果の検証
-ACTUAL_VISIBILITY=$(echo "${EDIT_OUTPUT}" | jq -r '.visibility // empty')
+ACTUAL_PUBLIC=$(echo "${EDIT_OUTPUT}" | jq '.data.updateProjectV2.projectV2.public')
 
-if [[ -z "${ACTUAL_VISIBILITY}" ]]; then
+if [[ "${ACTUAL_PUBLIC}" == "null" ]]; then
   echo "::warning::Visibility の検証をスキップしました（レスポンスから visibility を取得できませんでした）。"
-elif [[ "${ACTUAL_VISIBILITY}" != "${PROJECT_VISIBILITY}" ]]; then
-  echo "::warning::Visibility の設定値が期待と異なります。期待: ${PROJECT_VISIBILITY}、実際: ${ACTUAL_VISIBILITY}"
+elif [[ "${ACTUAL_PUBLIC}" == "true" && "${PROJECT_VISIBILITY}" != "PUBLIC" ]] || [[ "${ACTUAL_PUBLIC}" == "false" && "${PROJECT_VISIBILITY}" != "PRIVATE" ]]; then
+  echo "::warning::Visibility の設定値が期待と異なります。期待: ${PROJECT_VISIBILITY}、実際: public=${ACTUAL_PUBLIC}"
 else
   echo "::notice::Visibility を ${PROJECT_VISIBILITY} に設定し、検証に成功しました。"
 fi
