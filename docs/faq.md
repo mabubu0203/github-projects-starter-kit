@@ -11,7 +11,7 @@ GitHub Project の URL 末尾の数字が `project_number` です。
 | 所有者タイプ | URL 形式 |
 |------------|----------|
 | ユーザー | `https://github.com/users/{owner}/projects/{number}` |
-| Organization | `https://github.com/orgs/{owner}/projects/{number}` |
+| 組織（Organization） | `https://github.com/orgs/{owner}/projects/{number}` |
 
 **例:** `https://github.com/users/octocat/projects/3` → `project_number` は **3**
 
@@ -48,7 +48,7 @@ gh repo list
 | タブ | URL 形式 |
 |------|----------|
 | Issues | `https://github.com/{owner}/{repo}/issues` |
-| Pull Requests | `https://github.com/{owner}/{repo}/pulls` |
+| Pull requests | `https://github.com/{owner}/{repo}/pulls` |
 
 ### CLI で確認する方法
 
