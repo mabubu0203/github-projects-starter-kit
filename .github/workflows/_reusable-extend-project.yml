@@ -39,7 +39,3 @@ jobs:
         run: |
           chmod +x scripts/setup-project-views.sh
           bash scripts/setup-project-views.sh
-
-      - name: 失敗サマリーを出力
-        if: failure()
-        uses: ./.github/actions/failure-summary
