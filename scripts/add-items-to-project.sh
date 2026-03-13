@@ -74,10 +74,10 @@ STATUS_FIELD_RESULT=$(run_graphql "${STATUS_FIELD_QUERY}" "Status フィール�
 IFS=$'\t' read -r PROJECT_ID STATUS_FIELD_ID INITIAL_STATUS_OPTION_ID DONE_STATUS_OPTION_ID < <(
   echo "${STATUS_FIELD_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" --arg initial "${INITIAL_STATUS}" '
     .data.[($owner)].projectV2 as $proj |
-    ($proj.fields.nodes[] | select(.name == "Status") // null) as $status |
+    ([$proj.fields.nodes[] | select(.name == "Status")] | first // null) as $status |
     [
       ($proj.id // ""),
-      ($status.id // "" // ""),
+      ($status.id // ""),
       ([$status.options[]? | select(.name == $initial) | .id] | first // ""),
       ([$status.options[]? | select(.name == "Done") | .id] | first // "")
     ] | @tsv
