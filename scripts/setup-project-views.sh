@@ -31,39 +31,64 @@ if [[ ! -f "${VIEW_DEFINITIONS_FILE}" ]]; then
 fi
 VIEW_DEFINITIONS=$(cat "${VIEW_DEFINITIONS_FILE}")
 
-# --- GraphQL で既存 View 情報の取得 ---
+# --- GraphQL で既存 View 情報の取得（ページネーション対応） ---
 
 echo ""
 echo "Project #${PROJECT_NUMBER} の既存 View を取得しています..."
 
-VIEW_QUERY=$(cat <<GRAPHQL
-query {
-  ${OWNER_QUERY_FIELD}(login: "${PROJECT_OWNER}") {
-    projectV2(number: ${PROJECT_NUMBER}) {
-      id
-      views(first: 100) {
-        nodes {
-          id
-          name
-          layout
+PROJECT_ID=""
+EXISTING_VIEWS=""
+HAS_NEXT_PAGE="true"
+END_CURSOR=""
+
+while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
+  AFTER_CLAUSE=""
+  if [[ -n "${END_CURSOR}" ]]; then
+    AFTER_CLAUSE=", after: \"${END_CURSOR}\""
+  fi
+
+  VIEW_QUERY="query {
+    ${OWNER_QUERY_FIELD}(login: \"${PROJECT_OWNER}\") {
+      projectV2(number: ${PROJECT_NUMBER}) {
+        id
+        views(first: 100${AFTER_CLAUSE}) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            id
+            name
+            layout
+          }
         }
       }
     }
-  }
-}
-GRAPHQL
-)
+  }"
 
-VIEW_RESULT=$(run_graphql "${VIEW_QUERY}" "既存 View の取得")
+  VIEW_RESULT=$(run_graphql "${VIEW_QUERY}" "既存 View の取得")
 
-PROJECT_ID=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.id // empty')
-if [[ -z "${PROJECT_ID}" ]]; then
-  echo "::error::Project ID を取得できませんでした。Project #${PROJECT_NUMBER} が存在するか確認してください。"
-  exit 1
-fi
-echo "  Project ID: ${PROJECT_ID}"
+  if [[ -z "${PROJECT_ID}" ]]; then
+    PROJECT_ID=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.id // empty')
+    if [[ -z "${PROJECT_ID}" ]]; then
+      echo "::error::Project ID を取得できませんでした。Project #${PROJECT_NUMBER} が存在するか確認してください。"
+      exit 1
+    fi
+    echo "  Project ID: ${PROJECT_ID}"
+  fi
 
-EXISTING_VIEWS=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.nodes[].name // empty' 2>/dev/null)
+  PAGE_VIEWS=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.nodes[].name // empty' 2>/dev/null)
+  if [[ -n "${PAGE_VIEWS}" ]]; then
+    if [[ -n "${EXISTING_VIEWS}" ]]; then
+      EXISTING_VIEWS+=$'\n'"${PAGE_VIEWS}"
+    else
+      EXISTING_VIEWS="${PAGE_VIEWS}"
+    fi
+  fi
+
+  HAS_NEXT_PAGE=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.pageInfo.hasNextPage' 2>/dev/null || echo "false")
+  END_CURSOR=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.pageInfo.endCursor // empty' 2>/dev/null || true)
+done
 
 echo ""
 echo "既存の View:"
