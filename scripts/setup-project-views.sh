@@ -57,9 +57,7 @@ while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
             endCursor
           }
           nodes {
-            id
             name
-            layout
           }
         }
       }
@@ -68,8 +66,16 @@ while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
 
   VIEW_RESULT=$(run_graphql "${VIEW_QUERY}" "既存 View の取得")
 
+  # Project ID、ページネーション情報、View 名を一括取得
+  IFS=$'\t' read -r PAGE_PROJECT_ID PAGE_HAS_NEXT PAGE_END_CURSOR < <(
+    echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '
+      .data.[($owner)].projectV2 as $proj |
+      [($proj.id // ""), ($proj.views.pageInfo.hasNextPage | tostring), ($proj.views.pageInfo.endCursor // "")] | @tsv
+    '
+  )
+
   if [[ -z "${PROJECT_ID}" ]]; then
-    PROJECT_ID=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.id // empty')
+    PROJECT_ID="${PAGE_PROJECT_ID}"
     if [[ -z "${PROJECT_ID}" ]]; then
       echo "::error::Project ID を取得できませんでした。Project #${PROJECT_NUMBER} が存在するか確認してください。"
       exit 1
@@ -86,8 +92,8 @@ while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
     fi
   fi
 
-  HAS_NEXT_PAGE=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.pageInfo.hasNextPage' 2>/dev/null || echo "false")
-  END_CURSOR=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.pageInfo.endCursor // empty' 2>/dev/null || true)
+  HAS_NEXT_PAGE="${PAGE_HAS_NEXT}"
+  END_CURSOR="${PAGE_END_CURSOR}"
 done
 
 echo ""
