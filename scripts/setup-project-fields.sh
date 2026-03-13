@@ -111,12 +111,8 @@ for i in $(seq 0 $((FIELD_COUNT - 1))); do
   # GraphQL mutation によるフィールド作成
   # gh project field-create は gh CLI v2.88.1 で User オーナーに対して
   # "unknown owner type" エラーを起こすため、GraphQL API を直接使用する (Issue #119)
-  MUTATION_ARGS=(-f "projectId=${PROJECT_ID}" -f "name=${FIELD_NAME}" -f "dataType=${FIELD_DATA_TYPE}")
-
-  if [[ "${FIELD_DATA_TYPE}" == "SINGLE_SELECT" ]]; then
-    SINGLE_SELECT_OPTIONS=$(echo "${FIELD_DEFINITIONS}" | jq -c "[.[$i].options[] | {name: ., color: \"GRAY\", description: \"\"}]")
-    CREATE_MUTATION=$(cat <<'GRAPHQL'
-mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!, $singleSelectOptions: [ProjectV2SingleSelectFieldOptionInput!]!) {
+  CREATE_MUTATION=$(cat <<'GRAPHQL'
+mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!, $singleSelectOptions: [ProjectV2SingleSelectFieldOptionInput!]) {
   createProjectV2Field(input: {
     projectId: $projectId
     dataType: $dataType
@@ -124,6 +120,10 @@ mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!, 
     singleSelectOptions: $singleSelectOptions
   }) {
     projectV2Field {
+      ... on ProjectV2Field {
+        id
+        name
+      }
       ... on ProjectV2SingleSelectField {
         id
         name
@@ -133,26 +133,12 @@ mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!, 
   }
 }
 GRAPHQL
-    )
+  )
+
+  MUTATION_ARGS=(-f "projectId=${PROJECT_ID}" -f "name=${FIELD_NAME}" -f "dataType=${FIELD_DATA_TYPE}")
+  if [[ "${FIELD_DATA_TYPE}" == "SINGLE_SELECT" ]]; then
+    SINGLE_SELECT_OPTIONS=$(echo "${FIELD_DEFINITIONS}" | jq -c "[.[$i].options[] | {name: ., color: \"GRAY\", description: \"\"}]")
     MUTATION_ARGS+=(-F "singleSelectOptions=${SINGLE_SELECT_OPTIONS}")
-  else
-    CREATE_MUTATION=$(cat <<'GRAPHQL'
-mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!) {
-  createProjectV2Field(input: {
-    projectId: $projectId
-    dataType: $dataType
-    name: $name
-  }) {
-    projectV2Field {
-      ... on ProjectV2Field {
-        id
-        name
-      }
-    }
-  }
-}
-GRAPHQL
-    )
   fi
 
   if ! CREATE_OUTPUT=$(run_graphql "${CREATE_MUTATION}" "フィールド '${SAFE_FIELD_NAME}' の作成" "${MUTATION_ARGS[@]}" 2>&1); then
