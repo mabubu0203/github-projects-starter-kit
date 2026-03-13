@@ -63,7 +63,7 @@ flowchart TD
     A["開始"] --> B["環境変数バリデーション"]
     B --> C["オーナータイプ判定"]
     C --> D["View 定義ファイル読み込み\n（config/view-definitions.json）"]
-    D --> E["REST API で既存 View 一覧を取得\n（ページネーション対応）"]
+    D --> E["GraphQL API で既存 View 一覧を取得\n（ページネーション対応）"]
     E --> F{"取得成功?"}
     F -- "No" --> G["エラー出力"]
     G --> H["異常終了"]
@@ -90,8 +90,8 @@ flowchart TD
 |---------|---------|-------------------|
 | オーナータイプ判定 | `detect_owner_type` で Organization / User を判別 | `gh api users/{owner}` |
 | View 定義ファイル読み込み | `scripts/config/view-definitions.json` から View 定義を読み込み | `cat` |
+| 既存 View 取得 | GraphQL API で Project の全 View 名をページネーション付きで取得 | `gh api graphql` (`projectV2.views`) |
 | REST API パス構築 | オーナータイプに応じて `orgs/{org}/projectsV2/{number}/views` または `users/{username}/projectsV2/{number}/views` を構築 | — |
-| 既存 View 取得 | REST API で Project の全 View 名をページネーション付きで取得 | `gh api {path} --paginate` |
 | 重複チェック | 既存 View 名リストと定義済み View 名を `grep -Fqx` で完全一致比較 | — |
 | View 作成 | REST API で View を作成。`name`・`layout` に加え、任意で `filter`・`visible_fields` を送信 | `gh api {path} --method POST` |
 | サマリー出力 | 作成・スキップ・失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
@@ -100,20 +100,19 @@ flowchart TD
 
 | API / コマンド | 用途 | リファレンス |
 |---------------|------|-------------|
-| `GET /orgs/{org}/projectsV2/{project_number}/views` | 既存 View 一覧の取得（Organization） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
-| `GET /users/{username}/projectsV2/{project_number}/views` | 既存 View 一覧の取得（User） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
-| `POST /orgs/{org}/projectsV2/{project_number}/views` | View の作成（Organization） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
-| `POST /users/{username}/projectsV2/{project_number}/views` | View の作成（User） | [REST API - Project views](https://docs.github.com/en/enterprise-cloud@latest/rest/projects/views?apiVersion=2026-03-10) |
+| GraphQL `projectV2.views` | 既存 View 一覧の取得 | [GraphQL API - ProjectV2](https://docs.github.com/en/graphql/reference/objects#projectv2) |
+| `POST /orgs/{org}/projectsV2/{project_number}/views` | View の作成（Organization） | [REST API - Project views](https://docs.github.com/en/rest/projects/views) |
+| `POST /users/{username}/projectsV2/{project_number}/views` | View の作成（User） | [REST API - Project views](https://docs.github.com/en/rest/projects/views) |
 
 ### API バージョン要件
 
-REST API バージョン `2026-03-10` が必要です。スクリプトでは `X-GitHub-Api-Version: 2026-03-10` ヘッダを自動付与します。
+REST API バージョン `2022-11-28` を使用します。スクリプトでは `X-GitHub-Api-Version: 2022-11-28` ヘッダを自動付与します。
 
 ### パラメータ上限
 
 | パラメータ | 現在の値 | 備考 |
 |-----------|---------|------|
-| `--paginate` | — | `gh api` のページネーション機能を使用（自動） |
+| `views(first: N)` | 100 | GraphQL API の 1 ページあたりの取得件数（`pageInfo` でページネーション対応） |
 
 ## 使用ワークフロー
 

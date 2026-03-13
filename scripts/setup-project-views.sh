@@ -11,7 +11,7 @@ set -euo pipefail
 
 # --- REST API バージョン ---
 
-REST_API_VERSION="2026-03-10"
+REST_API_VERSION="2022-11-28"
 
 # --- 共通ライブラリ読み込み ---
 
@@ -31,29 +31,70 @@ if [[ ! -f "${VIEW_DEFINITIONS_FILE}" ]]; then
 fi
 VIEW_DEFINITIONS=$(cat "${VIEW_DEFINITIONS_FILE}")
 
-# --- REST API パス構築 ---
-
-if [[ "${OWNER_TYPE}" == "Organization" ]]; then
-  VIEWS_API_PATH="orgs/${PROJECT_OWNER}/projectsV2/${PROJECT_NUMBER}/views"
-elif [[ "${OWNER_TYPE}" == "User" ]]; then
-  VIEWS_API_PATH="users/${PROJECT_OWNER}/projectsV2/${PROJECT_NUMBER}/views"
-fi
-
-# --- 既存 View 情報の取得（ページネーション対応） ---
+# --- GraphQL で既存 View 情報の取得（ページネーション対応） ---
 
 echo ""
 echo "Project #${PROJECT_NUMBER} の既存 View を取得しています..."
 
-if ! ALL_VIEW_NODES=$(gh api "${VIEWS_API_PATH}" \
-  -H "X-GitHub-Api-Version: ${REST_API_VERSION}" \
-  --paginate \
-  --jq '.[].name' 2>&1); then
-  SAFE_RESULT=$(sanitize_for_workflow_command "${ALL_VIEW_NODES}")
-  echo "::error::既存 View の取得に失敗しました: ${SAFE_RESULT}"
-  exit 1
-fi
+PROJECT_ID=""
+EXISTING_VIEWS=""
+HAS_NEXT_PAGE="true"
+END_CURSOR=""
 
-EXISTING_VIEWS="${ALL_VIEW_NODES}"
+while [[ "${HAS_NEXT_PAGE}" == "true" ]]; do
+  AFTER_CLAUSE=""
+  if [[ -n "${END_CURSOR}" ]]; then
+    AFTER_CLAUSE=", after: \"${END_CURSOR}\""
+  fi
+
+  VIEW_QUERY="query {
+    ${OWNER_QUERY_FIELD}(login: \"${PROJECT_OWNER}\") {
+      projectV2(number: ${PROJECT_NUMBER}) {
+        id
+        views(first: 100${AFTER_CLAUSE}) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            name
+          }
+        }
+      }
+    }
+  }"
+
+  VIEW_RESULT=$(run_graphql "${VIEW_QUERY}" "既存 View の取得")
+
+  # Project ID、ページネーション情報、View 名を一括取得
+  IFS=$'\t' read -r PAGE_PROJECT_ID PAGE_HAS_NEXT PAGE_END_CURSOR < <(
+    echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '
+      .data.[($owner)].projectV2 as $proj |
+      [($proj.id // ""), ($proj.views.pageInfo.hasNextPage | tostring), ($proj.views.pageInfo.endCursor // "")] | @tsv
+    '
+  )
+
+  if [[ -z "${PROJECT_ID}" ]]; then
+    PROJECT_ID="${PAGE_PROJECT_ID}"
+    if [[ -z "${PROJECT_ID}" ]]; then
+      echo "::error::Project ID を取得できませんでした。Project #${PROJECT_NUMBER} が存在するか確認してください。"
+      exit 1
+    fi
+    echo "  Project ID: ${PROJECT_ID}"
+  fi
+
+  PAGE_VIEWS=$(echo "${VIEW_RESULT}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.views.nodes[].name // empty' 2>/dev/null)
+  if [[ -n "${PAGE_VIEWS}" ]]; then
+    if [[ -n "${EXISTING_VIEWS}" ]]; then
+      EXISTING_VIEWS+=$'\n'"${PAGE_VIEWS}"
+    else
+      EXISTING_VIEWS="${PAGE_VIEWS}"
+    fi
+  fi
+
+  HAS_NEXT_PAGE="${PAGE_HAS_NEXT}"
+  END_CURSOR="${PAGE_END_CURSOR}"
+done
 
 echo ""
 echo "既存の View:"
@@ -63,6 +104,14 @@ if [[ -n "${EXISTING_VIEWS}" ]]; then
   done
 else
   echo "  （なし）"
+fi
+
+# --- REST API パス構築 ---
+
+if [[ "${OWNER_TYPE}" == "Organization" ]]; then
+  VIEWS_API_PATH="orgs/${PROJECT_OWNER}/projectsV2/${PROJECT_NUMBER}/views"
+elif [[ "${OWNER_TYPE}" == "User" ]]; then
+  VIEWS_API_PATH="users/${PROJECT_OWNER}/projectsV2/${PROJECT_NUMBER}/views"
 fi
 
 # --- View の作成 ---
