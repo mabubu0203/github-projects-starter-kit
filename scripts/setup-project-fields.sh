@@ -108,18 +108,54 @@ for i in $(seq 0 $((FIELD_COUNT - 1))); do
     continue
   fi
 
-  # gh project field-create コマンドの構築
-  CREATE_ARGS=("project" "field-create" "${PROJECT_NUMBER}" "--owner" "${PROJECT_OWNER}" "--name" "${FIELD_NAME}" "--data-type" "${FIELD_DATA_TYPE}")
+  # GraphQL mutation によるフィールド作成
+  # gh project field-create は gh CLI v2.88.1 で User オーナーに対して
+  # "unknown owner type" エラーを起こすため、GraphQL API を直接使用する (Issue #119)
+  MUTATION_ARGS=(-f "projectId=${PROJECT_ID}" -f "name=${FIELD_NAME}" -f "dataType=${FIELD_DATA_TYPE}")
 
-  # SINGLE_SELECT の場合は選択肢を追加
   if [[ "${FIELD_DATA_TYPE}" == "SINGLE_SELECT" ]]; then
-    OPTIONS=$(echo "${FIELD_DEFINITIONS}" | jq -r ".[$i].options[]")
-    while IFS= read -r option; do
-      CREATE_ARGS+=("--single-select-options" "${option}")
-    done <<< "${OPTIONS}"
+    SINGLE_SELECT_OPTIONS=$(echo "${FIELD_DEFINITIONS}" | jq -c "[.[$i].options[] | {name: ., color: \"GRAY\", description: \"\"}]")
+    CREATE_MUTATION=$(cat <<'GRAPHQL'
+mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!, $singleSelectOptions: [ProjectV2SingleSelectFieldOptionInput!]!) {
+  createProjectV2Field(input: {
+    projectId: $projectId
+    dataType: $dataType
+    name: $name
+    singleSelectOptions: $singleSelectOptions
+  }) {
+    projectV2Field {
+      ... on ProjectV2SingleSelectField {
+        id
+        name
+        options { id name }
+      }
+    }
+  }
+}
+GRAPHQL
+    )
+    MUTATION_ARGS+=(-F "singleSelectOptions=${SINGLE_SELECT_OPTIONS}")
+  else
+    CREATE_MUTATION=$(cat <<'GRAPHQL'
+mutation($projectId: ID!, $name: String!, $dataType: ProjectV2CustomFieldType!) {
+  createProjectV2Field(input: {
+    projectId: $projectId
+    dataType: $dataType
+    name: $name
+  }) {
+    projectV2Field {
+      ... on ProjectV2Field {
+        id
+        name
+      }
+    }
+  }
+}
+GRAPHQL
+    )
   fi
 
-  if ! CREATE_OUTPUT=$(gh "${CREATE_ARGS[@]}" 2>&1); then
+  if ! CREATE_OUTPUT=$(run_graphql "${CREATE_MUTATION}" "フィールド '${SAFE_FIELD_NAME}' の作成" "${MUTATION_ARGS[@]}" 2>&1); then
     SAFE_OUTPUT=$(sanitize_for_workflow_command "${CREATE_OUTPUT}")
     echo "  ::error::フィールド '${SAFE_FIELD_NAME}' の作成に失敗しました: ${SAFE_OUTPUT}"
     FAILED_COUNT=$((FAILED_COUNT + 1))

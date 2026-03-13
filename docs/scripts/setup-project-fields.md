@@ -64,7 +64,7 @@ flowchart TD
     F -- "Yes" --> I["フィールド定義をループ"]
     I --> J{"同名フィールド\n既に存在?"}
     J -- "Yes" --> K["スキップ"]
-    J -- "No" --> L["gh project field-create\nでフィールド作成"]
+    J -- "No" --> L["GraphQL createProjectV2Field\nでフィールド作成"]
     L --> M{"作成成功?"}
     M -- "Yes" --> N["作成カウント +1"]
     M -- "No" --> O["失敗カウント +1"]
@@ -85,7 +85,7 @@ flowchart TD
 | フィールド定義ファイル読み込み | `scripts/config/field-definitions.json` からフィールド定義を読み込み | `cat` |
 | 既存フィールド取得 | GraphQL クエリで Project ID と全フィールド（名前・データ型・選択肢）を一括取得 | `gh api graphql` — `projectV2.fields(first: 100)` |
 | 重複チェック | 既存フィールド名リストと定義済みフィールド名を `grep -Fqx` で完全一致比較 | — |
-| フィールド作成 | `SINGLE_SELECT` の場合は `--single-select-options` で選択肢を付与して作成 | `gh project field-create {number} --owner --name --data-type` |
+| フィールド作成 | `SINGLE_SELECT` の場合は `singleSelectOptions` で選択肢を付与して作成 | `gh api graphql` — `createProjectV2Field` mutation |
 | サマリー出力 | 作成・スキップ・失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
 
 ## API リファレンス
@@ -93,7 +93,7 @@ flowchart TD
 | API / コマンド | 用途 | リファレンス |
 |---------------|------|-------------|
 | `projectV2.fields` (GraphQL) | 既存フィールド一覧の取得 | [ProjectV2](https://docs.github.com/en/graphql/reference/objects#projectv2) |
-| `gh project field-create` | カスタムフィールドの作成 | [gh project field-create](https://cli.github.com/manual/gh_project_field-create) |
+| `createProjectV2Field` (GraphQL) | カスタムフィールドの作成 | [createProjectV2Field](https://docs.github.com/en/graphql/reference/mutations#createprojectv2field) |
 
 ### API バージョン要件
 
