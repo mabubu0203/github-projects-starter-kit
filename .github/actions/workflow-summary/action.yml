@@ -72,12 +72,23 @@ runs:
           fi
 
           if [[ "${STATUS}" != "success" ]]; then
-            REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+            # フォークの場合はフォーク元リポジトリを取得
+            UPSTREAM_REPO=$(gh api "repos/${{ github.repository }}" --jq 'select(.fork) | .parent.full_name' 2>/dev/null || true)
+            if [[ -n "${UPSTREAM_REPO}" ]]; then
+              UPSTREAM_URL="${{ github.server_url }}/${UPSTREAM_REPO}"
+            else
+              UPSTREAM_URL="${{ github.server_url }}/${{ github.repository }}"
+            fi
             echo ""
             echo "### 次のアクション"
             echo ""
+            if [[ -n "${UPSTREAM_REPO}" ]]; then
+              echo "> :warning: このリポジトリはフォークです。フォーク元と同期されていない可能性があります。"
+              echo "> 最新の状態に更新するには、GitHub の **Sync fork** またはローカルで \`git fetch upstream && git merge upstream/main\` を実行してください。"
+              echo ""
+            fi
             echo "問題が解決しない場合は、以下から報告してください："
-            echo "- [Issue を作成する](${REPO_URL}/issues/new)"
-            echo "- [Discussion を作成する](${REPO_URL}/discussions/new)"
+            echo "- [Issue を作成する](${UPSTREAM_URL}/issues/new)"
+            echo "- [Discussion を作成する](${UPSTREAM_URL}/discussions/new)"
           fi
         } >> "$GITHUB_STEP_SUMMARY"
