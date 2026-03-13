@@ -17,7 +17,7 @@ GitHub Project の URL 末尾の数字が `project_number` です。
 
 > **参考画像:** Organization の Projects 一覧画面では、各プロジェクト名の下に `#番号` が表示されます。
 >
-> ![project_number の確認例](images/faq-project-number.png)
+> <img src="images/faq-project-number.png" alt="project_number の確認例" width="50%">
 
 ### CLI で確認する方法
 
@@ -37,7 +37,7 @@ gh project list
 
 > **参考画像:** リポジトリページのヘッダーに `owner/repo` 形式で表示されています。
 >
-> ![target_repo の確認例](images/faq-target-repo.png)
+> <img src="images/faq-target-repo.png" alt="target_repo の確認例" width="50%">
 
 ### CLI で確認する方法
 
