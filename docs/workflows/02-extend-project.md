@@ -14,7 +14,7 @@
 
 | パラメータ | 説明 | 必須 | タイプ | 例 |
 |------------|------|:----:|--------|-----|
-| `project_number` | 対象 Project の Number | ✅ | `string` | `1` |
+| `project_number` | 対象 Project の Number | ✅ | `number` | `1` |
 
 ## 処理フロー
 

@@ -13,7 +13,7 @@
 
 | パラメータ | 説明 | 必須 | タイプ | 例 |
 |------------|------|:----:|--------|-----|
-| `project_number` | 対象 Project の Number | ✅ | `string` | `1` |
+| `project_number` | 対象 Project の Number | ✅ | `number` | `1` |
 | `output_format` | 出力形式 | ✅ | `choice` | `markdown`（デフォルト） |
 | `include_issues` | Issue を対象にする | ✅ | `boolean` | `true`（デフォルト） |
 | `include_prs` | Pull Request を対象にする | ✅ | `boolean` | `true`（デフォルト） |
