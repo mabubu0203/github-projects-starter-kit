@@ -13,7 +13,7 @@
 
 | パラメータ | 説明 | 必須 | タイプ | 例 |
 |------------|------|:----:|--------|-----|
-| `project_number` | 対象 Project の Number | ✅ | `string` | `1` |
+| `project_number` | 対象 Project の Number | ✅ | `number` | `1` |
 | `target_repo` | 対象リポジトリ（owner/repo 形式） | ✅ | `string` | `myorg/myrepo` |
 | `include_issues` | Issue を追加対象にする | ✅ | `boolean` | `true`（デフォルト） |
 | `include_prs` | Pull Request を追加対象にする | ✅ | `boolean` | `true`（デフォルト） |

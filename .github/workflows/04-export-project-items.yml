@@ -6,7 +6,7 @@ on:
       project_number:
         description: "対象 Project の Number"
         required: true
-        type: string
+        type: number
       output_format:
         description: "出力形式"
         required: true
