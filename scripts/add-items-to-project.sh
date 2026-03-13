@@ -116,13 +116,13 @@ set_item_status() {
   local option_id="$2"
 
   local mutation
-  mutation=$(cat <<GRAPHQL
-mutation {
+  mutation=$(cat <<'GRAPHQL'
+mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
   updateProjectV2ItemFieldValue(input: {
-    projectId: "${PROJECT_ID}"
-    itemId: "${item_id}"
-    fieldId: "${STATUS_FIELD_ID}"
-    value: { singleSelectOptionId: "${option_id}" }
+    projectId: $projectId
+    itemId: $itemId
+    fieldId: $fieldId
+    value: { singleSelectOptionId: $optionId }
   }) {
     projectV2Item {
       id
@@ -130,9 +130,13 @@ mutation {
   }
 }
 GRAPHQL
-)
+  )
 
-  run_graphql "${mutation}" "ステータスの設定" > /dev/null
+  run_graphql "${mutation}" "ステータスの設定" \
+    -f "projectId=${PROJECT_ID}" \
+    -f "itemId=${item_id}" \
+    -f "fieldId=${STATUS_FIELD_ID}" \
+    -f "optionId=${option_id}" > /dev/null
 }
 
 # Project に既に追加済みのアイテム URL を取得する
@@ -175,7 +179,7 @@ GRAPHQL
 )
 
     local result
-    if ! result=$(gh api graphql -f query="${query}" 2>&1); then
+    if ! result=$(run_graphql "${query}" "Project の既存アイテム取得" 2>&1); then
       echo "::warning::Project の既存アイテム取得に失敗しました。重複チェックをスキップします。" >&2
       echo ""
       return
