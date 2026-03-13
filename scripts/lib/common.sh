@@ -98,6 +98,21 @@ detect_owner_type() {
   fi
 }
 
+# GraphQL レスポンスのエラーチェックを行う（内部ヘルパー）
+# gh api の終了コードが 0 でもレスポンス内に GraphQL エラーが含まれる場合がある
+# 使用例: _check_graphql_errors "${result}" "Project 情報の取得"
+_check_graphql_errors() {
+  local result="$1"
+  local context="$2"
+
+  if echo "${result}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
+    local safe_errors
+    safe_errors=$(sanitize_for_workflow_command "$(echo "${result}" | jq -c '.errors')")
+    echo "::error::${context}中に GraphQL エラーが発生しました: ${safe_errors}" >&2
+    exit 1
+  fi
+}
+
 # GraphQL クエリ／ミューテーションを実行し、エラーチェックを行う
 # 成功時: 結果を標準出力に出力（呼び出し元で変数にキャプチャする）
 # 失敗時: エラーメッセージを出力して exit 1
@@ -117,13 +132,7 @@ run_graphql() {
     exit 1
   fi
 
-  if echo "${result}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
-    local safe_errors
-    safe_errors=$(sanitize_for_workflow_command "$(echo "${result}" | jq -c '.errors')")
-    echo "::error::${context}中に GraphQL エラーが発生しました: ${safe_errors}" >&2
-    exit 1
-  fi
-
+  _check_graphql_errors "${result}" "${context}"
   echo "${result}"
 }
 
@@ -148,13 +157,7 @@ run_graphql_json() {
     exit 1
   fi
 
-  if echo "${result}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
-    local safe_errors
-    safe_errors=$(sanitize_for_workflow_command "$(echo "${result}" | jq -c '.errors')")
-    echo "::error::${context}中に GraphQL エラーが発生しました: ${safe_errors}" >&2
-    exit 1
-  fi
-
+  _check_graphql_errors "${result}" "${context}"
   echo "${result}"
 }
 
