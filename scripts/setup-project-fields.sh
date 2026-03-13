@@ -37,7 +37,7 @@ query {
   ${OWNER_QUERY_FIELD}(login: "${PROJECT_OWNER}") {
     projectV2(number: ${PROJECT_NUMBER}) {
       id
-      fields(first: 250) {
+      fields(first: 100) {
         nodes {
           ... on ProjectV2Field {
             id
