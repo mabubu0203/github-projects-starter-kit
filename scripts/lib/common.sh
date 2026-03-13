@@ -184,7 +184,7 @@ run_graphql_json() {
 #   $3 - ベース変数 JSON（after は自動付与される）
 #   $4 - pageInfo への jq フィルタ（$owner 変数で OWNER_QUERY_FIELD を参照可能）
 #   $5 - コールバック関数名（引数: $1=ページ結果 JSON, $2=ページ番号）
-#        コールバックが非ゼロを返すとページネーションループを中断する
+#        戻り値: 0=継続, 1=エラー（関数も非ゼロで返る）, 2=早期終了（成功扱い）
 #   $6 - 最大ページ数（省略または 0 で無制限）
 # 使用例:
 #   _on_page() { ALL_ITEMS+=$(echo "$1" | jq -r '...'); }
@@ -197,6 +197,12 @@ run_graphql_paginated() {
   local page_info_jq="$4"
   local callback="$5"
   local max_pages="${6:-0}"
+
+  # コールバック関数の存在チェック
+  if ! declare -F "${callback}" >/dev/null 2>&1; then
+    echo "::error::コールバック関数 '${callback}' が定義されていません。" >&2
+    return 1
+  fi
 
   local _pgn_cursor=""
   local _pgn_has_next="true"
@@ -218,8 +224,12 @@ run_graphql_paginated() {
       return 1
     fi
 
-    # コールバック実行（非ゼロ返却でループ中断）
-    if ! "${callback}" "${_pgn_result}" "${_pgn_page}"; then
+    # コールバック実行（0=継続, 1=エラー, 2=早期終了）
+    local _pgn_cb_status=0
+    "${callback}" "${_pgn_result}" "${_pgn_page}" || _pgn_cb_status=$?
+    if [[ "${_pgn_cb_status}" -eq 1 ]]; then
+      return 1
+    elif [[ "${_pgn_cb_status}" -ne 0 ]]; then
       break
     fi
 

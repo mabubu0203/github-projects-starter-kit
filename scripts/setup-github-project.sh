@@ -68,7 +68,9 @@ _on_existing_project_page() {
   local result="$1"
   EXISTING_PROJECT=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" --arg title "${PROJECT_TITLE}" \
     '[.data.[($owner)].projectsV2.nodes[] | select(.title == $title)] | first // ""')
-  [[ -z "${EXISTING_PROJECT}" ]]
+  if [[ -n "${EXISTING_PROJECT}" ]]; then
+    return 2
+  fi
 }
 
 VARIABLES_JSON=$(jq -n --arg login "${PROJECT_OWNER}" '{login: $login}')
