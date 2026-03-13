@@ -12,7 +12,6 @@ set -euo pipefail
 #   ITEM_TYPE      - 対象アイテムの種別（all/issues/prs、デフォルト: all）
 #   ITEM_STATE     - 取得するアイテムの状態（open/closed/all、デフォルト: open）
 #   ITEM_LABEL     - 絞り込みラベル（指定ラベルの Issue/PR のみ追加、省略可）
-#   INITIAL_STATUS - 追加時に付与するステータス（デフォルト: Backlog、closed/merged は自動で Done）
 
 # --- 共通ライブラリ読み込み ---
 
@@ -32,10 +31,11 @@ fi
 ITEM_TYPE="${ITEM_TYPE:-all}"
 ITEM_STATE="${ITEM_STATE:-open}"
 ITEM_LABEL="${ITEM_LABEL:-}"
-INITIAL_STATUS="${INITIAL_STATUS:-Backlog}"
 
 validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
-validate_enum "INITIAL_STATUS" "${INITIAL_STATUS}" "Backlog" "Todo" "In Progress" "In Review" "Done"
+
+# ステータス自動付与ルール: open → Backlog、closed/merged → Done
+INITIAL_STATUS="Backlog"
 
 INCLUDE_ISSUES=$( [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "issues" ]] && echo "true" || echo "false" )
 INCLUDE_PRS=$( [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "prs" ]] && echo "true" || echo "false" )
@@ -355,7 +355,7 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo "| Project Number | ${PROJECT_NUMBER} |"
     echo "| Target Repo | \`${TARGET_REPO}\` |"
     echo "| State Filter | ${ITEM_STATE} |"
-    echo "| Initial Status | ${INITIAL_STATUS}（closed/merged は Done） |"
+    echo "| Status | open → Backlog / closed・merged → Done |"
     if [[ -n "${ITEM_LABEL}" ]]; then
       echo "| Label Filter | ${ITEM_LABEL} |"
     fi

@@ -14,7 +14,6 @@
 | `ITEM_TYPE` | 対象アイテムの種別（`all`/`issues`/`prs`） | ❌（デフォルト: `all`） |
 | `ITEM_STATE` | 取得するアイテムの状態（`open`/`closed`/`all`） | ❌（デフォルト: `open`） |
 | `ITEM_LABEL` | 絞り込みラベル | ❌ |
-| `INITIAL_STATUS` | 追加時に付与するステータス（closed/merged は自動で Done） | ❌（デフォルト: `Backlog`） |
 
 ## 処理フロー
 
@@ -33,7 +32,7 @@ flowchart TD
     H -- "No" --> J["gh project item-add\nで追加"]
     J --> J2{"closed?"}
     J2 -- "Yes" --> J3["ステータス: Done"]
-    J2 -- "No" --> J4["ステータス: INITIAL_STATUS"]
+    J2 -- "No" --> J4["ステータス: Backlog"]
     I & J3 & J4 --> K{"次の Issue\nあり?"}
     K -- "Yes" --> G
     K -- "No" --> L{"ITEM_TYPE = all or prs?"}
@@ -47,7 +46,7 @@ flowchart TD
     O -- "No" --> Q["gh project item-add\nで追加"]
     Q --> Q2{"closed/merged?"}
     Q2 -- "Yes" --> Q3["ステータス: Done"]
-    Q2 -- "No" --> Q4["ステータス: INITIAL_STATUS"]
+    Q2 -- "No" --> Q4["ステータス: Backlog"]
     P & Q3 & Q4 --> R{"次の PR\nあり?"}
     R -- "Yes" --> N
     R -- "No" --> S["サマリー出力"]
@@ -67,7 +66,7 @@ flowchart TD
 | PR 取得 | Issue と同様のフィルタで PR 一覧を取得 | `gh pr list --repo --state --limit 500 --json url,state` |
 | 重複チェック | 既存アイテム URL リストと各 Issue/PR の URL を `grep -Fxq` で完全一致比較 | — |
 | アイテム追加 | 重複していない各 Issue/PR を Project に追加（1件ごとに 1秒の sleep を挟みレート制限を回避） | `gh project item-add {number} --owner --url --format json` |
-| ステータス設定 | 追加したアイテムにステータスを付与。open → `INITIAL_STATUS`（デフォルト: Backlog）、closed/merged → Done | `gh api graphql` — `updateProjectV2ItemFieldValue` |
+| ステータス設定 | 追加したアイテムにステータスを自動付与。open → Backlog、closed/merged → Done | `gh api graphql` — `updateProjectV2ItemFieldValue` |
 | サマリー出力 | Issue・PR それぞれの追加・スキップ・失敗件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |
 
 ## API リファレンス
