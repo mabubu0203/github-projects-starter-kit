@@ -19,7 +19,7 @@ jobs:
     secrets:
       PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
 
-  failure-summary:
+  workflow-summary-failure:
     needs: [extend-project]
     if: failure()
     runs-on: ubuntu-latest
@@ -28,7 +28,23 @@ jobs:
         uses: actions/checkout@v6.0.2
 
       - name: 失敗サマリーを出力
-        uses: ./.github/actions/failure-summary
+        uses: ./.github/actions/workflow-summary
         with:
+          status: failure
+          job-results: |
+            {"extend-project": "${{ needs.extend-project.result }}"}
+
+  workflow-summary-success:
+    needs: [extend-project]
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 成功サマリーを出力
+        uses: ./.github/actions/workflow-summary
+        with:
+          status: success
           job-results: |
             {"extend-project": "${{ needs.extend-project.result }}"}
