@@ -72,6 +72,12 @@ flowchart TD
 
 REST API バージョン `2022-11-28` を使用します。共通ライブラリ（`lib/common.sh`）がオーナータイプ判定時に `X-GitHub-Api-Version: 2022-11-28` ヘッダを自動付与します。
 
+### パラメータ上限
+
+| パラメータ | 現在の値 | 備考 |
+|-----------|---------|------|
+| `projectsV2(first: N)` | 100 | 既存 Project 重複チェック用のページサイズ |
+
 ## 使用ワークフロー
 
 - [① GitHub Project 新規作成](../workflows/01-create-project)
