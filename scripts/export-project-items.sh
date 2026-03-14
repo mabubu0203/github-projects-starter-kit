@@ -104,8 +104,8 @@ query($login: String!, $number: Int!, $after: String) {
               updatedAt
               author { login }
               repository { nameWithOwner }
-              assignees(first: 10) { nodes { login } }
-              labels(first: 10) { nodes { name } }
+              assignees(first: 100) { nodes { login } }
+              labels(first: 100) { nodes { name } }
             }
             ... on PullRequest {
               __typename
@@ -117,8 +117,8 @@ query($login: String!, $number: Int!, $after: String) {
               updatedAt
               author { login }
               repository { nameWithOwner }
-              assignees(first: 10) { nodes { login } }
-              labels(first: 10) { nodes { name } }
+              assignees(first: 100) { nodes { login } }
+              labels(first: 100) { nodes { name } }
             }
           }
         }

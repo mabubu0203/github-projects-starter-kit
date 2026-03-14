@@ -37,7 +37,7 @@ query($login: String!, $number: Int!) {
   __OWNER_FIELD__(login: $login) {
     projectV2(number: $number) {
       id
-      fields(first: 50) {
+      fields(first: 100) {
         nodes {
           ... on ProjectV2SingleSelectField {
             id
