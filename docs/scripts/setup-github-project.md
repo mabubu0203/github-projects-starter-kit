@@ -20,8 +20,8 @@ flowchart TD
     B --> C["gh api users/ でオーナー情報取得"]
     C --> D{"オーナータイプ判定\n+ node_id 取得"}
 
-    D -- "User" --> E["個人アカウント用\n権限ガイド表示"]
-    D -- "Organization" --> F["組織用\n権限ガイド表示"]
+    D -- "User" --> E["個人用アカウント用\n権限ガイド表示"]
+    D -- "Organization" --> F["Organization用\n権限ガイド表示"]
     D -- "その他" --> G["警告を出力"]
 
     E & F & G --> H["GraphQL projectsV2\nで既存 Project チェック\n（ページネーション対応）"]
