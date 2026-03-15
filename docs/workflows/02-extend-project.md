@@ -6,6 +6,13 @@
 既存の `Project` にカスタムフィールド・ステータスカラム・`View` を追加します。
 [① GitHub Project 新規作成](01-create-project) を実行していない既存 `Project` 向けです。
 
+## 前提
+
+このワークフローを実行する前に、クイックスタートを完了してください。
+
+- [クイックスタート（GUI）](../quickstart-gui)
+- [クイックスタート（CLI）](../quickstart-cli)
+
 ## 使い方
 
 1. `Actions` タブを開く
