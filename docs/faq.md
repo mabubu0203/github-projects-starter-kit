@@ -22,7 +22,9 @@
 </tbody>
 </table>
 
-> **Note:** ワークフロー ③（Issue/PR 一括紐付け）では対象リポジトリの Issue/PR を読み取るため、リポジトリの参照権限が追加で必要です。
+<blockquote>
+<strong>Note:</strong> ワークフロー ③（Issue/PR 一括紐付け）では対象リポジトリの Issue/PR を読み取るため、リポジトリの参照権限が追加で必要です。
+</blockquote>
 
 </details>
 
@@ -40,9 +42,11 @@
 </tbody>
 </table>
 
-> **Note:** Classic token では、個人用アカウント・Organization を問わず `read:org` スコープが必要です。Organization オーナーの場合、`read:org` が不足していると `gh project` サブコマンド実行時に `unknown owner type` エラーが発生します。
->
-> また、個人用アカウントオーナーの場合、`gh project field-create` が gh CLI v2.88.1 で `unknown owner type` エラーを起こす既知のバグがあります（[#119](https://github.com/mabubu0203/github-projects-starter-kit/issues/119)、本リポジトリでは GraphQL API による回避策を適用済み）。
+<blockquote>
+<strong>Note:</strong> Classic token では、個人用アカウント・Organization を問わず <code>read:org</code> スコープが必要です。Organization オーナーの場合、<code>read:org</code> が不足していると <code>gh project</code> サブコマンド実行時に <code>unknown owner type</code> エラーが発生します。
+<br><br>
+また、個人用アカウントオーナーの場合、<code>gh project field-create</code> が gh CLI v2.88.1 で <code>unknown owner type</code> エラーを起こす既知のバグがあります（<a href="https://github.com/mabubu0203/github-projects-starter-kit/issues/119">#119</a>、本リポジトリでは GraphQL API による回避策を適用済み）。
+</blockquote>
 
 </details>
 
@@ -60,7 +64,9 @@
 </tbody>
 </table>
 
-> **Note:** ワークフロー ③（Issue/PR 一括紐付け）では対象リポジトリの Issue/PR を読み取るため、リポジトリの参照権限が追加で必要です。
+<blockquote>
+<strong>Note:</strong> ワークフロー ③（Issue/PR 一括紐付け）では対象リポジトリの Issue/PR を読み取るため、リポジトリの参照権限が追加で必要です。
+</blockquote>
 
 </details>
 
@@ -78,7 +84,9 @@
 </tbody>
 </table>
 
-> **Note:** Classic token では、個人用アカウント・Organization を問わず `read:org` スコープが必要です。Organization オーナーの場合、`read:org` が不足していると `gh project` サブコマンド実行時に `unknown owner type` エラーが発生します。
+<blockquote>
+<strong>Note:</strong> Classic token では、個人用アカウント・Organization を問わず <code>read:org</code> スコープが必要です。Organization オーナーの場合、<code>read:org</code> が不足していると <code>gh project</code> サブコマンド実行時に <code>unknown owner type</code> エラーが発生します。
+</blockquote>
 
 </details>
 
@@ -139,9 +147,11 @@ GitHub Project の URL 末尾の数字が `project_number` です。
 <details>
 <summary><code>project_number</code> の確認例（スクリーンショット）を表示（ここをクリック→）</summary>
 
-> **参考画像:** Organization の Projects 一覧画面では、各プロジェクト名の下に `#番号` が表示されます。
->
-> <img src="images/faq-project-number.png" alt="project_number の確認例" width="50%">
+<blockquote>
+<strong>参考画像:</strong> Organization の Projects 一覧画面では、各プロジェクト名の下に <code>#番号</code> が表示されます。
+<br><br>
+<img src="images/faq-project-number.png" alt="project_number の確認例" width="50%">
+</blockquote>
 
 </details>
 
@@ -164,9 +174,11 @@ gh project list
 <details>
 <summary><code>target_repo</code> の確認例（スクリーンショット）を表示（ここをクリック→）</summary>
 
-> **参考画像:** リポジトリページのヘッダーに `owner/repo` 形式で表示されています。
->
-> <img src="images/faq-target-repo.png" alt="target_repo の確認例" width="50%">
+<blockquote>
+<strong>参考画像:</strong> リポジトリページのヘッダーに <code>owner/repo</code> 形式で表示されています。
+<br><br>
+<img src="images/faq-target-repo.png" alt="target_repo の確認例" width="50%">
+</blockquote>
 
 </details>
 
