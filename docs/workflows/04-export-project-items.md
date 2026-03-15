@@ -5,6 +5,13 @@
 
 指定した GitHub `Project` に紐づく `Issue` / `Pull Request` の一覧を取得し、エクスポートします。
 
+## 前提
+
+このワークフローを実行する前に、クイックスタートを完了してください。
+
+- [クイックスタート（GUI）](../quickstart-gui)
+- [クイックスタート（CLI）](../quickstart-cli)
+
 ## 使い方
 
 1. `Actions` タブを開く
