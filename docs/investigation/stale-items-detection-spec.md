@@ -101,16 +101,7 @@ query($login: String!, $number: Int!, $after: String) {
 - 既存の `export-project-items.sh` と同じフィールドを使用でき、一貫性がある
 - GitHub API で最も安定的に提供されているフィールドである
 
-### 2.3 スケジュール実行の設定
-
-| 頻度 | ユースケース | cron 式（例） |
-|---|---|---|
-| **日次** | アクティブなプロジェクトで迅速な検知が必要 | `0 9 * * 1-5`（平日 9:00 UTC） |
-| **週次** | 一般的なプロジェクト管理 | `0 9 * * 1`（毎週月曜 9:00 UTC） |
-
-**推奨:** 週次（毎週月曜）をデフォルトとし、`workflow_dispatch` による手動実行も可能にする。
-
-### 2.4 検知結果の報告方法
+### 2.3 検知結果の報告方法
 
 | 方法 | 利点 | 欠点 |
 |---|---|---|
@@ -126,7 +117,7 @@ query($login: String!, $number: Int!, $after: String) {
 - Artifact に JSON を出力することで、後続の自動化（Slack 通知等）への拡張が容易
 - Issue コメントは将来のオプションとして検討可能
 
-### 2.5 除外条件
+### 2.4 除外条件
 
 以下の条件に該当するアイテムは滞留検知の対象外とする:
 
@@ -140,7 +131,7 @@ query($login: String!, $number: Int!, $after: String) {
 
 除外ラベルはスクリプト内で `on-hold,blocked` として定義する（変更時はスクリプトを直接編集する）。
 
-### 2.6 大規模プロジェクト（1000+ アイテム）での実行性能
+### 2.5 大規模プロジェクト（1000+ アイテム）での実行性能
 
 | 項目 | 対応策 |
 |---|---|
@@ -274,8 +265,6 @@ query($login: String!, $number: Int!, $after: String) {
 name: "⑥ 滞留アイテム検知"
 
 on:
-  schedule:
-    - cron: '0 9 * * 1'  # 毎週月曜 9:00 UTC
   workflow_dispatch:
     inputs:
       project-number:
