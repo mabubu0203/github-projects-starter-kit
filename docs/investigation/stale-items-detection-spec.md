@@ -255,7 +255,7 @@ query($login: String!, $number: Int!, $after: String) {
 
 | パラメータ | 必須 | デフォルト | 説明 |
 |---|---|---|---|
-| `PROJECT_OWNER` | Yes | `github.repository_owner` | Project の所有者（`workflow_dispatch` 時は `inputs`、`schedule` 時は `github.repository_owner` をデフォルトとする） |
+| `PROJECT_OWNER` | No | `github.repository_owner` | Project の所有者。ワークフロー env で `github.repository_owner` を設定。未設定時はスクリプト内で `GITHUB_REPOSITORY_OWNER` をフォールバックとして使用する |
 | `PROJECT_NUMBER` | Yes | - | 対象 Project の Number |
 | `STALE_DAYS_TODO` | No | `14` | Todo の滞留閾値（日） |
 | `STALE_DAYS_IN_PROGRESS` | No | `7` | In Progress の滞留閾値（日） |
@@ -274,9 +274,6 @@ on:
     - cron: '0 9 * * 1'  # 毎週月曜 9:00 UTC
   workflow_dispatch:
     inputs:
-      project-owner:
-        description: "Project の所有者"
-        required: true
       project-number:
         description: "Project の Number"
         required: true
@@ -307,7 +304,7 @@ jobs:
       - name: 滞留アイテム検知
         env:
           GH_TOKEN: ${{ secrets.PROJECT_PAT }}
-          PROJECT_OWNER: ${{ inputs.project-owner || github.repository_owner }}
+          PROJECT_OWNER: ${{ github.repository_owner }}
           PROJECT_NUMBER: ${{ inputs.project-number || vars.PROJECT_NUMBER }}
           STALE_DAYS_TODO: ${{ inputs.stale-days-todo || '14' }}
           STALE_DAYS_IN_PROGRESS: ${{ inputs.stale-days-in-progress || '7' }}
