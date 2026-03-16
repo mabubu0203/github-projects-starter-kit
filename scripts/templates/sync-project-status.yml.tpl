@@ -18,8 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.PROJECT_PAT }}
-      PROJECT_OWNER: "__PROJECT_OWNER__"
-      PROJECT_NUMBER: "__PROJECT_NUMBER__"
       EVENT_NAME: ${{ github.event_name }}
       ACTION: ${{ github.event.action }}
       ISSUE_NODE_ID: ${{ github.event.issue.node_id }}

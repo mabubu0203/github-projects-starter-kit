@@ -10,8 +10,8 @@ set -euo pipefail
 # 環境変数:
 #   GH_TOKEN       - GitHub PAT（Projects 操作権限 + 対象リポジトリへの書き込み権限）
 #   TARGET_REPO    - 対象リポジトリ（owner/repo 形式）
-#   PROJECT_OWNER  - Project の所有者（ユーザー名 or 組織名）
 #   PROJECT_NUMBER - 対象 Project の番号
+#   GITHUB_RUN_ID  - GitHub Actions の Run ID（ブランチ名の一意化に使用）
 
 # --- 共通ライブラリ読み込み ---
 
@@ -22,13 +22,16 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
 require_env "TARGET_REPO"
-require_env "PROJECT_OWNER"
 require_env "PROJECT_NUMBER"
 
 if [[ ! "${TARGET_REPO}" =~ ^[^/]+/[^/]+$ ]]; then
   echo "::error::TARGET_REPO は owner/repo 形式で指定してください（例: myorg/myrepo）。"
   exit 1
 fi
+
+# PROJECT_OWNER を TARGET_REPO から導出
+PROJECT_OWNER="${TARGET_REPO%%/*}"
+echo "  Project Owner: ${PROJECT_OWNER}（TARGET_REPO から導出）"
 
 validate_project_number
 
@@ -79,11 +82,8 @@ sed \
   "${WF_TEMPLATE}" \
   > "${GENERATED_WF}"
 
-sed \
-  -e "s/__PROJECT_OWNER__/${PROJECT_OWNER}/g" \
-  -e "s/__PROJECT_NUMBER__/${PROJECT_NUMBER}/g" \
-  "${SCRIPT_TEMPLATE}" \
-  > "${GENERATED_SCRIPT}"
+# スクリプトテンプレートにはプレースホルダーがないためそのままコピー
+cp "${SCRIPT_TEMPLATE}" "${GENERATED_SCRIPT}"
 
 echo "  ワークフローファイル: 生成完了"
 echo "  スクリプトファイル: 生成完了"
@@ -100,7 +100,12 @@ gh repo clone "${TARGET_REPO}" "${CLONE_DIR}" -- --depth 1
 
 cd "${CLONE_DIR}"
 
-BRANCH_NAME="setup/sync-project-status"
+# Actions ランナーでは user.name / user.email が未設定のため明示的に設定
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+# 再実行時のブランチ名衝突を防ぐため GITHUB_RUN_ID を含める
+BRANCH_NAME="setup/sync-project-status-${GITHUB_RUN_ID:-$(date +%s)}"
 
 echo ""
 echo "ブランチを作成しています: ${BRANCH_NAME}"

@@ -28,8 +28,9 @@
 | パラメータ | 説明 | 必須 | タイプ | 例 |
 |------------|------|:----:|--------|-----|
 | `target_repo` | 対象リポジトリ（owner/repo 形式） | ✅ | `string` | `myorg/myrepo` |
-| `project_owner` | Project の所有者（ユーザー名 or 組織名） | ✅ | `string` | `myorg` |
 | `project_number` | 対象 Project の番号 | ✅ | `number` | `1` |
+
+> **Note:** `project_owner` は `target_repo` のオーナー部分から自動的に導出されます。
 
 ## 📊 処理フロー
 
@@ -83,8 +84,9 @@ permissions:
 |----------|--------|------|
 | `GH_TOKEN` | `secrets.PROJECT_PAT` | GitHub PAT（Projects 操作権限 + 対象リポジトリへの書き込み権限） |
 | `TARGET_REPO` | `inputs.target_repo` | 対象リポジトリ |
-| `PROJECT_OWNER` | `inputs.project_owner` | Project の所有者 |
 | `PROJECT_NUMBER` | `inputs.project_number` | 対象 Project の番号 |
+
+> **Note:** `PROJECT_OWNER` はスクリプト内で `TARGET_REPO` のオーナー部分から導出されます。
 
 ### ジョブ構成
 

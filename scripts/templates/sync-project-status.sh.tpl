@@ -9,8 +9,6 @@ set -euo pipefail
 #
 # 環境変数（ワークフローから渡される）:
 #   GH_TOKEN       - GitHub PAT（Projects 操作権限）
-#   PROJECT_OWNER  - Project の所有者
-#   PROJECT_NUMBER - 対象 Project の番号
 #   EVENT_NAME     - github.event_name
 #   ACTION         - github.event.action
 #   ISSUE_NODE_ID  - github.event.issue.node_id
@@ -59,6 +57,16 @@ is_forward_transition() {
   [[ "${target_order}" -gt "${current_order}" ]]
 }
 
+# --- Markdown サニタイズ ---
+# Job Summary のテーブル出力で | やバッククォートによる崩れを防ぐ
+
+sanitize_for_markdown() {
+  local value="$1"
+  value="${value//|/\\|}"
+  value="${value//\`/}"
+  printf '%s' "${value}"
+}
+
 # --- イベント解析 ---
 
 echo ""
@@ -98,7 +106,10 @@ case "${EVENT_NAME}" in
       ready_for_review)    TARGET_STATUS="In Review" ;;
       closed)
         TARGET_STATUS="Done"
-        LINKED_ISSUE_TARGET_STATUS="Done"
+        # 紐付け Issue の連動更新はマージ時のみ（未マージ close では Issue は閉じられないため）
+        if [[ "${PR_MERGED}" == "true" ]]; then
+          LINKED_ISSUE_TARGET_STATUS="Done"
+        fi
         ;;
       *)
         echo "  対象外のアクションです。スキップします。"
@@ -430,8 +441,9 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo ""
     echo "| 項目 | 値 |"
     echo "|------|-----|"
+    SAFE_ITEM_LABEL=$(sanitize_for_markdown "${ITEM_LABEL}")
     echo "| イベント | \`${EVENT_NAME}.${ACTION}\` |"
-    echo "| 対象 | \`${ITEM_LABEL}\` |"
+    echo "| 対象 | \`${SAFE_ITEM_LABEL}\` |"
     echo "| ステータス遷移 | → ${TARGET_STATUS} |"
 
     if [[ -n "${LINKED_ISSUES_SUMMARY}" ]]; then
