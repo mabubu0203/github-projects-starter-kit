@@ -25,7 +25,8 @@
 
 ### 設計方針
 
-- **イベント駆動**: `on: issues` / `on: pull_request` / `on: pull_request_review` をトリガーとする
+- **2 層アーキテクチャ**: 本リポジトリのセットアップワークフロー（⑥）が対象リポジトリにイベント駆動ワークフローを PR として配置する。詳細は[ワークフロー入出力仕様書](status-sync-workflow-spec.md)を参照
+- **イベント駆動**（対象リポジトリ側）: `on: issues` / `on: pull_request` / `on: pull_request_review` をトリガーとする
 - **前方遷移のみ**: ステータスの逆方向遷移（例: Done → In Progress）は原則行わない。以下の 2 ケースのみ例外として許可する
   - `In Review → In Progress`: レビューでの差し戻し（`changes_requested`）
   - `Done → Todo`: Issue の再オープン（`reopened`）

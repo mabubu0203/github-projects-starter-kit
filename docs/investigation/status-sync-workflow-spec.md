@@ -3,7 +3,7 @@
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-本ドキュメントは、Issue/PR のライフサイクルイベントに連動して GitHub Project のステータスを自動更新するワークフローの入出力仕様を定義する。
+本ドキュメントは、Issue/PR のライフサイクルイベントに連動して GitHub Project のステータスを自動更新する仕組みの入出力仕様を定義する。
 
 関連 Issue: [#187](https://github.com/mabubu0203/github-projects-starter-kit/issues/187)
 
@@ -11,28 +11,132 @@
 
 ## 概要
 
+本機能は **2 層構成** で実現する。
+
+1. **セットアップワークフロー（⑥）** — 本リポジトリで `workflow_dispatch` により手動実行。対象リポジトリにイベント駆動ワークフローを PR として配置する
+2. **生成ワークフロー** — 対象リポジトリに配置されるイベント駆動ワークフロー。Issue/PR のライフサイクルイベントでステータスを自動同期する
+
 ```mermaid
-flowchart TD
-    A["GitHub Event\n(issues / pull_request / pull_request_review)"] --> B["ワークフロー起動"]
-    B --> C["イベント解析\n対象アクション判定"]
-    C --> D{"対象アクション?"}
-    D -- Yes --> E["対象ノードの\nProject Item 取得"]
-    D -- No --> Z["スキップ"]
-    E --> F{"Project に\n属している?"}
-    F -- Yes --> G["遷移ルール判定"]
-    F -- No --> Z
-    G --> H{"前方遷移\nガード通過?"}
-    H -- Yes --> I["ステータス更新\n(GraphQL Mutation)"]
-    H -- No --> Z
-    I --> J["紐付け Issue の\n連動更新"]
-    J --> K["サマリー出力"]
+flowchart LR
+    A["⑥ セットアップWF\n(本リポジトリ)\nworkflow_dispatch"] -->|"target_repo\nproject_owner\nproject_number"| B["セットアップスクリプト"]
+    B -->|"1. WFファイル生成\n2. ブランチ作成\n3. コミット&プッシュ\n4. PR作成"| C["対象リポジトリ"]
+    C -->|"PRマージ後"| D["生成WF\n(イベント駆動)"]
+    D -->|"issues / PR / review\nイベント発火"| E["ステータス\n自動同期"]
 ```
+
+### 既存ワークフロー（①〜⑤）との統一
+
+| 項目 | 既存（①〜⑤） | ⑥ セットアップ |
+|------|-------------|---------------|
+| トリガー | `workflow_dispatch` | `workflow_dispatch` |
+| 入力 | `project_owner`, `project_number` 等 | `target_repo`, `project_owner`, `project_number` |
+| 実行場所 | 本リポジトリ | 本リポジトリ |
+| フォーク後の追加設定 | Secret のみ | Secret のみ |
 
 ---
 
-## トリガー
+## Part 1: セットアップワークフロー（⑥）
 
-### イベント定義
+### トリガー
+
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: "対象リポジトリ（owner/repo 形式）"
+        required: true
+        type: string
+      project_owner:
+        description: "Project の所有者（ユーザー名 or 組織名）"
+        required: true
+        type: string
+      project_number:
+        description: "対象 Project の番号"
+        required: true
+        type: number
+```
+
+### 入力
+
+| 変数名 | 必須 | 説明 | 取得元 |
+|--------|------|------|--------|
+| `GH_TOKEN` | Yes | GitHub PAT（Projects 操作権限 + 対象リポジトリへの書き込み権限） | Secrets: `PROJECT_PAT` |
+| `TARGET_REPO` | Yes | 対象リポジトリ（`owner/repo` 形式） | `inputs.target_repo` |
+| `PROJECT_OWNER` | Yes | Project の所有者 | `inputs.project_owner` |
+| `PROJECT_NUMBER` | Yes | 対象 Project の番号 | `inputs.project_number` |
+
+### 処理フロー
+
+```mermaid
+flowchart TD
+    A["入力バリデーション"] --> B["対象リポジトリの存在確認"]
+    B --> C["ワークフローファイル生成\n(テンプレートに値を埋め込み)"]
+    C --> D["対象リポジトリに\nブランチ作成"]
+    D --> E["ワークフローファイルを\nコミット & プッシュ"]
+    E --> F["PR 作成"]
+    F --> G["サマリー出力\n(PR URL 等)"]
+```
+
+#### Step 1: 入力バリデーション
+
+- `TARGET_REPO` が `owner/repo` 形式であること
+- `PROJECT_NUMBER` が数値であること
+- 対象リポジトリが存在し、PAT でアクセス可能であること
+
+#### Step 2: ワークフローファイル生成
+
+テンプレートから `PROJECT_OWNER` と `PROJECT_NUMBER` を埋め込んだワークフローファイルを生成する。
+
+```bash
+# テンプレートファイルからプレースホルダーを置換して生成
+sed \
+  -e "s/__PROJECT_OWNER__/${PROJECT_OWNER}/g" \
+  -e "s/__PROJECT_NUMBER__/${PROJECT_NUMBER}/g" \
+  "${SCRIPT_DIR}/templates/sync-project-status.yml.tpl" \
+  > "${WORK_DIR}/.github/workflows/sync-project-status.yml"
+```
+
+#### Step 3: 対象リポジトリにブランチ作成・コミット・プッシュ・PR 作成
+
+```bash
+# 対象リポジトリをクローン
+gh repo clone "${TARGET_REPO}" "${WORK_DIR}" -- --depth 1
+
+# ブランチ作成
+cd "${WORK_DIR}"
+BRANCH_NAME="setup/sync-project-status"
+git checkout -b "${BRANCH_NAME}"
+
+# ワークフローファイルを配置
+mkdir -p .github/workflows
+cp "${GENERATED_FILE}" .github/workflows/sync-project-status.yml
+
+# コミット & プッシュ
+git add .github/workflows/sync-project-status.yml
+git commit -m "ci: ステータス自動同期ワークフローを追加"
+git push origin "${BRANCH_NAME}"
+
+# PR 作成
+gh pr create \
+  --repo "${TARGET_REPO}" \
+  --title "ci: ステータス自動同期ワークフローを追加" \
+  --body "..."
+```
+
+### 出力
+
+| 項目 | 出力内容 |
+|------|---------|
+| PR URL | 対象リポジトリに作成された PR の URL |
+| 生成ファイルパス | `.github/workflows/sync-project-status.yml` |
+| 埋め込み値 | `PROJECT_OWNER`, `PROJECT_NUMBER` |
+
+---
+
+## Part 2: 生成ワークフロー（対象リポジトリに配置）
+
+### トリガー
 
 ```yaml
 on:
@@ -58,22 +162,15 @@ on:
 | `pull_request.ready_for_review` | — | — |
 | `pull_request_review.submitted` | — | `github.event.review.state` で分岐（`changes_requested` のみ対象） |
 
----
+### 入力（生成時に埋め込み）
 
-## 入力
+| 変数名 | 説明 | 値の由来 |
+|--------|------|---------|
+| `PROJECT_OWNER` | Project の所有者 | セットアップ時に埋め込み |
+| `PROJECT_NUMBER` | 対象 Project の番号 | セットアップ時に埋め込み |
+| `GH_TOKEN` | GitHub PAT | 対象リポジトリの Secrets: `PROJECT_PAT` |
 
-### 環境変数（Secrets / Variables）
-
-| 変数名 | 必須 | 説明 | 取得元 |
-|--------|------|------|--------|
-| `GH_TOKEN` | Yes | GitHub PAT（Projects 操作権限） | Secrets: `PROJECT_PAT` |
-| `PROJECT_OWNER` | Yes | Project の所有者（ユーザー名 or 組織名） | Repository Variables |
-| `PROJECT_NUMBER` | Yes | 対象 Project の番号 | Repository Variables |
-
-> **対象リポジトリとプロジェクトの紐付け**:
-> Repository Variables（`vars.PROJECT_OWNER`, `vars.PROJECT_NUMBER`）で設定する。
-> これにより、リポジトリごとに異なるプロジェクトを紐付け可能。
-> 複数プロジェクトに紐付ける場合は、カンマ区切りの `PROJECT_NUMBERS` を検討する。
+> **注意**: 対象リポジトリにも `PROJECT_PAT` Secret の設定が必要。これはセットアップワークフローの PR 本文に手順として記載する。
 
 ### GitHub Event Context
 
@@ -86,15 +183,32 @@ on:
 | `github.event.review` | レビューオブジェクト（`pull_request_review` イベント時） |
 | `github.event.issue.node_id` | Issue の GraphQL Node ID |
 | `github.event.pull_request.node_id` | PR の GraphQL Node ID |
-| `github.event.issue.state_reason` | Issue クローズ理由（`completed` / `not_planned`） |
+| `github.event.issue.state_reason` | Issue クローズ理由（`completed` / `not_planned` / `null`） |
 | `github.event.pull_request.merged` | PR がマージされたか（boolean） |
 | `github.event.review.state` | レビュー状態（`approved` / `changes_requested` / `commented`） |
 
 ---
 
-## 処理フロー
+### 処理フロー
 
-### Step 1: イベント解析
+```mermaid
+flowchart TD
+    A["GitHub Event\n(issues / pull_request / pull_request_review)"] --> B["ワークフロー起動"]
+    B --> C["イベント解析\n対象アクション判定"]
+    C --> D{"対象アクション?"}
+    D -- Yes --> E["対象ノードの\nProject Item 取得"]
+    D -- No --> Z["スキップ"]
+    E --> F{"Project に\n属している?"}
+    F -- Yes --> G["遷移ルール判定"]
+    F -- No --> Z
+    G --> H{"前方遷移\nガード通過?"}
+    H -- Yes --> I["ステータス更新\n(GraphQL Mutation)"]
+    H -- No --> Z
+    I --> J["紐付け Issue の\n連動更新"]
+    J --> K["サマリー出力"]
+```
+
+#### Step 1: イベント解析
 
 イベント種別とアクションから遷移先ステータスを決定する。
 
@@ -131,7 +245,7 @@ case "${EVENT_NAME}" in
 esac
 ```
 
-### Step 2: Project Item 取得
+#### Step 2: Project Item 取得
 
 対象ノードが属する全 Project の Item 情報を取得する。`first: 100` で取得し、通常のユースケースでは十分なカバー範囲となる。100 件を超える Project への帰属が想定される場合は、ページネーション（`pageInfo` / `after`）を実装する。
 
@@ -186,7 +300,7 @@ query($nodeId: ID!) {
 }
 ```
 
-### Step 3: 前方遷移ガード
+#### Step 3: 前方遷移ガード
 
 現在のステータスと遷移先を比較し、ルールに基づき更新可否を判定する。
 
@@ -221,7 +335,7 @@ is_forward_transition() {
 }
 ```
 
-### Step 4: ステータス更新
+#### Step 4: ステータス更新
 
 `updateProjectV2ItemFieldValue` ミューテーションで更新する（既存の `add-items-to-project.sh` と同一の API）。
 
@@ -238,7 +352,7 @@ mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
 }
 ```
 
-### Step 5: 紐付け Issue の連動更新（PR イベント / PR レビューイベント時）
+#### Step 5: 紐付け Issue の連動更新（PR イベント / PR レビューイベント時）
 
 PR に紐付けられた Issue のステータスも連動更新する。対象イベントは以下の通り。
 
@@ -285,7 +399,7 @@ query($prNodeId: ID!) {
 
 ---
 
-## 出力
+## 出力（生成ワークフロー）
 
 ### ワークフローログ
 
@@ -297,7 +411,7 @@ query($prNodeId: ID!) {
 | 現在のステータス | 更新前のステータス名 |
 | 遷移先ステータス | 更新後のステータス名 |
 | 更新結果 | 成功 / スキップ（ガード） / スキップ（Project 未所属） / 失敗 |
-| 紐付け Issue 更新 | 連動更新した Issue の一覧（PR イベント時のみ） |
+| 紐付け Issue 更新 | 連動更新した Issue の一覧（PR / レビューイベント時） |
 
 ### GitHub Actions Job Summary
 
@@ -346,19 +460,45 @@ query($prNodeId: ID!) {
 
 ---
 
-## ワークフロー構成（案）
+## ファイル構成（案）
+
+### 本リポジトリ
 
 ```
 .github/workflows/
-  06-sync-project-status.yml    # メインワークフロー
+  06-setup-sync-project-status.yml    # セットアップワークフロー
 
 scripts/
-  sync-project-status.sh        # メインスクリプト
+  setup-sync-project-status.sh        # セットアップスクリプト
+  templates/
+    sync-project-status.yml.tpl       # 生成ワークフローのテンプレート
+    sync-project-status.sh.tpl        # 生成スクリプトのテンプレート
   config/
-    project-status-options.json  # 既存（変更なし）
+    project-status-options.json       # 既存（変更なし）
+```
+
+### 対象リポジトリ（生成後）
+
+```
+.github/workflows/
+  sync-project-status.yml             # イベント駆動ワークフロー
+
+scripts/
+  sync-project-status.sh              # ステータス同期スクリプト
 ```
 
 ### 権限設定
+
+#### セットアップワークフロー（⑥）
+
+```yaml
+permissions:
+  contents: read
+```
+
+> **注意**: 対象リポジトリへの操作（クローン・ブランチ作成・プッシュ・PR 作成）は `PROJECT_PAT` 経由で行う。
+
+#### 生成ワークフロー（対象リポジトリ）
 
 ```yaml
 permissions:
@@ -367,4 +507,17 @@ permissions:
   pull-requests: read
 ```
 
-> **注意**: Projects V2 の操作は PAT 経由で行うため、`GITHUB_TOKEN` の permissions ではなく `PROJECT_PAT` の権限が必要。
+> **注意**: Projects V2 の操作は PAT 経由で行うため、対象リポジトリにも `PROJECT_PAT` Secret の設定が必要。PR 本文にセットアップ手順を記載する。
+
+---
+
+## 対象リポジトリの前提条件
+
+生成ワークフローが正しく動作するには、対象リポジトリで以下の設定が必要。
+
+| 設定項目 | 説明 | 設定タイミング |
+|---------|------|-------------|
+| `PROJECT_PAT` Secret | Projects 操作権限を持つ PAT | PR マージ前に設定 |
+| GitHub Actions 有効化 | ワークフロー実行の許可 | PR マージ前に確認 |
+
+> これらの手順はセットアップワークフローが作成する PR 本文に記載し、利用者がマージ前に確認できるようにする。
