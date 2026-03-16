@@ -1,4 +1,4 @@
-# ステータス自動同期 — ワークフロー入出力仕様書
+# 🔄 ステータス自動同期 — ワークフロー入出力仕様書
 
 <!-- START doctoc -->
 <!-- END doctoc -->
@@ -52,7 +52,7 @@ on:
 | `issues.closed` | — | — |
 | `issues.reopened` | — | — |
 | `pull_request.opened` | — | — |
-| `pull_request.closed` | — | `github.event.pull_request.merged` で分岐 |
+| `pull_request.closed` | — | merged/unmerged どちらも Done（分岐不要） |
 | `pull_request.review_requested` | — | — |
 | `pull_request.converted_to_draft` | — | — |
 | `pull_request.ready_for_review` | — | — |
@@ -133,13 +133,13 @@ esac
 
 ### Step 2: Project Item 取得
 
-対象ノードが属する全 Project の Item 情報を取得する。
+対象ノードが属する全 Project の Item 情報を取得する。`first: 100` で取得し、通常のユースケースでは十分なカバー範囲となる。100 件を超える Project への帰属が想定される場合は、ページネーション（`pageInfo` / `after`）を実装する。
 
 ```graphql
 query($nodeId: ID!) {
   node(id: $nodeId) {
     ... on Issue {
-      projectItems(first: 20) {
+      projectItems(first: 100) {
         nodes {
           id
           project {
@@ -161,7 +161,7 @@ query($nodeId: ID!) {
       }
     }
     ... on PullRequest {
-      projectItems(first: 20) {
+      projectItems(first: 100) {
         nodes {
           id
           project {
@@ -238,19 +238,25 @@ mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
 }
 ```
 
-### Step 5: 紐付け Issue の連動更新（PR イベント時のみ）
+### Step 5: 紐付け Issue の連動更新（PR イベント / PR レビューイベント時）
 
-PR に紐付けられた Issue のステータスも連動更新する。
+PR に紐付けられた Issue のステータスも連動更新する。対象イベントは以下の通り。
+
+- `pull_request.opened` → 紐付け Issue を In Progress に
+- `pull_request.closed (merged)` → 紐付け Issue を Done に
+- `pull_request_review.submitted (changes_requested)` → 紐付け Issue を In Progress に
+
+> **上限**: `closingIssuesReferences` は `first: 50` で取得する。1 つの PR に 50 件を超える紐付け Issue があるケースは想定外とし、超過時はワーニングログを出力する。
 
 ```graphql
 query($prNodeId: ID!) {
   node(id: $prNodeId) {
     ... on PullRequest {
-      closingIssuesReferences(first: 10) {
+      closingIssuesReferences(first: 50) {
         nodes {
           id
           number
-          projectItems(first: 20) {
+          projectItems(first: 100) {
             nodes {
               id
               project {
@@ -356,6 +362,7 @@ scripts/
 
 ```yaml
 permissions:
+  contents: read
   issues: read
   pull-requests: read
 ```
