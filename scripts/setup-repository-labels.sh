@@ -72,22 +72,45 @@ if [[ "${LABEL_COUNT}" -eq 0 ]]; then
   exit 0
 fi
 
+# --- 既存ラベル一覧の取得（重複チェック用） ---
+
+echo ""
+echo "リポジトリ ${TARGET_REPO} の既存ラベルを取得しています..."
+
+EXISTING_LABELS=""
+if existing_output=$(gh label list --repo "${TARGET_REPO}" --limit 9999 --json name --jq ".[].name" 2>&1); then
+  EXISTING_LABELS="${existing_output}"
+  EXISTING_LABEL_COUNT=$(echo "${EXISTING_LABELS}" | grep -c . || true)
+  echo "  既存ラベル数: ${EXISTING_LABEL_COUNT}"
+else
+  echo "::warning::既存ラベルの取得に失敗しました。重複チェックをスキップします。"
+fi
+
 # --- ラベルの一括作成 ---
 
 echo ""
 echo "リポジトリ ${TARGET_REPO} にラベルを作成します..."
 
+# ループ前にラベル定義を1回の jq で事前解析する
+PARSED_LABELS=$(echo "${LABEL_DEFINITIONS}" | jq -r '.[] | [.name, .color, .description] | @tsv')
+
 CREATED=0
 SKIPPED=0
 FAILED=0
+LABEL_INDEX=0
 
-for i in $(seq 0 $((LABEL_COUNT - 1))); do
-  LABEL_NAME=$(echo "${LABEL_DEFINITIONS}" | jq -r ".[$i].name")
-  LABEL_COLOR=$(echo "${LABEL_DEFINITIONS}" | jq -r ".[$i].color")
-  LABEL_DESCRIPTION=$(echo "${LABEL_DEFINITIONS}" | jq -r ".[$i].description")
+while IFS=$'\t' read -r LABEL_NAME LABEL_COLOR LABEL_DESCRIPTION; do
+  LABEL_INDEX=$((LABEL_INDEX + 1))
 
   echo ""
-  echo "  [$((i + 1))/${LABEL_COUNT}] ${LABEL_NAME} (${LABEL_COLOR})"
+  echo "  [${LABEL_INDEX}/${LABEL_COUNT}] ${LABEL_NAME} (${LABEL_COLOR})"
+
+  # 既存ラベルの重複チェック（ラベル名は固定文字列として比較）
+  if [[ -n "${EXISTING_LABELS}" ]] && echo "${EXISTING_LABELS}" | grep -Fqx "${LABEL_NAME}"; then
+    echo "    → 既存ラベルのためスキップしました。"
+    SKIPPED=$((SKIPPED + 1))
+    continue
+  fi
 
   if gh label create "${LABEL_NAME}" \
     --repo "${TARGET_REPO}" \
@@ -96,18 +119,12 @@ for i in $(seq 0 $((LABEL_COUNT - 1))); do
     echo "    → 作成しました。"
     CREATED=$((CREATED + 1))
   else
-    # 既存ラベルかどうかを確認
-    if gh label list --repo "${TARGET_REPO}" --limit 9999 --json name --jq ".[].name" 2>/dev/null | grep -Fqx "${LABEL_NAME}"; then
-      echo "    → 既存ラベルのためスキップしました。"
-      SKIPPED=$((SKIPPED + 1))
-    else
-      echo "    → 作成に失敗しました。"
-      SAFE_LABEL_NAME=$(sanitize_for_workflow_command "${LABEL_NAME}")
-      echo "::error::ラベル '${SAFE_LABEL_NAME}' の作成に失敗しました。"
-      FAILED=$((FAILED + 1))
-    fi
+    echo "    → 作成に失敗しました。"
+    SAFE_LABEL_NAME=$(sanitize_for_workflow_command "${LABEL_NAME}")
+    echo "::error::ラベル '${SAFE_LABEL_NAME}' の作成に失敗しました。"
+    FAILED=$((FAILED + 1))
   fi
-done
+done <<< "${PARSED_LABELS}"
 
 # --- サマリー出力 ---
 

@@ -302,11 +302,7 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo "- **検知件数:** ${STALE_COUNT} 件"
     echo ""
 
-    # Markdown テーブルセル用エスケープ関数（jq 内で使用）
-    # パイプ文字および Markdown 特殊文字（\, `, *, _, [, ], <, >, ~）をバックスラッシュでエスケープ
-    local md_escape='def md_escape: gsub("\\\\"; "\\\\") | gsub("`"; "\\`") | gsub("\\*"; "\\*") | gsub("_"; "\\_") | gsub("\\["; "\\[") | gsub("\\]"; "\\]") | gsub("<"; "\\<") | gsub(">"; "\\>") | gsub("~"; "\\~") | gsub("\\|"; "\\|");'
-
-    local md_row_filter="${md_escape}"'
+    md_row_filter="${JQ_MD_ESCAPE}"'
       "| [#\(.number)](\(.url)) | \(.title | md_escape) | \(.repository) | \(if .assignees == "" then "-" else (.assignees | md_escape) end) | \(.updated_at | split("T")[0]) | \(.days_stale) |"'
 
     if [[ "${STALE_COUNT}" -eq 0 ]]; then

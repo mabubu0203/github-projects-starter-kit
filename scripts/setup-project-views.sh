@@ -106,18 +106,21 @@ fi
 echo ""
 echo "View を作成します..."
 
-VIEW_COUNT=$(echo "${VIEW_DEFINITIONS}" | jq -r 'length')
+# ループ前に View 定義を1回の jq で事前解析する
+# 各行: name\tlayout\tfilter\tvisible_fields(JSON)
+PARSED_VIEWS=$(echo "${VIEW_DEFINITIONS}" | jq -r '.[] | [.name, .layout, (.filter // ""), (if .visible_fields then (.visible_fields | tojson) else "" end)] | @tsv')
+VIEW_COUNT=$(echo "${PARSED_VIEWS}" | wc -l | tr -d ' ')
 CREATED_COUNT=0
 SKIPPED_COUNT=0
 FAILED_COUNT=0
 
-for i in $(seq 0 $((VIEW_COUNT - 1))); do
-  read -r VIEW_NAME VIEW_LAYOUT VIEW_FILTER < <(echo "${VIEW_DEFINITIONS}" | jq -r ".[$i] | [.name, .layout, (.filter // \"\")] | @tsv")
-  VIEW_VISIBLE_FIELDS=$(echo "${VIEW_DEFINITIONS}" | jq -c ".[$i].visible_fields // empty")
+VIEW_INDEX=0
+while IFS=$'\t' read -r VIEW_NAME VIEW_LAYOUT VIEW_FILTER VIEW_VISIBLE_FIELDS; do
+  VIEW_INDEX=$((VIEW_INDEX + 1))
   SAFE_VIEW_NAME=$(sanitize_for_workflow_command "${VIEW_NAME}")
 
   echo ""
-  echo "[$((i + 1))/${VIEW_COUNT}] View: ${SAFE_VIEW_NAME} (${VIEW_LAYOUT})"
+  echo "[${VIEW_INDEX}/${VIEW_COUNT}] View: ${SAFE_VIEW_NAME} (${VIEW_LAYOUT})"
 
   # 既存 View の重複チェック（View 名は固定文字列として比較）
   if echo "${EXISTING_VIEWS}" | grep -Fqx "${VIEW_NAME}"; then
@@ -127,9 +130,9 @@ for i in $(seq 0 $((VIEW_COUNT - 1))); do
   fi
 
   # リクエストボディの構築（単一 jq 呼び出し）
-  vf_arg="null"
-  if [[ -n "${VIEW_VISIBLE_FIELDS}" && "${VIEW_VISIBLE_FIELDS}" != "null" ]]; then
-    vf_arg="${VIEW_VISIBLE_FIELDS}"
+  vf_arg="${VIEW_VISIBLE_FIELDS:-null}"
+  if [[ "${vf_arg}" == "" ]]; then
+    vf_arg="null"
   fi
   REQUEST_BODY=$(jq -n \
     --arg name "${VIEW_NAME}" \
@@ -158,7 +161,7 @@ for i in $(seq 0 $((VIEW_COUNT - 1))); do
 
   # 作成した View 名を既存リストに追加（後続の重複チェック用）
   EXISTING_VIEWS+=$'\n'"${VIEW_NAME}"
-done
+done <<< "${PARSED_VIEWS}"
 
 # --- サマリー出力 ---
 

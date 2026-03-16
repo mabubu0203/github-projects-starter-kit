@@ -29,9 +29,6 @@ ITEM_STATE="${ITEM_STATE:-all}"
 validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
 validate_enum "ITEM_STATE" "${ITEM_STATE}" "open" "closed" "all"
 
-should_include_issues() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "issues" ]]; }
-should_include_prs() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "prs" ]]; }
-
 # --- ヘルパー関数 ---
 
 # Project のアイテム一覧を取得する（ページネーション対応）
@@ -152,12 +149,8 @@ format_markdown() {
   local issue_count pr_count
   read -r issue_count pr_count < <(echo "${items}" | jq -r '[([.[] | select(.type == "Issue")] | length), ([.[] | select(.type == "PullRequest")] | length)] | @tsv')
 
-  # Markdown テーブルセル用エスケープ関数（jq 内で使用）
-  # パイプ文字および Markdown 特殊文字（\, `, *, _, [, ], <, >, ~）をバックスラッシュでエスケープ
-  local md_escape='def md_escape: gsub("\\\\"; "\\\\") | gsub("`"; "\\`") | gsub("\\*"; "\\*") | gsub("_"; "\\_") | gsub("\\["; "\\[") | gsub("\\]"; "\\]") | gsub("<"; "\\<") | gsub(">"; "\\>") | gsub("~"; "\\~") | gsub("\\|"; "\\|");'
-
   # Markdown テーブル行の jq フィルタ（特殊文字をエスケープし、日付を YYYY-MM-DD に変換）
-  local md_row_filter="${md_escape}"'
+  local md_row_filter="${JQ_MD_ESCAPE}"'
     "| [#\(.number)](\(.url)) | \(.title | md_escape) | \(.state) | \(.repository) | \(.author) | \(.assignees | md_escape) | \(.labels | md_escape) | \(.created_at | split("T")[0]) | \(.updated_at | split("T")[0]) |"'
 
   {

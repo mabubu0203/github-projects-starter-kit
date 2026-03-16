@@ -53,7 +53,7 @@ flowchart TD
 | データ正規化 | `DraftIssue`（`__typename` が null）を除外し、各アイテムを統一フォーマットの JSON オブジェクトに変換。`fieldValues` から Status フィールドの値を抽出 | `jq` |
 | フィルタリング | 除外ステータス（`Done`・`Backlog`）および除外ラベル（`on-hold`・`blocked`）に該当するアイテムを除外 | `jq` |
 | 滞留判定 | 各アイテムの `updatedAt` と現在日時の差分を計算し、ステータス別閾値を超過したアイテムを「滞留」と判定 | `jq`（`strptime`・`mktime` で日付計算） |
-| Workflow Summary 出力 | ステータス別（In Review → In Progress → Todo の優先度順）に Markdown テーブルを生成し `$GITHUB_STEP_SUMMARY` に追記 | `jq` + bash |
+| Workflow Summary 出力 | ステータス別（In Review → In Progress → Todo の優先度順）に Markdown テーブルを生成し `$GITHUB_STEP_SUMMARY` に追記。Markdown エスケープには共通ライブラリの `JQ_MD_ESCAPE` を使用 | `jq` + bash |
 | Artifact JSON 出力 | プロジェクト情報・閾値・集計・滞留アイテム詳細を含む JSON を `stale-items-report.json` に出力 | `jq` |
 
 ## 📚 API リファレンス

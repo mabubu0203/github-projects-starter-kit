@@ -37,9 +37,6 @@ validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
 # ステータス自動付与ルール: open → Backlog、closed/merged → Done
 INITIAL_STATUS="Backlog"
 
-should_include_issues() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "issues" ]]; }
-should_include_prs() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "prs" ]]; }
-
 # --- Project ID と Status フィールド情報の取得 ---
 
 echo ""
