@@ -255,14 +255,9 @@ print_summary() {
 # Project 操作スクリプト共通の環境変数バリデーションを一括実行する
 # GH_TOKEN, PROJECT_OWNER, PROJECT_NUMBER の存在確認、PROJECT_NUMBER の数値チェック、
 # gh / jq コマンドの存在確認、オーナータイプ判定を行う
-# PROJECT_OWNER 未設定時は GITHUB_REPOSITORY_OWNER（GitHub Actions が自動設定）をフォールバックとして使用する
 # 使用例: validate_common_project_env
 validate_common_project_env() {
   require_env "GH_TOKEN" "Secrets に PROJECT_PAT を設定してください。"
-  if [[ -z "${PROJECT_OWNER:-}" && -n "${GITHUB_REPOSITORY_OWNER:-}" ]]; then
-    export PROJECT_OWNER="${GITHUB_REPOSITORY_OWNER}"
-    echo "PROJECT_OWNER 未設定のため GITHUB_REPOSITORY_OWNER（${PROJECT_OWNER}）を使用します。"
-  fi
   require_env "PROJECT_OWNER"
   require_env "PROJECT_NUMBER"
   validate_project_number

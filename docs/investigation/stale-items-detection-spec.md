@@ -255,7 +255,7 @@ query($login: String!, $number: Int!, $after: String) {
 
 | パラメータ | 必須 | デフォルト | 説明 |
 |---|---|---|---|
-| `PROJECT_OWNER` | No | `github.repository_owner` | Project の所有者。ワークフロー env で `github.repository_owner` を設定。未設定時はスクリプト内で `GITHUB_REPOSITORY_OWNER` をフォールバックとして使用する |
+| `PROJECT_OWNER` | Yes | `github.repository_owner` | Project の所有者。ワークフロー env で `github.repository_owner` を設定 |
 | `PROJECT_NUMBER` | Yes | - | 対象 Project の Number |
 | `STALE_DAYS_TODO` | No | `14` | Todo の滞留閾値（日） |
 | `STALE_DAYS_IN_PROGRESS` | No | `7` | In Progress の滞留閾値（日） |
