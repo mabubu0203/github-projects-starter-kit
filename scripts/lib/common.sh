@@ -289,6 +289,19 @@ filter_items_by_type() {
   '
 }
 
+# OUTPUT_FORMAT から出力ファイルの拡張子を返す
+# 使用例: FILE_EXT=$(get_file_extension "${OUTPUT_FORMAT}")
+get_file_extension() {
+  local format="$1"
+  case "${format}" in
+    markdown) echo "md" ;;
+    csv)      echo "csv" ;;
+    tsv)      echo "tsv" ;;
+    json)     echo "json" ;;
+    *)        echo "json" ;;
+  esac
+}
+
 # 環境変数の値が許可リストに含まれるかチェックする
 # 使用例: validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 validate_enum() {

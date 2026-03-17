@@ -25,6 +25,7 @@
 |------------|------|:----:|--------|-----------|-----|
 | `project_number` | 対象 `Project` の Number | ✅ | `number` | — | `1` |
 | `report_types` | 実行する分析タイプ | — | `choice` | `all` | `stale` |
+| `output_format` | 出力形式 | — | `choice` | `json` | `markdown` |
 | `item_type` | 対象アイテムの種別 | — | `choice` | `all` | `issues` |
 
 ### `report_types` の選択肢
@@ -35,6 +36,15 @@
 | `stale` | 滞留アイテム検知のみ実行 |
 | `summary` | プロジェクトサマリーレポートのみ実行 |
 | `effort` | 工数集計レポートのみ実行 |
+
+### `output_format` の選択肢
+
+| 値 | 説明 |
+|------|------|
+| `json` | JSON 形式（構造化データ、デフォルト） |
+| `markdown` | Markdown 形式（テーブル・チャート付きリッチレポート） |
+| `csv` | CSV 形式（元データのフラット出力、外部ツール分析向け） |
+| `tsv` | TSV 形式（元データのフラット出力、外部ツール分析向け） |
 
 ### `item_type` の選択肢
 
@@ -94,9 +104,9 @@
 | 最終更新 | 最終更新日 |
 | 経過日数 | 最終更新からの経過日数 |
 
-#### Artifact（JSON）
+#### Artifact
 
-`stale-items-report.json` が artifact としてダウンロード可能です（保持期間: 7 日）。
+`stale-items-report.{json|md|csv|tsv}` が artifact としてダウンロード可能です（保持期間: 7 日）。出力形式は `output_format` パラメータで選択できます。
 
 ---
 
@@ -141,9 +151,9 @@
 | 工数サマリー | ステータス別の見積もり・実績工数合計（オプション） |
 | 期日超過アイテム | Issue/PR 番号、タイトル、ステータス、担当者、終了期日、超過日数（オプション） |
 
-#### Artifact（JSON）
+#### Artifact
 
-`report-{number}-summary.json` が artifact としてダウンロード可能です（保持期間: 90 日）。
+`report-{number}-summary.{json|md|csv|tsv}` が artifact としてダウンロード可能です（保持期間: 90 日）。出力形式は `output_format` パラメータで選択できます。
 
 ---
 
@@ -189,9 +199,9 @@
 | リードタイム分析 | Issue/PR 番号、タイトル、計画・実績日数、乖離日数、日あたり工数（オプション） |
 | 工数未入力アイテム | Issue/PR 番号、タイトル、ステータス、担当者 |
 
-#### Artifact（JSON）
+#### Artifact
 
-`report-{number}-effort.json` が artifact としてダウンロード可能です（保持期間: 90 日）。
+`report-{number}-effort.{json|md|csv|tsv}` が artifact としてダウンロード可能です（保持期間: 90 日）。出力形式は `output_format` パラメータで選択できます。
 
 ---
 
@@ -199,7 +209,7 @@
 
 ```mermaid
 flowchart TD
-    A["workflow_dispatch\n（project_number, report_types, item_type）"] --> B{"report_types 判定"}
+    A["workflow_dispatch\n（project_number, report_types, output_format, item_type）"] --> B{"report_types 判定"}
     B -- "all or stale" --> C["detect-stale-items ジョブ\n滞留アイテム検知"]
     B -- "all or summary" --> D["generate-summary-report ジョブ\nサマリーレポート生成"]
     B -- "all or effort" --> E["generate-effort-report ジョブ\n工数集計レポート生成"]

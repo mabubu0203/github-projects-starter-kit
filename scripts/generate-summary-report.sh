@@ -9,6 +9,7 @@ set -euo pipefail
 #   PROJECT_OWNER  - Project の所有者
 #   PROJECT_NUMBER - 対象 Project の Number
 #   ITEM_TYPE      - 対象アイテムの種別（all / issues / prs、デフォルト: all）
+#   OUTPUT_FORMAT  - 出力形式（json / markdown / csv / tsv、デフォルト: json）
 
 # --- 共通ライブラリ読み込み ---
 
@@ -23,6 +24,8 @@ ITEM_TYPE="${ITEM_TYPE:-all}"
 
 validate_common_project_env
 validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
+OUTPUT_FORMAT="${OUTPUT_FORMAT:-json}"
+validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 
 # --- ヘルパー関数 ---
 
@@ -283,75 +286,18 @@ echo "  担当者別: $(echo "${ASSIGNEE_SUMMARY}" | jq 'length') 件"
 echo "  ラベル別: $(echo "${LABEL_SUMMARY}" | jq 'length') 件"
 echo "  期日超過: ${OVERDUE_COUNT} 件"
 
-# --- Artifact 用 JSON 出力 ---
+# --- 工数合計の計算（複数セクションで使用） ---
 
-echo ""
-echo "レポートを生成しています..."
-
-REPORT_JSON=$(jq -n \
-  --arg project_title "${PROJECT_TITLE}" \
-  --argjson project_number "${PROJECT_NUMBER}" \
-  --arg executed_at "${EXECUTED_AT}" \
-  --argjson total "${TOTAL_COUNT}" \
-  --argjson issue_count "${ISSUE_COUNT}" \
-  --argjson pr_count "${PR_COUNT}" \
-  --argjson open_count "${OPEN_COUNT}" \
-  --argjson closed_count "${CLOSED_COUNT}" \
-  --argjson merged_count "${MERGED_COUNT}" \
-  --argjson by_status "${STATUS_SUMMARY}" \
-  --argjson by_assignee "${ASSIGNEE_SUMMARY}" \
-  --argjson by_label "${LABEL_SUMMARY}" \
-  --argjson overdue_items "${OVERDUE_ITEMS}" '
-  {
-    project: {
-      title: $project_title,
-      number: $project_number
-    },
-    executed_at: $executed_at,
-    summary: {
-      total: $total,
-      by_type: {
-        Issue: $issue_count,
-        PullRequest: $pr_count
-      },
-      by_state: {
-        OPEN: $open_count,
-        CLOSED: $closed_count,
-        MERGED: $merged_count
-      }
-    },
-    by_status: $by_status,
-    by_assignee: $by_assignee,
-    by_label: $by_label,
-    overdue_items: $overdue_items
-  }
-')
-
-# 工数データがある場合は effort セクションを追加
+TOTAL_ESTIMATED=0
+TOTAL_ACTUAL=0
 if [[ "${HAS_EFFORT}" == "true" ]]; then
   TOTAL_ESTIMATED=$(echo "${EFFORT_SUMMARY}" | jq '[.[].estimated_hours] | add')
   TOTAL_ACTUAL=$(echo "${EFFORT_SUMMARY}" | jq '[.[].actual_hours] | add')
-  REPORT_JSON=$(echo "${REPORT_JSON}" | jq \
-    --argjson effort_by_status "${EFFORT_SUMMARY}" \
-    --argjson total_estimated "${TOTAL_ESTIMATED}" \
-    --argjson total_actual "${TOTAL_ACTUAL}" '
-    . + {
-      effort: {
-        by_status: $effort_by_status,
-        total_estimated: $total_estimated,
-        total_actual: $total_actual
-      }
-    }
-  ')
 fi
 
-OUTPUT_FILE="report-${PROJECT_NUMBER}-summary.json"
-echo "${REPORT_JSON}" > "${OUTPUT_FILE}"
-echo "  JSON 出力: ${OUTPUT_FILE}"
+# --- フォーマッター関数 ---
 
-# --- Workflow Summary 出力 ---
-
-if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+format_summary_markdown() {
   {
     echo "# 📊 プロジェクトサマリーレポート"
     echo ""
@@ -367,15 +313,16 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo ""
     echo "| ステータス | 件数 | 割合 |"
     echo "|---|---|---|"
-    echo "${STATUS_SUMMARY}" | jq -r '.[] | "| \(.status) | \(.count) | \(.percentage)% |"'
+    echo "${STATUS_SUMMARY}" | jq -r "${JQ_MD_ESCAPE}"'.[] | "| \(.status | md_escape) | \(.count) | \(.percentage)% |"'
     echo ""
 
-    # Mermaid 円グラフ（件数が 0 より大きいステータスのみ）
-    HAS_NONZERO=$(echo "${STATUS_SUMMARY}" | jq '[.[] | select(.count > 0)] | length')
-    if [[ "${HAS_NONZERO}" -gt 0 ]]; then
+    # Mermaid 円グラフ
+    local has_nonzero
+    has_nonzero=$(echo "${STATUS_SUMMARY}" | jq '[.[] | select(.count > 0)] | length')
+    if [[ "${has_nonzero}" -gt 0 ]]; then
       echo '```mermaid'
       echo 'pie title ステータス別アイテム分布'
-      echo "${STATUS_SUMMARY}" | jq -r '.[] | select(.count > 0) | "    \"\(.status)\" : \(.count)"'
+      echo "${STATUS_SUMMARY}" | jq -r '.[] | select(.count > 0) | "    \"\(.status | gsub("\""; "\\\"") | gsub("\\\\"; "\\\\"))\" : \(.count)"'
       echo '```'
       echo ""
     fi
@@ -396,35 +343,134 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo "${LABEL_SUMMARY}" | jq -r '.[] | "| \(.label) | \(.count) |"'
     echo ""
 
-    # 工数サマリー（カスタムフィールドがある場合のみ）
+    # 工数サマリー
     if [[ "${HAS_EFFORT}" == "true" ]]; then
       echo "## 工数サマリー"
       echo ""
       echo "| ステータス | 見積もり工数(h) | 実績工数(h) |"
       echo "|---|---|---|"
-      echo "${EFFORT_SUMMARY}" | jq -r '.[] | "| \(.status) | \(.estimated_hours) | \(.actual_hours) |"'
+      echo "${EFFORT_SUMMARY}" | jq -r "${JQ_MD_ESCAPE}"'.[] | "| \(.status | md_escape) | \(.estimated_hours) | \(.actual_hours) |"'
       echo "| **合計** | **${TOTAL_ESTIMATED}** | **${TOTAL_ACTUAL}** |"
       echo ""
     fi
 
-    # 期日超過アイテム（カスタムフィールドがある場合のみ）
+    # 期日超過アイテム
     if [[ "${HAS_DUE_DATE}" == "true" && "${OVERDUE_COUNT}" -gt 0 ]]; then
-      MD_ROW_FILTER="${JQ_MD_ESCAPE}"'
-        "| [#\(.number)](\(.url)) | \(.title | md_escape) | \(.status // \"-\") | \(if (.assignees | length) > 0 then (.assignees | join(\", \")) else \"-\" end) | \(.due_date) | \(.days_overdue) |"'
+      local md_row_filter="${JQ_MD_ESCAPE}"'
+        "| [#\(.number)](\(.url)) | \(.title | md_escape) | \((.status // \"-\") | md_escape) | \(if (.assignees | length) > 0 then (.assignees | join(\", \") | md_escape) else \"-\" end) | \(.due_date) | \(.days_overdue) |"'
 
       echo "## 期日超過アイテム: ${OVERDUE_COUNT} 件"
       echo ""
       echo "| # | タイトル | ステータス | 担当者 | 終了期日 | 超過日数 |"
       echo "|---|---------|-----------|--------|---------|---------|"
-      echo "${OVERDUE_ITEMS}" | jq -r ".[] | ${MD_ROW_FILTER}"
+      echo "${OVERDUE_ITEMS}" | jq -r ".[] | ${md_row_filter}"
       echo ""
     fi
-  } >> "${GITHUB_STEP_SUMMARY}"
+  }
+}
+
+format_summary_csv() {
+  local items="$1"
+  echo "type,number,title,url,state,repository,author,assignees,labels,created_at,updated_at,status,estimated_hours,actual_hours,due_date"
+  echo "${items}" | jq -r '.[] | [.type, .number, .title, .url, .state, .repository, .author, (.assignees | join("; ")), (.labels | join("; ")), .created_at, .updated_at, (.status // ""), (.estimated_hours // "" | tostring), (.actual_hours // "" | tostring), (.due_date // "")] | @csv'
+}
+
+format_summary_tsv() {
+  local items="$1"
+  echo -e "type\tnumber\ttitle\turl\tstate\trepository\tauthor\tassignees\tlabels\tcreated_at\tupdated_at\tstatus\testimated_hours\tactual_hours\tdue_date"
+  echo "${items}" | jq -r '.[] | [.type, (.number | tostring), .title, .url, .state, .repository, .author, (.assignees | join("; ")), (.labels | join("; ")), .created_at, .updated_at, (.status // ""), (.estimated_hours // "" | tostring), (.actual_hours // "" | tostring), (.due_date // "")] | @tsv'
+}
+
+# --- レポート出力 ---
+
+echo ""
+echo "レポートを生成しています..."
+
+FILE_EXT=$(get_file_extension "${OUTPUT_FORMAT}")
+OUTPUT_FILE="report-${PROJECT_NUMBER}-summary.${FILE_EXT}"
+
+case "${OUTPUT_FORMAT}" in
+  json)
+    REPORT_JSON=$(jq -n \
+      --arg project_title "${PROJECT_TITLE}" \
+      --argjson project_number "${PROJECT_NUMBER}" \
+      --arg executed_at "${EXECUTED_AT}" \
+      --argjson total "${TOTAL_COUNT}" \
+      --argjson issue_count "${ISSUE_COUNT}" \
+      --argjson pr_count "${PR_COUNT}" \
+      --argjson open_count "${OPEN_COUNT}" \
+      --argjson closed_count "${CLOSED_COUNT}" \
+      --argjson merged_count "${MERGED_COUNT}" \
+      --argjson by_status "${STATUS_SUMMARY}" \
+      --argjson by_assignee "${ASSIGNEE_SUMMARY}" \
+      --argjson by_label "${LABEL_SUMMARY}" \
+      --argjson overdue_items "${OVERDUE_ITEMS}" '
+      {
+        project: {
+          title: $project_title,
+          number: $project_number
+        },
+        executed_at: $executed_at,
+        summary: {
+          total: $total,
+          by_type: {
+            Issue: $issue_count,
+            PullRequest: $pr_count
+          },
+          by_state: {
+            OPEN: $open_count,
+            CLOSED: $closed_count,
+            MERGED: $merged_count
+          }
+        },
+        by_status: $by_status,
+        by_assignee: $by_assignee,
+        by_label: $by_label,
+        overdue_items: $overdue_items
+      }
+    ')
+
+    # 工数データがある場合は effort セクションを追加
+    if [[ "${HAS_EFFORT}" == "true" ]]; then
+      REPORT_JSON=$(echo "${REPORT_JSON}" | jq \
+        --argjson effort_by_status "${EFFORT_SUMMARY}" \
+        --argjson total_estimated "${TOTAL_ESTIMATED}" \
+        --argjson total_actual "${TOTAL_ACTUAL}" '
+        . + {
+          effort: {
+            by_status: $effort_by_status,
+            total_estimated: $total_estimated,
+            total_actual: $total_actual
+          }
+        }
+      ')
+    fi
+
+    echo "${REPORT_JSON}" > "${OUTPUT_FILE}"
+    ;;
+  markdown)
+    format_summary_markdown > "${OUTPUT_FILE}"
+    ;;
+  csv)
+    format_summary_csv "${ITEMS}" > "${OUTPUT_FILE}"
+    ;;
+  tsv)
+    format_summary_tsv "${ITEMS}" > "${OUTPUT_FILE}"
+    ;;
+esac
+
+echo "  出力: ${OUTPUT_FILE}（形式: ${OUTPUT_FORMAT}）"
+
+# --- Workflow Summary 出力 ---
+
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  format_summary_markdown >> "${GITHUB_STEP_SUMMARY}"
 fi
 
 # --- コンソールサマリー ---
 
 print_summary "Project" "${PROJECT_TITLE} (#${PROJECT_NUMBER})" \
+  "形式" "${OUTPUT_FORMAT}" \
   "フィルタ(type)" "${ITEM_TYPE}" \
   "総アイテム数" "${TOTAL_COUNT} 件" \
   "Issue" "${ISSUE_COUNT} 件" \

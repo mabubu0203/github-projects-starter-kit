@@ -9,6 +9,7 @@ set -euo pipefail
 #   PROJECT_OWNER  - Project の所有者
 #   PROJECT_NUMBER - 対象 Project の Number
 #   ITEM_TYPE      - 対象アイテムの種別（all / issues / prs、デフォルト: all）
+#   OUTPUT_FORMAT  - 出力形式（json / markdown / csv / tsv、デフォルト: json）
 
 # --- 共通ライブラリ読み込み ---
 
@@ -25,6 +26,8 @@ ITEM_TYPE="${ITEM_TYPE:-all}"
 
 validate_common_project_env
 validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
+OUTPUT_FORMAT="${OUTPUT_FORMAT:-json}"
+validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 
 # --- ヘルパー関数 ---
 
@@ -356,57 +359,9 @@ MISSING_EFFORT_DONE_COUNT=$(echo "${MISSING_EFFORT_ITEMS}" | jq '[.[] | select(.
 
 echo "  工数未入力: ${MISSING_EFFORT_COUNT} 件（うち Done: ${MISSING_EFFORT_DONE_COUNT} 件）"
 
-# --- Artifact 用 JSON 出力 ---
+# --- フォーマッター関数 ---
 
-echo ""
-echo "レポートを生成しています..."
-
-REPORT_JSON=$(jq -n \
-  --arg project_title "${PROJECT_TITLE}" \
-  --argjson project_number "${PROJECT_NUMBER}" \
-  --arg executed_at "${EXECUTED_AT}" \
-  --argjson total_items "${TOTAL_COUNT}" \
-  --argjson items_with_effort "${ITEMS_WITH_EFFORT_COUNT}" \
-  --argjson items_without_effort "${ITEMS_WITHOUT_EFFORT_COUNT}" \
-  --arg effort_input_rate "${EFFORT_INPUT_RATE}" \
-  --argjson total_estimated "${TOTAL_ESTIMATED}" \
-  --argjson total_actual "${TOTAL_ACTUAL}" \
-  --arg overall_variance_rate "${OVERALL_VARIANCE_RATE}" \
-  --argjson by_assignee "${ASSIGNEE_EFFORT}" \
-  --argjson by_status "${STATUS_EFFORT}" \
-  --argjson variance_items "${VARIANCE_ITEMS}" \
-  --argjson lead_time "${LEAD_TIME_ITEMS}" \
-  --argjson missing_effort_items "${MISSING_EFFORT_ITEMS}" '
-  {
-    project: {
-      title: $project_title,
-      number: $project_number
-    },
-    executed_at: $executed_at,
-    overview: {
-      total_items: $total_items,
-      items_with_effort: $items_with_effort,
-      items_without_effort: $items_without_effort,
-      effort_input_rate: ($effort_input_rate | tonumber),
-      total_estimated_hours: $total_estimated,
-      total_actual_hours: $total_actual,
-      overall_variance_rate: (if $overall_variance_rate == "-" then null else ($overall_variance_rate | tonumber) end)
-    },
-    by_assignee: $by_assignee,
-    by_status: $by_status,
-    variance_items: $variance_items,
-    lead_time: $lead_time,
-    missing_effort_items: $missing_effort_items
-  }
-')
-
-OUTPUT_FILE="report-${PROJECT_NUMBER}-effort.json"
-echo "${REPORT_JSON}" > "${OUTPUT_FILE}"
-echo "  JSON 出力: ${OUTPUT_FILE}"
-
-# --- Workflow Summary 出力 ---
-
-if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+format_effort_markdown() {
   {
     echo "# 📊 工数集計レポート"
     echo ""
@@ -437,8 +392,9 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo ""
 
     # 担当者別工数
-    ASSIGNEE_COUNT=$(echo "${ASSIGNEE_EFFORT}" | jq 'length')
-    if [[ "${ASSIGNEE_COUNT}" -gt 0 ]]; then
+    local assignee_count
+    assignee_count=$(echo "${ASSIGNEE_EFFORT}" | jq 'length')
+    if [[ "${assignee_count}" -gt 0 ]]; then
       echo "## 担当者別工数"
       echo ""
       echo "| 担当者 | アイテム数 | 見積もり(h) | 実績(h) | 乖離率 |"
@@ -446,13 +402,13 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
       echo "${ASSIGNEE_EFFORT}" | jq -r '.[] | "| \(.assignee) | \(.count) | \(.estimated_hours) | \(.actual_hours) | \(if .variance_rate != null then (if .variance_rate >= 0 then "+\(.variance_rate)%" else "\(.variance_rate)%" end) else "-" end) |"'
       echo ""
 
-      # 注記（複数担当者の場合）
       echo "> **Note:** 複数担当者がアサインされたアイテムは、各担当者に同一工数が計上されます。担当者別の合計は全体合計と一致しない場合があります。"
       echo ""
 
       # Mermaid 円グラフ
-      HAS_ACTUAL=$(echo "${ASSIGNEE_EFFORT}" | jq '[.[] | select(.actual_hours > 0)] | length')
-      if [[ "${HAS_ACTUAL}" -gt 0 ]]; then
+      local has_actual
+      has_actual=$(echo "${ASSIGNEE_EFFORT}" | jq '[.[] | select(.actual_hours > 0)] | length')
+      if [[ "${has_actual}" -gt 0 ]]; then
         echo '```mermaid'
         echo 'pie title 担当者別実績工数'
         echo "${ASSIGNEE_EFFORT}" | jq -r '.[] | select(.actual_hours > 0) | "    \"\(.assignee)\" : \(.actual_hours)"'
@@ -462,49 +418,51 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     fi
 
     # ステータス別工数
-    STATUS_COUNT=$(echo "${STATUS_EFFORT}" | jq 'length')
-    if [[ "${STATUS_COUNT}" -gt 0 ]]; then
+    local status_count
+    status_count=$(echo "${STATUS_EFFORT}" | jq 'length')
+    if [[ "${status_count}" -gt 0 ]]; then
       echo "## ステータス別工数"
       echo ""
       echo "| ステータス | アイテム数 | 見積もり(h) | 実績(h) | 消化率 |"
       echo "|---|---|---|---|---|"
-      echo "${STATUS_EFFORT}" | jq -r '.[] | "| \(.status) | \(.count) | \(.estimated_hours) | \(.actual_hours) | \(if .consumption_rate != null then "\(.consumption_rate)%" else "-" end) |"'
+      echo "${STATUS_EFFORT}" | jq -r "${JQ_MD_ESCAPE}"'.[] | "| \(.status | md_escape) | \(.count) | \(.estimated_hours) | \(.actual_hours) | \(if .consumption_rate != null then "\(.consumption_rate)%" else "-" end) |"'
       echo ""
     fi
 
     # 乖離アイテム
     if [[ "${VARIANCE_ITEMS_COUNT}" -gt 0 ]]; then
-      MD_ROW_FILTER="${JQ_MD_ESCAPE}"'
+      local md_row_filter="${JQ_MD_ESCAPE}"'
         "| [#\(.number)](\(.url)) | \(.title | md_escape) | \(if (.assignees | length) > 0 then (.assignees | join(", ")) else "-" end) | \(.estimated_hours) | \(.actual_hours) | \(if .variance_rate >= 0 then "+\(.variance_rate)%" else "\(.variance_rate)%" end) |"'
 
       echo "## 乖離アイテム（上位）"
       echo ""
       echo "| # | タイトル | 担当者 | 見積もり(h) | 実績(h) | 乖離率 |"
       echo "|---|---|---|---|---|---|"
-      echo "${VARIANCE_ITEMS}" | jq -r ".[] | ${MD_ROW_FILTER}"
+      echo "${VARIANCE_ITEMS}" | jq -r ".[] | ${md_row_filter}"
       echo ""
     fi
 
     # リードタイム分析
     if [[ "${HAS_LEAD_TIME}" == "true" ]]; then
-      LEAD_TIME_COUNT=$(echo "${LEAD_TIME_ITEMS}" | jq 'length')
-      if [[ "${LEAD_TIME_COUNT}" -gt 0 ]]; then
-        MD_ROW_FILTER="${JQ_MD_ESCAPE}"'
+      local lead_time_count
+      lead_time_count=$(echo "${LEAD_TIME_ITEMS}" | jq 'length')
+      if [[ "${lead_time_count}" -gt 0 ]]; then
+        local md_row_filter="${JQ_MD_ESCAPE}"'
           "| [#\(.number)](\(.url)) | \(.title | md_escape) | \(if .planned_days != null then .planned_days else "-" end) | \(.actual_days) | \(if .lead_time_variance != null then (if .lead_time_variance >= 0 then "+\(.lead_time_variance)" else "\(.lead_time_variance)" end) else "-" end) | \(if .hours_per_day != null then .hours_per_day else "-" end) |"'
 
         echo "## リードタイム分析"
         echo ""
         echo "| # | タイトル | 計画(日) | 実績(日) | 乖離(日) | 日あたり工数(h) |"
         echo "|---|---|---|---|---|---|"
-        echo "${LEAD_TIME_ITEMS}" | jq -r ".[] | ${MD_ROW_FILTER}"
+        echo "${LEAD_TIME_ITEMS}" | jq -r ".[] | ${md_row_filter}"
         echo ""
       fi
     fi
 
     # 工数未入力アイテム
     if [[ "${MISSING_EFFORT_COUNT}" -gt 0 ]]; then
-      MD_ROW_FILTER="${JQ_MD_ESCAPE}"'
-        "| \(if .is_done then "**" else "" end)[#\(.number)](\(.url))\(if .is_done then "**" else "" end) | \(if .is_done then "**" else "" end)\(.title | md_escape)\(if .is_done then "**" else "" end) | \(if .is_done then "**" else "" end)\(.status // "-")\(if .is_done then "**" else "" end) | \(if (.assignees | length) > 0 then (.assignees | join(", ")) else "-" end) |"'
+      local md_row_filter="${JQ_MD_ESCAPE}"'
+        "| \(if .is_done then "**" else "" end)[#\(.number)](\(.url))\(if .is_done then "**" else "" end) | \(if .is_done then "**" else "" end)\(.title | md_escape)\(if .is_done then "**" else "" end) | \(if .is_done then "**" else "" end)\((.status // "-") | md_escape)\(if .is_done then "**" else "" end) | \(if (.assignees | length) > 0 then (.assignees | join(", ") | md_escape) else "-" end) |"'
 
       echo "## 工数未入力アイテム: ${MISSING_EFFORT_COUNT} 件"
       echo ""
@@ -514,15 +472,97 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
       fi
       echo "| # | タイトル | ステータス | 担当者 |"
       echo "|---|---|---|---|"
-      echo "${MISSING_EFFORT_ITEMS}" | jq -r ".[] | ${MD_ROW_FILTER}"
+      echo "${MISSING_EFFORT_ITEMS}" | jq -r ".[] | ${md_row_filter}"
       echo ""
     fi
-  } >> "${GITHUB_STEP_SUMMARY}"
+  }
+}
+
+format_effort_csv() {
+  local items="$1"
+  echo "type,number,title,url,state,repository,author,assignees,labels,created_at,updated_at,status,estimated_hours,actual_hours,due_date,planned_start,planned_end,actual_start,actual_end"
+  echo "${items}" | jq -r '.[] | [.type, .number, .title, .url, .state, .repository, .author, (.assignees | join("; ")), (.labels | join("; ")), .created_at, .updated_at, (.status // ""), (.estimated_hours // "" | tostring), (.actual_hours // "" | tostring), (.due_date // ""), (.planned_start // ""), (.planned_end // ""), (.actual_start // ""), (.actual_end // "")] | @csv'
+}
+
+format_effort_tsv() {
+  local items="$1"
+  echo -e "type\tnumber\ttitle\turl\tstate\trepository\tauthor\tassignees\tlabels\tcreated_at\tupdated_at\tstatus\testimated_hours\tactual_hours\tdue_date\tplanned_start\tplanned_end\tactual_start\tactual_end"
+  echo "${items}" | jq -r '.[] | [.type, (.number | tostring), .title, .url, .state, .repository, .author, (.assignees | join("; ")), (.labels | join("; ")), .created_at, .updated_at, (.status // ""), (.estimated_hours // "" | tostring), (.actual_hours // "" | tostring), (.due_date // ""), (.planned_start // ""), (.planned_end // ""), (.actual_start // ""), (.actual_end // "")] | @tsv'
+}
+
+# --- レポート出力 ---
+
+echo ""
+echo "レポートを生成しています..."
+
+FILE_EXT=$(get_file_extension "${OUTPUT_FORMAT}")
+OUTPUT_FILE="report-${PROJECT_NUMBER}-effort.${FILE_EXT}"
+
+case "${OUTPUT_FORMAT}" in
+  json)
+    REPORT_JSON=$(jq -n \
+      --arg project_title "${PROJECT_TITLE}" \
+      --argjson project_number "${PROJECT_NUMBER}" \
+      --arg executed_at "${EXECUTED_AT}" \
+      --argjson total_items "${TOTAL_COUNT}" \
+      --argjson items_with_effort "${ITEMS_WITH_EFFORT_COUNT}" \
+      --argjson items_without_effort "${ITEMS_WITHOUT_EFFORT_COUNT}" \
+      --arg effort_input_rate "${EFFORT_INPUT_RATE}" \
+      --argjson total_estimated "${TOTAL_ESTIMATED}" \
+      --argjson total_actual "${TOTAL_ACTUAL}" \
+      --arg overall_variance_rate "${OVERALL_VARIANCE_RATE}" \
+      --argjson by_assignee "${ASSIGNEE_EFFORT}" \
+      --argjson by_status "${STATUS_EFFORT}" \
+      --argjson variance_items "${VARIANCE_ITEMS}" \
+      --argjson lead_time "${LEAD_TIME_ITEMS}" \
+      --argjson missing_effort_items "${MISSING_EFFORT_ITEMS}" '
+      {
+        project: {
+          title: $project_title,
+          number: $project_number
+        },
+        executed_at: $executed_at,
+        overview: {
+          total_items: $total_items,
+          items_with_effort: $items_with_effort,
+          items_without_effort: $items_without_effort,
+          effort_input_rate: ($effort_input_rate | tonumber),
+          total_estimated_hours: $total_estimated,
+          total_actual_hours: $total_actual,
+          overall_variance_rate: (if $overall_variance_rate == "-" then null else ($overall_variance_rate | tonumber) end)
+        },
+        by_assignee: $by_assignee,
+        by_status: $by_status,
+        variance_items: $variance_items,
+        lead_time: $lead_time,
+        missing_effort_items: $missing_effort_items
+      }
+    ')
+    echo "${REPORT_JSON}" > "${OUTPUT_FILE}"
+    ;;
+  markdown)
+    format_effort_markdown > "${OUTPUT_FILE}"
+    ;;
+  csv)
+    format_effort_csv "${ITEMS}" > "${OUTPUT_FILE}"
+    ;;
+  tsv)
+    format_effort_tsv "${ITEMS}" > "${OUTPUT_FILE}"
+    ;;
+esac
+
+echo "  出力: ${OUTPUT_FILE}（形式: ${OUTPUT_FORMAT}）"
+
+# --- Workflow Summary 出力 ---
+
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
+  format_effort_markdown >> "${GITHUB_STEP_SUMMARY}"
 fi
 
 # --- コンソールサマリー ---
 
 print_summary "Project" "${PROJECT_TITLE} (#${PROJECT_NUMBER})" \
+  "形式" "${OUTPUT_FORMAT}" \
   "フィルタ(type)" "${ITEM_TYPE}" \
   "総アイテム数" "${TOTAL_COUNT} 件" \
   "工数入力済み" "${ITEMS_WITH_EFFORT_COUNT} 件" \
