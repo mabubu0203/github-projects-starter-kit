@@ -197,7 +197,7 @@ STATUS_EFFORT=$(echo "${ITEMS}" | jq --argjson total_estimated "${TOTAL_ESTIMATE
   [.[] | select(.estimated_hours != null or .actual_hours != null)]
   | sort_by(.status // "(未設定)") | group_by(.status // "(未設定)")
   | map({
-      status: .[0].status // "(未設定)",
+      status: (.[0].status // "(未設定)"),
       count: length,
       estimated_hours: ([.[].estimated_hours // 0] | add),
       actual_hours: ([.[].actual_hours // 0] | add)
