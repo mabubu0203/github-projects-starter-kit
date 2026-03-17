@@ -33,6 +33,7 @@ ITEM_STATE="${ITEM_STATE:-open}"
 ITEM_LABEL="${ITEM_LABEL:-}"
 
 validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
+validate_enum "ITEM_STATE" "${ITEM_STATE}" "open" "closed" "all"
 
 # ステータス自動付与ルール: open → Backlog、closed/merged → Done
 INITIAL_STATUS="Backlog"
