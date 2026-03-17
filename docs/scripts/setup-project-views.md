@@ -71,20 +71,21 @@ flowchart TD
     F -- "No" --> G["エラー出力"]
     G --> H["異常終了"]
 
-    F -- "Yes" --> I["View 定義をループ\n（Table / Board / Roadmap）"]
-    I --> J{"同名 View\n既に存在?"}
-    J -- "Yes" --> K["スキップ"]
-    J -- "No" --> L["REST API で\nView を作成"]
-    L --> M{"作成成功?"}
-    M -- "Yes" --> N["作成カウント +1"]
-    M -- "No" --> O["失敗カウント +1"]
+    F -- "Yes" --> I["View 定義を jq で\n事前解析（TSV）"]
+    I --> J["View 定義をループ\n（Table / Board / Roadmap）"]
+    J --> K{"同名 View\n既に存在?"}
+    K -- "Yes" --> L["スキップ"]
+    K -- "No" --> M["REST API で\nView を作成"]
+    M --> N{"作成成功?"}
+    N -- "Yes" --> O["作成カウント +1"]
+    N -- "No" --> P["失敗カウント +1"]
 
-    K & N & O --> P{"次の View\nあり?"}
-    P -- "Yes" --> I
-    P -- "No" --> Q["サマリー出力"]
-    Q --> R{"失敗あり?"}
-    R -- "Yes" --> H
-    R -- "No" --> S["完了"]
+    L & O & P --> Q{"次の View\nあり?"}
+    Q -- "Yes" --> J
+    Q -- "No" --> R["サマリー出力"]
+    R --> S{"失敗あり?"}
+    S -- "Yes" --> H
+    S -- "No" --> T["完了"]
 ```
 
 ## 📝 処理詳細
@@ -95,6 +96,7 @@ flowchart TD
 | `View` 定義ファイル読み込み | `scripts/config/project-view-definitions.json` から `View` 定義を読み込み | `cat` |
 | 既存 `View` 取得 | GraphQL API で `Project` の全 `View` 名をページネーション付きで取得 | `gh api graphql` (`projectV2.views`) |
 | REST API パス構築 | オーナータイプに応じて `orgs/{org}/projectsV2/{number}/views` または `users/{username}/projectsV2/{number}/views` を構築 | — |
+| `View` 定義の事前解析 | ループ前に全 `View` 定義を1回の `jq` で TSV に変換し、ループ内の `jq` 呼び出しを削減 | `jq -r '.[] \| [...] \| @tsv'` |
 | 重複チェック | 既存 `View` 名リストと定義済み `View` 名を `grep -Fqx` で完全一致比較 | — |
 | `View` 作成 | REST API で `View` を作成。`name`・`layout` に加え、任意で `filter`・`visible_fields` を送信 | `gh api {path} --method POST` |
 | サマリー出力 | 作成・スキップ・失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | — |

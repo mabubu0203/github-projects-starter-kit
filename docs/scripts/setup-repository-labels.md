@@ -77,16 +77,21 @@ flowchart TD
 
     E --> F{"バリデーション\n成功?"}
     F -- "No" --> G["エラー終了"]
-    F -- "Yes" --> H["ラベル定義をループ処理"]
+    F -- "Yes" --> H["既存ラベル一覧を事前取得\n（gh label list）"]
 
-    H --> I["gh label create\n（既存ラベルはスキップ）"]
+    H --> I["ラベル定義を jq で\n事前解析（TSV）"]
+    I --> J["ラベル定義をループ処理"]
 
-    I --> J["結果を記録\n（作成 / スキップ / 失敗）"]
+    J --> K{"既存ラベルに\n含まれる?"}
+    K -- "Yes" --> L["スキップ"]
+    K -- "No" --> M["gh label create\nでラベル作成"]
 
-    J --> K{"次のラベル\nあり?"}
-    K -- "Yes" --> H
-    K -- "No" --> L["実行結果サマリー出力"]
-    L --> M["完了"]
+    M --> N["結果を記録\n（作成 / 失敗）"]
+
+    L & N --> O{"次のラベル\nあり?"}
+    O -- "Yes" --> J
+    O -- "No" --> P["実行結果サマリー出力"]
+    P --> Q["完了"]
 ```
 
 ## 📝 処理詳細
@@ -97,7 +102,10 @@ flowchart TD
 | コマンド存在チェック | `require_command` で `gh`, `jq` の存在を確認 | `common.sh` |
 | ラベル定義ファイル読み込み | `scripts/config/repository-label-definitions.json` を読み込み | `jq` |
 | JSON バリデーション | 必須フィールドの存在チェック、`color` の HEX 形式チェック | `jq` |
-| ラベル作成 | 各ラベルを `gh label create` で作成。既存ラベルと同名の場合はスキップ | `gh label create -R` |
+| 既存ラベル取得 | リポジトリの既存ラベル名一覧を事前に取得し、重複チェック用にキャッシュ | `gh label list --json name` |
+| ラベル定義の事前解析 | ループ前に全ラベル定義を1回の `jq` で TSV に変換し、ループ内の `jq` 呼び出しを削減 | `jq -r '.[] \| [...] \| @tsv'` |
+| 重複チェック | 既存ラベル名リストと定義済みラベル名を `grep -Fqx` で完全一致比較 | — |
+| ラベル作成 | 重複していないラベルを `gh label create` で作成 | `gh label create -R` |
 | エラーハンドリング | 作成失敗時はエラーカウントを記録して次のラベルへ続行 | — |
 | サマリー出力 | 作成/スキップ/失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | `print_summary`, `GITHUB_STEP_SUMMARY` |
 

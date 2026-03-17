@@ -266,6 +266,15 @@ validate_common_project_env() {
   detect_owner_type
 }
 
+# Markdown テーブルセル用エスケープ関数（jq 内で使用）
+# パイプ文字および Markdown 特殊文字（\, `, *, _, [, ], <, >, ~）をバックスラッシュでエスケープ
+JQ_MD_ESCAPE='def md_escape: gsub("\\\\"; "\\\\") | gsub("`"; "\\`") | gsub("\\*"; "\\*") | gsub("_"; "\\_") | gsub("\\["; "\\[") | gsub("\\]"; "\\]") | gsub("<"; "\\<") | gsub(">"; "\\>") | gsub("~"; "\\~") | gsub("\\|"; "\\|");'
+
+# ITEM_TYPE フィルタ用ヘルパー関数
+# ITEM_TYPE 環境変数の値に応じて Issue / PR を含めるかどうかを判定する
+should_include_issues() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "issues" ]]; }
+should_include_prs() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "prs" ]]; }
+
 # 環境変数の値が許可リストに含まれるかチェックする
 # 使用例: validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 validate_enum() {
