@@ -1,5 +1,7 @@
 # ④ 🔗 Issue/PR 一括紐付け
 
+リポジトリの `Issue`/`PR` を `Project` に一括追加します。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -12,8 +14,6 @@
 - [📊 処理フロー](#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-リポジトリの `Issue`/`PR` を `Project` に一括追加します。
 
 ## ✅ 前提
 

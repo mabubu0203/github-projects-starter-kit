@@ -1,5 +1,8 @@
 # 📜 detect-stale-items.sh
 
+指定した GitHub Project のアイテムを走査し、ステータス別の閾値に基づいて滞留アイテムを検知するスクリプトです。
+DraftIssue、Done / Backlog ステータス、除外ラベル付きアイテムは検知対象外となります。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -14,9 +17,6 @@
 - [🔄 使用ワークフロー](#-%E4%BD%BF%E7%94%A8%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BC)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-指定した GitHub Project のアイテムを走査し、ステータス別の閾値に基づいて滞留アイテムを検知するスクリプトです。
-DraftIssue、Done / Backlog ステータス、除外ラベル付きアイテムは検知対象外となります。
 
 ## 🔧 環境変数
 

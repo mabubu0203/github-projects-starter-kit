@@ -1,5 +1,8 @@
 # ③ 🏷️ Issue ラベル一括追加
 
+指定リポジトリに対して、設定ファイルで定義した Issue ラベルを一括作成します。
+既存ラベルと同名のラベルが存在する場合はスキップします。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -17,9 +20,6 @@
 - [📜 関連スクリプト](#-%E9%96%A2%E9%80%A3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-指定リポジトリに対して、設定ファイルで定義した Issue ラベルを一括作成します。
-既存ラベルと同名のラベルが存在する場合はスキップします。
 
 ## ✅ 前提
 

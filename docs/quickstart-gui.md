@@ -1,5 +1,7 @@
 # 🖱️ クイックスタート（GUI版）
 
+GitHub の Web UI を使ったセットアップ手順です。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -11,8 +13,6 @@
 - [5. ▶️ ワークフローを実行する](#5--%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BC%E3%82%92%E5%AE%9F%E8%A1%8C%E3%81%99%E3%82%8B)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-GitHub の Web UI を使ったセットアップ手順です。
 
 ```mermaid
 flowchart LR

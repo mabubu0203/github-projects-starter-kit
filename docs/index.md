@@ -1,5 +1,7 @@
 # 📖 GitHub Projects Starter Kit ドキュメント
 
+GitHub Projects の初期セットアップを GitHub Actions で自動実行するための **スターターキット** です。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -14,8 +16,6 @@
 - [🏠 リポジトリ](#-%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-GitHub Projects の初期セットアップを GitHub Actions で自動実行するための **スターターキット** です。
 
 ---
 
