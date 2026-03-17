@@ -317,6 +317,65 @@ get_file_extension() {
   esac
 }
 
+# Project の全アイテムをページネーション付きで取得する汎用関数
+# 成功時: PROJECT_TITLE をグローバルに設定し、正規化済みアイテム JSON 配列を標準出力に出力
+# 失敗時: エラーメッセージを出力して return 1
+# 引数:
+#   $1 - GraphQL クエリテンプレート（__OWNER_FIELD__ プレースホルダーを含む）
+#   $2 - アイテム正規化用 jq フィルタ（$owner 変数で OWNER_QUERY_FIELD を参照可能）
+#   $3 - ページネーション上限（省略時: 50）
+# 使用例:
+#   ITEMS=$(fetch_all_project_items "${QUERY_TEMPLATE}" "${NORMALIZE_FILTER}" 50)
+fetch_all_project_items() {
+  local query_template="$1"
+  local normalize_filter="$2"
+  local max_pages="${3:-50}"
+
+  _FAPI_ALL_ITEMS="[]"
+  _FAPI_NORMALIZE_FILTER="${normalize_filter}"
+
+  _fapi_on_page() {
+    local result="$1"
+    local page="$2"
+
+    # Project の存在チェック（初回のみ）
+    if [[ "${page}" -eq 1 ]]; then
+      local project_title_check
+      project_title_check=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.title // empty' 2>/dev/null || true)
+      if [[ -z "${project_title_check}" ]]; then
+        echo "::error::Project が見つかりません。PROJECT_OWNER（${PROJECT_OWNER}）と PROJECT_NUMBER（${PROJECT_NUMBER}）を確認してください。" >&2
+        return 1
+      fi
+      PROJECT_TITLE="${project_title_check}"
+    fi
+
+    local page_items
+    page_items=$(echo "${result}" | jq --arg owner "${OWNER_QUERY_FIELD}" "${_FAPI_NORMALIZE_FILTER}" 2>/dev/null || echo "[]")
+
+    local page_count
+    page_count=$(echo "${page_items}" | jq 'length')
+    echo "  ページ ${page} 取得完了（${page_count} 件）" >&2
+
+    _FAPI_ALL_ITEMS=$(echo "${_FAPI_ALL_ITEMS}" "${page_items}" | jq -s '.[0] + .[1]')
+  }
+
+  local query
+  query=$(apply_owner_field "${query_template}")
+
+  local variables_json
+  variables_json=$(jq -n \
+    --arg login "${PROJECT_OWNER}" \
+    --argjson number "${PROJECT_NUMBER}" \
+    '{login: $login, number: $number}')
+
+  if ! run_graphql_paginated "${query}" "Project アイテムの取得" "${variables_json}" \
+    '.data.[($owner)].projectV2.items.pageInfo' _fapi_on_page "${max_pages}"; then
+    return 1
+  fi
+
+  echo "${_FAPI_ALL_ITEMS}"
+}
+
 # 環境変数の値が許可リストに含まれるかチェックする
 # 使用例: validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 validate_enum() {

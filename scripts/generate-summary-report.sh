@@ -30,61 +30,13 @@ validate_enum "ITEM_STATE" "${ITEM_STATE}" "open" "closed" "all"
 OUTPUT_FORMAT="${OUTPUT_FORMAT:-json}"
 validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 
-# --- ヘルパー関数 ---
+# --- アイテム取得 ---
 
-# Project のアイテム一覧を取得する（ページネーション対応、フィールド値を含む）
-fetch_project_items() {
-  local all_items="[]"
+echo ""
+echo "Project #${PROJECT_NUMBER} のアイテムを取得しています..."
+PROJECT_TITLE=""
 
-  _on_summary_page() {
-    local result="$1"
-    local page="$2"
-
-    # Project の存在チェック（初回のみ）
-    if [[ "${page}" -eq 1 ]]; then
-      local project_title_check
-      project_title_check=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.title // empty' 2>/dev/null || true)
-      if [[ -z "${project_title_check}" ]]; then
-        echo "::error::Project が見つかりません。PROJECT_OWNER（${PROJECT_OWNER}）と PROJECT_NUMBER（${PROJECT_NUMBER}）を確認してください。" >&2
-        return 1
-      fi
-      PROJECT_TITLE="${project_title_check}"
-    fi
-
-    # アイテムを正規化して追加（DraftIssue を除外し、フィールド値を含む統一フォーマットに変換）
-    local normalize_filter
-    normalize_filter="[.data.[(\$owner)].projectV2.items.nodes[]
-      | select(.content != null)
-      | select(.content.__typename != null)
-      | {
-          type:       .content.__typename,
-          number:     .content.number,
-          title:      .content.title,
-          url:        .content.url,
-          state:      .content.state,
-          repository: .content.repository.nameWithOwner,
-          author:     (.content.author.login // \"\"),
-          assignees:  [.content.assignees.nodes[].login],
-          labels:     [.content.labels.nodes[].name],
-          created_at: .content.createdAt,
-          updated_at: .content.updatedAt,
-          status:     ([.fieldValues.nodes[] | select(.field.name == \"Status\") | .name] | first // null),
-          estimated_hours: ([.fieldValues.nodes[] | select(.field.name == \"見積もり工数(h)\") | .number] | first // null),
-          actual_hours:    ([.fieldValues.nodes[] | select(.field.name == \"実績工数(h)\") | .number] | first // null),
-          due_date:        ([.fieldValues.nodes[] | select(.field.name == \"終了期日\") | .date] | first // null)
-        }]"
-    local page_items
-    page_items=$(echo "${result}" | jq --arg owner "${OWNER_QUERY_FIELD}" "${normalize_filter}" 2>/dev/null || echo "[]")
-
-    local page_count
-    page_count=$(echo "${page_items}" | jq 'length')
-    echo "  ページ ${page} 取得完了（${page_count} 件）" >&2
-
-    all_items=$(echo "${all_items}" "${page_items}" | jq -s '.[0] + .[1]')
-  }
-
-  local query_template
-  query_template=$(cat <<'GRAPHQL'
+SUMMARY_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
 query($login: String!, $number: Int!, $after: String) {
   __OWNER_FIELD__(login: $login) {
     projectV2(number: $number) {
@@ -146,29 +98,29 @@ query($login: String!, $number: Int!, $after: String) {
 }
 GRAPHQL
 )
-  local query
-  query=$(apply_owner_field "${query_template}")
 
-  local variables_json
-  variables_json=$(jq -n \
-    --arg login "${PROJECT_OWNER}" \
-    --argjson number "${PROJECT_NUMBER}" \
-    '{login: $login, number: $number}')
+SUMMARY_NORMALIZE_FILTER='[.data.[($owner)].projectV2.items.nodes[]
+  | select(.content != null)
+  | select(.content.__typename != null)
+  | {
+      type:       .content.__typename,
+      number:     .content.number,
+      title:      .content.title,
+      url:        .content.url,
+      state:      .content.state,
+      repository: .content.repository.nameWithOwner,
+      author:     (.content.author.login // ""),
+      assignees:  [.content.assignees.nodes[].login],
+      labels:     [.content.labels.nodes[].name],
+      created_at: .content.createdAt,
+      updated_at: .content.updatedAt,
+      status:     ([.fieldValues.nodes[] | select(.field.name == "Status") | .name] | first // null),
+      estimated_hours: ([.fieldValues.nodes[] | select(.field.name == "見積もり工数(h)") | .number] | first // null),
+      actual_hours:    ([.fieldValues.nodes[] | select(.field.name == "実績工数(h)") | .number] | first // null),
+      due_date:        ([.fieldValues.nodes[] | select(.field.name == "終了期日") | .date] | first // null)
+    }]'
 
-  if ! run_graphql_paginated "${query}" "Project アイテムの取得" "${variables_json}" \
-    '.data.[($owner)].projectV2.items.pageInfo' _on_summary_page 50; then
-    return 1
-  fi
-
-  echo "${all_items}"
-}
-
-# --- アイテム取得 ---
-
-echo ""
-echo "Project #${PROJECT_NUMBER} のアイテムを取得しています..."
-PROJECT_TITLE=""
-ITEMS=$(fetch_project_items)
+ITEMS=$(fetch_all_project_items "${SUMMARY_QUERY_TEMPLATE}" "${SUMMARY_NORMALIZE_FILTER}" 50)
 
 TOTAL_BEFORE_FILTER=$(echo "${ITEMS}" | jq 'length')
 echo "  合計: ${TOTAL_BEFORE_FILTER} 件（フィルタ前）"

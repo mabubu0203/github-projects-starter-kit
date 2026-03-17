@@ -45,54 +45,13 @@ get_now_epoch() {
   fi
 }
 
-# Project のアイテム一覧を取得する（ページネーション対応、Status フィールド値を含む）
-fetch_project_items() {
-  local all_items="[]"
+# --- アイテム取得 ---
 
-  _on_stale_page() {
-    local result="$1"
-    local page="$2"
+echo ""
+echo "Project #${PROJECT_NUMBER} のアイテムを取得しています..."
+PROJECT_TITLE=""
 
-    # Project の存在チェック（初回のみ）
-    if [[ "${page}" -eq 1 ]]; then
-      local project_title_check
-      project_title_check=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.title // empty' 2>/dev/null || true)
-      if [[ -z "${project_title_check}" ]]; then
-        echo "::error::Project が見つかりません。PROJECT_OWNER（${PROJECT_OWNER}）と PROJECT_NUMBER（${PROJECT_NUMBER}）を確認してください。" >&2
-        return 1
-      fi
-      PROJECT_TITLE="${project_title_check}"
-    fi
-
-    # アイテムを正規化して追加（DraftIssue を除外し、Status フィールド値を含む統一フォーマットに変換）
-    local normalize_filter
-    normalize_filter="[.data.[(\$owner)].projectV2.items.nodes[]
-      | select(.content != null)
-      | select(.content.__typename != null)
-      | {
-          type:       .content.__typename,
-          number:     .content.number,
-          title:      .content.title,
-          url:        .content.url,
-          state:      .content.state,
-          repository: .content.repository.nameWithOwner,
-          assignees:  ([.content.assignees.nodes[].login] | join(\", \")),
-          labels:     [.content.labels.nodes[].name],
-          updated_at: .content.updatedAt,
-          status:     ([.fieldValues.nodes[] | select(.field.name == \"Status\") | .name] | first // null)
-        }]"
-    local page_items
-    page_items=$(echo "${result}" | jq --arg owner "${OWNER_QUERY_FIELD}" "${normalize_filter}" 2>/dev/null || echo "[]")
-
-    local page_count
-    page_count=$(echo "${page_items}" | jq 'length')
-    echo "  ページ ${page} 取得完了（${page_count} 件）" >&2
-
-    all_items=$(echo "${all_items}" "${page_items}" | jq -s '.[0] + .[1]')
-  }
-
-  local query_template
-  query_template=$(cat <<'GRAPHQL'
+STALE_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
 query($login: String!, $number: Int!, $after: String) {
   __OWNER_FIELD__(login: $login) {
     projectV2(number: $number) {
@@ -146,39 +105,24 @@ query($login: String!, $number: Int!, $after: String) {
 }
 GRAPHQL
 )
-  local query
-  query=$(apply_owner_field "${query_template}")
 
-  local variables_json
-  variables_json=$(jq -n \
-    --arg login "${PROJECT_OWNER}" \
-    --argjson number "${PROJECT_NUMBER}" \
-    '{login: $login, number: $number}')
+STALE_NORMALIZE_FILTER='[.data.[($owner)].projectV2.items.nodes[]
+  | select(.content != null)
+  | select(.content.__typename != null)
+  | {
+      type:       .content.__typename,
+      number:     .content.number,
+      title:      .content.title,
+      url:        .content.url,
+      state:      .content.state,
+      repository: .content.repository.nameWithOwner,
+      assignees:  ([.content.assignees.nodes[].login] | join(", ")),
+      labels:     [.content.labels.nodes[].name],
+      updated_at: .content.updatedAt,
+      status:     ([.fieldValues.nodes[] | select(.field.name == "Status") | .name] | first // null)
+    }]'
 
-  if ! run_graphql_paginated "${query}" "Project アイテムの取得" "${variables_json}" \
-    '.data.[($owner)].projectV2.items.pageInfo' _on_stale_page 50; then
-    return 1
-  fi
-
-  echo "${all_items}"
-}
-
-# 除外ラベルの CSV を JSON 配列に変換
-build_exclude_labels_json() {
-  local labels_csv="$1"
-  if [[ -z "${labels_csv}" ]]; then
-    echo "[]"
-    return
-  fi
-  echo "${labels_csv}" | jq -R '[split(",") | .[] | gsub("^\\s+|\\s+$"; "") | ascii_downcase]'
-}
-
-# --- アイテム取得 ---
-
-echo ""
-echo "Project #${PROJECT_NUMBER} のアイテムを取得しています..."
-PROJECT_TITLE=""
-ITEMS=$(fetch_project_items)
+ITEMS=$(fetch_all_project_items "${STALE_QUERY_TEMPLATE}" "${STALE_NORMALIZE_FILTER}" 50)
 
 TOTAL_BEFORE_FILTER=$(echo "${ITEMS}" | jq 'length')
 echo "  合計: ${TOTAL_BEFORE_FILTER} 件（フィルタ前）"
@@ -195,7 +139,7 @@ ITEMS=$(echo "${ITEMS}" | filter_items_by_type)
 ITEMS=$(echo "${ITEMS}" | filter_items_by_state)
 
 # 除外ステータス（Done, Backlog）および除外ラベルを適用
-EXCLUDE_LABELS_JSON=$(build_exclude_labels_json "${EXCLUDE_LABELS}")
+EXCLUDE_LABELS_JSON=$(echo "${EXCLUDE_LABELS}" | jq -R '[split(",") | .[] | gsub("^\\s+|\\s+$"; "") | ascii_downcase]')
 
 ITEMS=$(echo "${ITEMS}" | jq \
   --argjson exclude_labels "${EXCLUDE_LABELS_JSON}" '
