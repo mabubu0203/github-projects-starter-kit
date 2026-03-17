@@ -25,6 +25,8 @@ jobs:
 
       - name: ラベルを一括作成
         run: |
+          # トリム
+          TARGET_REPO="$(echo "$TARGET_REPO" | xargs)"
           chmod +x scripts/setup-repository-labels.sh
           bash scripts/setup-repository-labels.sh
 

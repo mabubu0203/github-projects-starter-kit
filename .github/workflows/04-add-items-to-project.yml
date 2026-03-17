@@ -57,6 +57,9 @@ jobs:
           ITEM_STATE: ${{ inputs.item_state }}
           ITEM_LABEL: ${{ inputs.item_label }}
         run: |
+          # トリム
+          TARGET_REPO="$(echo "$TARGET_REPO" | xargs)"
+          ITEM_LABEL="$(echo "$ITEM_LABEL" | xargs)"
           chmod +x scripts/add-items-to-project.sh
           bash scripts/add-items-to-project.sh
 
