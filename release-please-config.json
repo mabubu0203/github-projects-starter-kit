@@ -1,0 +1,62 @@
+{
+  "changelog-notes-type": "github",
+  "include-component-in-tag": false,
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "release-labels": [
+        "autorelease: pending"
+      ],
+      "pull-request-title-pattern": "chore: release ${version}",
+      "include-v-in-tag": true,
+      "changelog-sections": [
+        {
+          "type": "feat",
+          "section": "新機能"
+        },
+        {
+          "type": "fix",
+          "section": "バグ修正"
+        },
+        {
+          "type": "perf",
+          "section": "パフォーマンス改善"
+        },
+        {
+          "type": "revert",
+          "section": "リバート"
+        },
+        {
+          "type": "docs",
+          "section": "ドキュメント"
+        },
+        {
+          "type": "style",
+          "section": "スタイル"
+        },
+        {
+          "type": "chore",
+          "section": "その他の変更"
+        },
+        {
+          "type": "refactor",
+          "section": "リファクタリング"
+        },
+        {
+          "type": "test",
+          "section": "テスト"
+        },
+        {
+          "type": "build",
+          "section": "ビルドシステム"
+        },
+        {
+          "type": "ci",
+          "section": "CI/CD"
+        }
+      ]
+    }
+  }
+}
