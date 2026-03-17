@@ -8,15 +8,21 @@ set -euo pipefail
 #   GH_TOKEN       - GitHub PAT（Projects 読み取り権限が必要）
 #   PROJECT_OWNER  - Project の所有者
 #   PROJECT_NUMBER - 対象 Project の Number
+#   ITEM_TYPE      - 対象アイテムの種別（all / issues / prs、デフォルト: all）
 
 # --- 共通ライブラリ読み込み ---
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib/common.sh"
 
+# --- スクリプト内定数 ---
+
+ITEM_TYPE="${ITEM_TYPE:-all}"
+
 # --- バリデーション ---
 
 validate_common_project_env
+validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
 
 # --- ヘルパー関数 ---
 
@@ -158,8 +164,15 @@ echo "Project #${PROJECT_NUMBER} のアイテムを取得しています..."
 PROJECT_TITLE=""
 ITEMS=$(fetch_project_items)
 
+TOTAL_BEFORE_FILTER=$(echo "${ITEMS}" | jq 'length')
+echo "  合計: ${TOTAL_BEFORE_FILTER} 件（フィルタ前）"
+
+# --- type フィルタリング ---
+
+ITEMS=$(echo "${ITEMS}" | filter_items_by_type)
+
 TOTAL_COUNT=$(echo "${ITEMS}" | jq 'length')
-echo "  合計: ${TOTAL_COUNT} 件"
+echo "  合計: ${TOTAL_COUNT} 件（フィルタ後）"
 
 # --- 基本集計 ---
 
@@ -412,6 +425,7 @@ fi
 # --- コンソールサマリー ---
 
 print_summary "Project" "${PROJECT_TITLE} (#${PROJECT_NUMBER})" \
+  "フィルタ(type)" "${ITEM_TYPE}" \
   "総アイテム数" "${TOTAL_COUNT} 件" \
   "Issue" "${ISSUE_COUNT} 件" \
   "PR" "${PR_COUNT} 件" \

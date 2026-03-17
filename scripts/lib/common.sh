@@ -275,6 +275,20 @@ JQ_MD_ESCAPE='def md_escape: gsub("\\\\"; "\\\\") | gsub("`"; "\\`") | gsub("\\*
 should_include_issues() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "issues" ]]; }
 should_include_prs() { [[ "${ITEM_TYPE}" == "all" || "${ITEM_TYPE}" == "prs" ]]; }
 
+# ITEM_TYPE に基づいてアイテム JSON 配列を type フィルタリングする
+# 標準入力から JSON 配列を受け取り、フィルタ後の JSON 配列を標準出力に返す
+# 使用例: ITEMS=$(echo "${ITEMS}" | filter_items_by_type)
+filter_items_by_type() {
+  jq \
+    --argjson includeIssues "$(should_include_issues && echo true || echo false)" \
+    --argjson includePRs "$(should_include_prs && echo true || echo false)" '
+    map(select(
+      ($includeIssues or .type != "Issue")
+      and ($includePRs or .type != "PullRequest")
+    ))
+  '
+}
+
 # 環境変数の値が許可リストに含まれるかチェックする
 # 使用例: validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 validate_enum() {
