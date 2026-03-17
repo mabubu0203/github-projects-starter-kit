@@ -55,6 +55,12 @@
     - [Organization レベルの設定](#organization-%E3%83%AC%E3%83%99%E3%83%AB%E3%81%AE%E8%A8%AD%E5%AE%9A)
     - [代替手段](#%E4%BB%A3%E6%9B%BF%E6%89%8B%E6%AE%B5)
 - [📊 処理フロー](#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC)
+- [🔧 ワークフロー仕様](#-%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BC%E4%BB%95%E6%A7%98)
+  - [ファイル](#%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB)
+  - [トリガー](#%E3%83%88%E3%83%AA%E3%82%AC%E3%83%BC)
+  - [環境変数](#%E7%92%B0%E5%A2%83%E5%A4%89%E6%95%B0)
+  - [ジョブ構成](#%E3%82%B8%E3%83%A7%E3%83%96%E6%A7%8B%E6%88%90)
+- [📜 関連スクリプト](#-%E9%96%A2%E9%80%A3%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -420,3 +426,54 @@ flowchart TD
     F -- "成功" --> G["workflow-summary-success ジョブ\n成功サマリーを出力"]
     F -- "失敗" --> H["workflow-summary-failure ジョブ\n失敗サマリーを出力"]
 ```
+
+## 🔧 ワークフロー仕様
+
+### ファイル
+
+`.github/workflows/05-analyze-project.yml`
+
+### トリガー
+
+`workflow_dispatch`（手動実行）
+
+### 環境変数
+
+| 環境変数 | ソース | 説明 |
+|----------|--------|------|
+| `GH_TOKEN` | `secrets.PROJECT_PAT` | GitHub PAT（Projects 操作権限） |
+| `PROJECT_OWNER` | `github.repository_owner` | Project オーナー |
+| `PROJECT_NUMBER` | `inputs.project_number` | 対象 Project Number |
+| `OUTPUT_FORMAT` | `inputs.output_format` | 出力形式 |
+| `ITEM_TYPE` | `inputs.item_type` | アイテム種別フィルタ |
+| `ITEM_STATE` | `inputs.item_state` | アイテム状態フィルタ |
+
+### ジョブ構成
+
+```
+.github/workflows/05-analyze-project.yml
+  ├── validate-inputs ジョブ
+  │   └── retention_days の範囲検証（1〜7）
+  ├── generate-summary-report ジョブ（summary 選択時）
+  │   └── scripts/generate-summary-report.sh       # サマリーレポート生成
+  ├── generate-effort-report ジョブ（effort 選択時）
+  │   └── scripts/generate-effort-report.sh        # 工数集計レポート生成
+  ├── generate-velocity-report ジョブ（velocity 選択時）
+  │   └── scripts/generate-velocity-report.sh      # ベロシティレポート生成
+  ├── detect-stale-items ジョブ（stale 選択時）
+  │   └── scripts/detect-stale-items.sh            # 滞留アイテム検知
+  ├── export-items ジョブ（export 選択時）
+  │   └── scripts/export-project-items.sh          # アイテムエクスポート
+  ├── workflow-summary-failure ジョブ（失敗時）
+  │   └── .github/actions/workflow-summary         # 失敗サマリー出力
+  └── workflow-summary-success ジョブ（成功時）
+      └── .github/actions/workflow-summary         # 成功サマリー出力
+```
+
+## 📜 関連スクリプト
+
+- [generate-summary-report.sh](../scripts/generate-summary-report) — サマリーレポート生成スクリプト
+- [generate-effort-report.sh](../scripts/generate-effort-report) — 工数集計レポート生成スクリプト
+- [generate-velocity-report.sh](../scripts/generate-velocity-report) — ベロシティレポート生成スクリプト
+- [detect-stale-items.sh](../scripts/detect-stale-items) — 滞留アイテム検知スクリプト
+- [export-project-items.sh](../scripts/export-project-items) — アイテムエクスポートスクリプト
