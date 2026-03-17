@@ -29,119 +29,6 @@ ITEM_STATE="${ITEM_STATE:-all}"
 validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
 validate_enum "ITEM_STATE" "${ITEM_STATE}" "open" "closed" "all"
 
-# --- ヘルパー関数 ---
-
-# Project のアイテム一覧を取得する（ページネーション対応）
-fetch_project_items() {
-  local all_items="[]"
-
-  _on_export_page() {
-    local result="$1"
-    local page="$2"
-
-    # Project の存在チェック（初回のみ）
-    if [[ "${page}" -eq 1 ]]; then
-      local project_title_check
-      project_title_check=$(echo "${result}" | jq -r --arg owner "${OWNER_QUERY_FIELD}" '.data.[($owner)].projectV2.title // empty' 2>/dev/null || true)
-      if [[ -z "${project_title_check}" ]]; then
-        echo "::error::Project が見つかりません。PROJECT_OWNER（${PROJECT_OWNER}）と PROJECT_NUMBER（${PROJECT_NUMBER}）を確認してください。" >&2
-        return 1
-      fi
-      PROJECT_TITLE="${project_title_check}"
-    fi
-
-    # アイテムを正規化して追加（DraftIssue を除外し、統一フォーマットに変換）
-    local normalize_filter
-    normalize_filter="[.data.[(\$owner)].projectV2.items.nodes[]
-      | select(.content != null)
-      | select(.content.__typename != null)
-      | {
-          type:       .content.__typename,
-          number:     .content.number,
-          title:      .content.title,
-          url:        .content.url,
-          state:      .content.state,
-          repository: .content.repository.nameWithOwner,
-          author:     (.content.author.login // \"\"),
-          assignees:  ([.content.assignees.nodes[].login] | join(\", \")),
-          labels:     ([.content.labels.nodes[].name] | join(\", \")),
-          created_at: .content.createdAt,
-          updated_at: .content.updatedAt
-        }]"
-    local page_items
-    page_items=$(echo "${result}" | jq --arg owner "${OWNER_QUERY_FIELD}" "${normalize_filter}" 2>/dev/null || echo "[]")
-
-    local page_count
-    page_count=$(echo "${page_items}" | jq 'length')
-    echo "  ページ ${page} 取得完了（${page_count} 件）" >&2
-
-    all_items=$(echo "${all_items}" "${page_items}" | jq -s '.[0] + .[1]')
-  }
-
-  local query_template
-  query_template=$(cat <<'GRAPHQL'
-query($login: String!, $number: Int!, $after: String) {
-  __OWNER_FIELD__(login: $login) {
-    projectV2(number: $number) {
-      title
-      items(first: 100, after: $after) {
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
-        nodes {
-          content {
-            ... on Issue {
-              __typename
-              number
-              title
-              url
-              state
-              createdAt
-              updatedAt
-              author { login }
-              repository { nameWithOwner }
-              assignees(first: 100) { nodes { login } }
-              labels(first: 100) { nodes { name } }
-            }
-            ... on PullRequest {
-              __typename
-              number
-              title
-              url
-              state
-              createdAt
-              updatedAt
-              author { login }
-              repository { nameWithOwner }
-              assignees(first: 100) { nodes { login } }
-              labels(first: 100) { nodes { name } }
-            }
-          }
-        }
-      }
-    }
-  }
-}
-GRAPHQL
-)
-  local query
-  query=$(apply_owner_field "${query_template}")
-
-  local variables_json
-  variables_json=$(jq -n \
-    --arg login "${PROJECT_OWNER}" \
-    --argjson number "${PROJECT_NUMBER}" \
-    '{login: $login, number: $number}')
-
-  if ! run_graphql_paginated "${query}" "Project アイテムの取得" "${variables_json}" \
-    '.data.[($owner)].projectV2.items.pageInfo' _on_export_page 50; then
-    return 1
-  fi
-
-  echo "${all_items}"
-}
-
 # --- フォーマッター関数 ---
 
 format_markdown() {
@@ -195,17 +82,77 @@ format_tsv() {
   echo "${items}" | jq -r '.[] | [.type, (.number | tostring), .title, .url, .state, .repository, .author, .assignees, .labels, .created_at, .updated_at] | @tsv'
 }
 
-format_json() {
-  local items="$1"
-  echo "${items}" | jq '.'
-}
-
 # --- アイテム取得 ---
 
 echo ""
 echo "Project #${PROJECT_NUMBER} のアイテムを取得しています..."
 PROJECT_TITLE=""
-ITEMS=$(fetch_project_items)
+
+EXPORT_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
+query($login: String!, $number: Int!, $after: String) {
+  __OWNER_FIELD__(login: $login) {
+    projectV2(number: $number) {
+      title
+      items(first: 100, after: $after) {
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          content {
+            ... on Issue {
+              __typename
+              number
+              title
+              url
+              state
+              createdAt
+              updatedAt
+              author { login }
+              repository { nameWithOwner }
+              assignees(first: 100) { nodes { login } }
+              labels(first: 100) { nodes { name } }
+            }
+            ... on PullRequest {
+              __typename
+              number
+              title
+              url
+              state
+              createdAt
+              updatedAt
+              author { login }
+              repository { nameWithOwner }
+              assignees(first: 100) { nodes { login } }
+              labels(first: 100) { nodes { name } }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+GRAPHQL
+)
+
+EXPORT_NORMALIZE_FILTER='[.data.[($owner)].projectV2.items.nodes[]
+  | select(.content != null)
+  | select(.content.__typename != null)
+  | {
+      type:       .content.__typename,
+      number:     .content.number,
+      title:      .content.title,
+      url:        .content.url,
+      state:      .content.state,
+      repository: .content.repository.nameWithOwner,
+      author:     (.content.author.login // ""),
+      assignees:  ([.content.assignees.nodes[].login] | join(", ")),
+      labels:     ([.content.labels.nodes[].name] | join(", ")),
+      created_at: .content.createdAt,
+      updated_at: .content.updatedAt
+    }]'
+
+ITEMS=$(fetch_all_project_items "${EXPORT_QUERY_TEMPLATE}" "${EXPORT_NORMALIZE_FILTER}" 50)
 
 TOTAL_BEFORE_FILTER=$(echo "${ITEMS}" | jq 'length')
 echo "  合計: ${TOTAL_BEFORE_FILTER} 件（フィルタ前）"
@@ -239,7 +186,7 @@ case "${OUTPUT_FORMAT}" in
   markdown) format_markdown "${ITEMS}" > "${OUTPUT_FILE}" ;;
   csv)      format_csv "${ITEMS}" > "${OUTPUT_FILE}" ;;
   tsv)      format_tsv "${ITEMS}" > "${OUTPUT_FILE}" ;;
-  json)     format_json "${ITEMS}" > "${OUTPUT_FILE}" ;;
+  json)     echo "${ITEMS}" | jq '.' > "${OUTPUT_FILE}" ;;
 esac
 
 echo "ファイル出力: ${OUTPUT_FILE}"
