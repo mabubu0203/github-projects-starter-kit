@@ -13,5 +13,55 @@
     "name": "documentation",
     "color": "0075ca",
     "description": "ドキュメントの追加・更新"
+  },
+  {
+    "name": "on-hold",
+    "color": "c2e0c6",
+    "description": "保留中"
+  },
+  {
+    "name": "blocked",
+    "color": "e4e669",
+    "description": "ブロック中"
+  },
+  {
+    "name": "duplicate",
+    "color": "cfd3d7",
+    "description": "重複する Issue/PR"
+  },
+  {
+    "name": "invalid",
+    "color": "e4e669",
+    "description": "無効な Issue/PR"
+  },
+  {
+    "name": "wontfix",
+    "color": "ffffff",
+    "description": "対応しない Issue/PR"
+  },
+  {
+    "name": "question",
+    "color": "d876e3",
+    "description": "質問・確認事項"
+  },
+  {
+    "name": "good first issue",
+    "color": "7057ff",
+    "description": "初めてのコントリビューター向け"
+  },
+  {
+    "name": "help wanted",
+    "color": "008672",
+    "description": "協力を求めている Issue"
+  },
+  {
+    "name": "priority: high",
+    "color": "b60205",
+    "description": "優先度：高"
+  },
+  {
+    "name": "priority: low",
+    "color": "0e8a16",
+    "description": "優先度：低"
   }
 ]
