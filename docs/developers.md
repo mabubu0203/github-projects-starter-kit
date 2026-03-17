@@ -13,6 +13,7 @@ flowchart TD
     B --> C["③ Issue/PR 一括紐付け"]
     C --> D["④ アイテム エクスポート"]
     D --> E["⑤ Issue ラベル一括追加"]
+    E --> F["⑩ 統合プロジェクト分析"]
 
     A -- "再利用可能ワークフロー" --> R["_reusable-extend-project"]
     B -- "再利用可能ワークフロー" --> R
@@ -25,6 +26,9 @@ flowchart TD
         S5["add-items-to-project.sh"]
         S6["export-project-items.sh"]
         S7["setup-repository-labels.sh"]
+        S8["detect-stale-items.sh"]
+        S9["generate-summary-report.sh"]
+        S10["generate-effort-report.sh"]
         SL["lib/common.sh"]
     end
 
@@ -35,7 +39,10 @@ flowchart TD
     C --> S5
     D --> S6
     E --> S7
-    S1 & S2 & S3 & S4 & S5 & S6 & S7 --> SL
+    F --> S8
+    F --> S9
+    F --> S10
+    S1 & S2 & S3 & S4 & S5 & S6 & S7 & S8 & S9 & S10 --> SL
 ```
 
 ## 📁 構成ファイル
@@ -51,7 +58,8 @@ flowchart TD
       ├── _reusable-extend-project.yml # Project 拡張（再利用可能ワークフロー）
       ├── 03-add-items-to-project.yml  # ③ Issue/PR 一括紐付けワークフロー
       ├── 04-export-project-items.yml  # ④ Project アイテム エクスポートワークフロー
-      └── 05-setup-repository-labels.yml  # ⑤ Issue ラベル一括追加ワークフロー
+      ├── 05-setup-repository-labels.yml  # ⑤ Issue ラベル一括追加ワークフロー
+      └── 10-analyze-project.yml         # ⑩ 統合プロジェクト分析ワークフロー
 scripts/
   ├── config/
   │   ├── project-field-definitions.json   # カスタムフィールド定義
@@ -66,7 +74,10 @@ scripts/
   ├── setup-project-views.sh       # View 作成スクリプト
   ├── add-items-to-project.sh      # アイテム一括追加スクリプト
   ├── export-project-items.sh      # アイテムエクスポートスクリプト
-  └── setup-repository-labels.sh   # ラベル一括作成スクリプト
+  ├── setup-repository-labels.sh   # ラベル一括作成スクリプト
+  ├── detect-stale-items.sh        # 滞留アイテム検知スクリプト
+  ├── generate-summary-report.sh   # プロジェクトサマリーレポート生成スクリプト
+  └── generate-effort-report.sh    # 工数集計レポート生成スクリプト
 ```
 
 ## ⚙️ 各ワークフローの構成
@@ -138,6 +149,25 @@ scripts/
       └── .github/actions/workflow-summary   # 成功サマリー出力
 ```
 
+### ⑩ 統合プロジェクト分析
+
+```
+10-analyze-project.yml
+  ├── detect-stale-items ジョブ（report_types: all or stale）
+  │   ├── scripts/detect-stale-items.sh          # 滞留アイテム検知
+  │   └── artifact アップロード                    # 滞留レポートを保存
+  ├── generate-summary-report ジョブ（report_types: all or summary）
+  │   ├── scripts/generate-summary-report.sh     # サマリーレポート生成
+  │   └── artifact アップロード                    # サマリーレポートを保存
+  ├── generate-effort-report ジョブ（report_types: all or effort）
+  │   ├── scripts/generate-effort-report.sh      # 工数集計レポート生成
+  │   └── artifact アップロード                    # 工数レポートを保存
+  ├── workflow-summary-failure ジョブ（失敗時）
+  │   └── .github/actions/workflow-summary       # 失敗サマリー出力
+  └── workflow-summary-success ジョブ（成功時）
+      └── .github/actions/workflow-summary       # 成功サマリー出力
+```
+
 ## 📜 スクリプト詳細
 
 | スクリプト | 概要 |
@@ -149,3 +179,6 @@ scripts/
 | [add-items-to-project.sh](scripts/add-items-to-project) | 指定リポジトリの Issue/PR を `Project` に一括追加する。追加済みアイテムは自動スキップ |
 | [export-project-items.sh](scripts/export-project-items) | 指定 `Project` の Issue/PR 一覧を取得し、指定形式でエクスポートする |
 | [setup-repository-labels.sh](scripts/setup-repository-labels) | 指定リポジトリに対して、設定ファイルで定義した Issue ラベルを一括作成する |
+| [detect-stale-items.sh](scripts/detect-stale-items) | 指定 `Project` のアイテムを走査し、ステータス別の閾値に基づいて滞留アイテムを検知する |
+| [generate-summary-report.sh](scripts/generate-summary-report) | 指定 `Project` のアイテムをステータス別・担当者別・ラベル別に集計しサマリーレポートを生成する |
+| [generate-effort-report.sh](scripts/generate-effort-report) | 指定 `Project` の見積もり工数・実績工数を多角的に集計・分析しレポートを生成する |

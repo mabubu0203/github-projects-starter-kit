@@ -1,0 +1,135 @@
+name: "⑩ 統合プロジェクト分析"
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_number:
+        description: "Project の Number"
+        required: true
+        type: number
+      report_types:
+        description: "実行する分析タイプ（all: 全分析, stale: 滞留検知, summary: サマリー, effort: 工数集計）"
+        required: false
+        type: choice
+        default: "all"
+        options:
+          - all
+          - stale
+          - summary
+          - effort
+
+permissions:
+  contents: read
+
+jobs:
+  detect-stale-items:
+    if: >-
+      inputs.report_types == 'all' || inputs.report_types == 'stale'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      PROJECT_OWNER: ${{ github.repository_owner }}
+      PROJECT_NUMBER: ${{ inputs.project_number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 滞留アイテム検知
+        run: |
+          chmod +x scripts/detect-stale-items.sh
+          bash scripts/detect-stale-items.sh
+
+      - name: アーティファクトをアップロード
+        if: always()
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: stale-items-report
+          path: stale-items-report.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+  generate-summary-report:
+    if: >-
+      inputs.report_types == 'all' || inputs.report_types == 'summary'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      PROJECT_OWNER: ${{ github.repository_owner }}
+      PROJECT_NUMBER: ${{ inputs.project_number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: サマリーレポート生成
+        run: |
+          chmod +x scripts/generate-summary-report.sh
+          bash scripts/generate-summary-report.sh
+
+      - name: アーティファクトをアップロード
+        if: always()
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: summary-report-${{ inputs.project_number }}
+          path: report-*.json
+          if-no-files-found: ignore
+          retention-days: 90
+
+  generate-effort-report:
+    if: >-
+      inputs.report_types == 'all' || inputs.report_types == 'effort'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      PROJECT_OWNER: ${{ github.repository_owner }}
+      PROJECT_NUMBER: ${{ inputs.project_number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 工数集計レポート生成
+        run: |
+          chmod +x scripts/generate-effort-report.sh
+          bash scripts/generate-effort-report.sh
+
+      - name: アーティファクトをアップロード
+        if: always()
+        uses: actions/upload-artifact@v7.0.0
+        with:
+          name: effort-report-${{ inputs.project_number }}
+          path: report-*.json
+          if-no-files-found: ignore
+          retention-days: 90
+
+  workflow-summary-failure:
+    needs: [detect-stale-items, generate-summary-report, generate-effort-report]
+    if: always() && contains(needs.*.result, 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 失敗サマリーを出力
+        uses: ./.github/actions/workflow-summary
+        with:
+          status: failure
+          project-owner: ${{ github.repository_owner }}
+          project-number: ${{ inputs.project_number }}
+          job-results: |
+            {"detect-stale-items": "${{ needs.detect-stale-items.result }}", "generate-summary-report": "${{ needs.generate-summary-report.result }}", "generate-effort-report": "${{ needs.generate-effort-report.result }}"}
+
+  workflow-summary-success:
+    needs: [detect-stale-items, generate-summary-report, generate-effort-report]
+    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 成功サマリーを出力
+        uses: ./.github/actions/workflow-summary
+        with:
+          status: success
+          project-owner: ${{ github.repository_owner }}
+          project-number: ${{ inputs.project_number }}
+          job-results: |
+            {"detect-stale-items": "${{ needs.detect-stale-items.result }}", "generate-summary-report": "${{ needs.generate-summary-report.result }}", "generate-effort-report": "${{ needs.generate-effort-report.result }}"}
