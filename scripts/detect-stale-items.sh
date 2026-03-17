@@ -9,6 +9,7 @@ set -euo pipefail
 #   PROJECT_OWNER  - Project の所有者
 #   PROJECT_NUMBER - 対象 Project の Number
 #   ITEM_TYPE      - 対象アイテムの種別（all / issues / prs、デフォルト: all）
+#   ITEM_STATE     - 対象アイテムの状態（open / closed / all、デフォルト: all）
 #   OUTPUT_FORMAT  - 出力形式（json / markdown / csv / tsv、デフォルト: json）
 
 # --- 共通ライブラリ読み込み ---
@@ -23,11 +24,13 @@ STALE_DAYS_IN_PROGRESS=7
 STALE_DAYS_IN_REVIEW=3
 EXCLUDE_LABELS="on-hold,blocked"
 ITEM_TYPE="${ITEM_TYPE:-all}"
+ITEM_STATE="${ITEM_STATE:-all}"
 
 # --- バリデーション ---
 
 validate_common_project_env
 validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
+validate_enum "ITEM_STATE" "${ITEM_STATE}" "open" "closed" "all"
 OUTPUT_FORMAT="${OUTPUT_FORMAT:-json}"
 validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 
@@ -187,6 +190,9 @@ echo "フィルタリングを実行しています..."
 
 # type フィルタを適用
 ITEMS=$(echo "${ITEMS}" | filter_items_by_type)
+
+# state フィルタを適用
+ITEMS=$(echo "${ITEMS}" | filter_items_by_state)
 
 # 除外ステータス（Done, Backlog）および除外ラベルを適用
 EXCLUDE_LABELS_JSON=$(build_exclude_labels_json "${EXCLUDE_LABELS}")
@@ -387,6 +393,7 @@ fi
 print_summary "Project" "${PROJECT_TITLE} (#${PROJECT_NUMBER})" \
   "形式" "${OUTPUT_FORMAT}" \
   "フィルタ(type)" "${ITEM_TYPE}" \
+  "フィルタ(state)" "${ITEM_STATE}" \
   "検知件数" "${STALE_COUNT} 件" \
   "In Review" "${IN_REVIEW_COUNT} 件（${STALE_DAYS_IN_REVIEW} 日以上）" \
   "In Progress" "${IN_PROGRESS_COUNT} 件（${STALE_DAYS_IN_PROGRESS} 日以上）" \

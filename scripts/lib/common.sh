@@ -289,6 +289,21 @@ filter_items_by_type() {
   '
 }
 
+# ITEM_STATE に基づいてアイテム JSON 配列を state フィルタリングする
+# GitHub の state 値: Issue は OPEN / CLOSED、PullRequest は OPEN / CLOSED / MERGED
+# item_state=closed の場合、CLOSED と MERGED の両方を含める
+# 標準入力から JSON 配列を受け取り、フィルタ後の JSON 配列を標準出力に返す
+# 使用例: ITEMS=$(echo "${ITEMS}" | filter_items_by_state)
+filter_items_by_state() {
+  jq --arg itemState "${ITEM_STATE}" '
+    map(select(
+      $itemState == "all"
+      or ($itemState == "open" and .state == "OPEN")
+      or ($itemState == "closed" and (.state == "CLOSED" or .state == "MERGED"))
+    ))
+  '
+}
+
 # OUTPUT_FORMAT から出力ファイルの拡張子を返す
 # 使用例: FILE_EXT=$(get_file_extension "${OUTPUT_FORMAT}")
 get_file_extension() {

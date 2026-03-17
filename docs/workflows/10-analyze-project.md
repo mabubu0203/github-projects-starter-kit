@@ -27,6 +27,7 @@
 | `report_types` | 実行する分析タイプ | — | `choice` | `all` | `stale` |
 | `output_format` | 出力形式 | — | `choice` | `json` | `markdown` |
 | `item_type` | 対象アイテムの種別 | — | `choice` | `all` | `issues` |
+| `item_state` | 対象アイテムの状態 | — | `choice` | `all` | `open` |
 
 ### `report_types` の選択肢
 
@@ -53,6 +54,14 @@
 | `all` | Issue と Pull Request の両方を対象 |
 | `issues` | Issue のみを対象 |
 | `prs` | Pull Request のみを対象 |
+
+### `item_state` の選択肢
+
+| 値 | 説明 |
+|------|------|
+| `all` | 全状態のアイテムを対象 |
+| `open` | Open 状態のアイテムのみを対象 |
+| `closed` | Closed / Merged 状態のアイテムのみを対象 |
 
 ---
 
@@ -209,7 +218,7 @@
 
 ```mermaid
 flowchart TD
-    A["workflow_dispatch\n（project_number, report_types, output_format, item_type）"] --> B{"report_types 判定"}
+    A["workflow_dispatch\n（project_number, report_types, output_format, item_type, item_state）"] --> B{"report_types 判定"}
     B -- "all or stale" --> C["detect-stale-items ジョブ\n滞留アイテム検知"]
     B -- "all or summary" --> D["generate-summary-report ジョブ\nサマリーレポート生成"]
     B -- "all or effort" --> E["generate-effort-report ジョブ\n工数集計レポート生成"]

@@ -36,6 +36,15 @@ on:
           - all
           - issues
           - prs
+      item_state:
+        description: "対象アイテムの状態（open / closed / all）"
+        required: false
+        type: choice
+        default: "all"
+        options:
+          - all
+          - open
+          - closed
 
 permissions:
   contents: read
@@ -51,6 +60,7 @@ jobs:
       PROJECT_NUMBER: ${{ inputs.project_number }}
       OUTPUT_FORMAT: ${{ inputs.output_format }}
       ITEM_TYPE: ${{ inputs.item_type }}
+      ITEM_STATE: ${{ inputs.item_state }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
@@ -79,6 +89,7 @@ jobs:
       PROJECT_NUMBER: ${{ inputs.project_number }}
       OUTPUT_FORMAT: ${{ inputs.output_format }}
       ITEM_TYPE: ${{ inputs.item_type }}
+      ITEM_STATE: ${{ inputs.item_state }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
@@ -107,6 +118,7 @@ jobs:
       PROJECT_NUMBER: ${{ inputs.project_number }}
       OUTPUT_FORMAT: ${{ inputs.output_format }}
       ITEM_TYPE: ${{ inputs.item_type }}
+      ITEM_STATE: ${{ inputs.item_state }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2

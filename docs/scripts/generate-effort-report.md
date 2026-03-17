@@ -14,6 +14,7 @@
 | `PROJECT_OWNER` | Project の所有者 | ✅ |
 | `PROJECT_NUMBER` | 対象 Project の Number（数値） | ✅ |
 | `ITEM_TYPE` | 対象アイテムの種別（`all` / `issues` / `prs`、デフォルト: `all`） | — |
+| `ITEM_STATE` | 対象アイテムの状態（`open` / `closed` / `all`、デフォルト: `all`） | — |
 | `OUTPUT_FORMAT` | 出力形式（`json` / `markdown` / `csv` / `tsv`、デフォルト: `json`） | — |
 
 ## 📊 スクリプト内定数
@@ -55,7 +56,8 @@ flowchart TD
     E -- "No" --> F["DraftIssue を除外\nアイテムを正規化"]
 
     F --> F2["type フィルタリング\n（ITEM_TYPE に応じて Issue/PR を絞り込み）"]
-    F2 --> G["工数集計"]
+    F2 --> F3["state フィルタリング\n（ITEM_STATE に応じて open/closed を絞り込み）"]
+    F3 --> G["工数集計"]
     G --> G1["全体サマリー\n（総工数、乖離率、入力率）"]
     G --> G2["担当者別集計"]
     G --> G3["ステータス別集計"]

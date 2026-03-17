@@ -9,6 +9,7 @@ set -euo pipefail
 #   PROJECT_OWNER  - Project の所有者
 #   PROJECT_NUMBER - 対象 Project の Number
 #   ITEM_TYPE      - 対象アイテムの種別（all / issues / prs、デフォルト: all）
+#   ITEM_STATE     - 対象アイテムの状態（open / closed / all、デフォルト: all）
 #   OUTPUT_FORMAT  - 出力形式（json / markdown / csv / tsv、デフォルト: json）
 
 # --- 共通ライブラリ読み込み ---
@@ -19,11 +20,13 @@ source "${SCRIPT_DIR}/lib/common.sh"
 # --- スクリプト内定数 ---
 
 ITEM_TYPE="${ITEM_TYPE:-all}"
+ITEM_STATE="${ITEM_STATE:-all}"
 
 # --- バリデーション ---
 
 validate_common_project_env
 validate_enum "ITEM_TYPE" "${ITEM_TYPE}" "all" "issues" "prs"
+validate_enum "ITEM_STATE" "${ITEM_STATE}" "open" "closed" "all"
 OUTPUT_FORMAT="${OUTPUT_FORMAT:-json}"
 validate_enum "OUTPUT_FORMAT" "${OUTPUT_FORMAT}" "markdown" "csv" "tsv" "json"
 
@@ -170,9 +173,10 @@ ITEMS=$(fetch_project_items)
 TOTAL_BEFORE_FILTER=$(echo "${ITEMS}" | jq 'length')
 echo "  合計: ${TOTAL_BEFORE_FILTER} 件（フィルタ前）"
 
-# --- type フィルタリング ---
+# --- フィルタリング ---
 
 ITEMS=$(echo "${ITEMS}" | filter_items_by_type)
+ITEMS=$(echo "${ITEMS}" | filter_items_by_state)
 
 TOTAL_COUNT=$(echo "${ITEMS}" | jq 'length')
 echo "  合計: ${TOTAL_COUNT} 件（フィルタ後）"
@@ -472,6 +476,7 @@ fi
 print_summary "Project" "${PROJECT_TITLE} (#${PROJECT_NUMBER})" \
   "形式" "${OUTPUT_FORMAT}" \
   "フィルタ(type)" "${ITEM_TYPE}" \
+  "フィルタ(state)" "${ITEM_STATE}" \
   "総アイテム数" "${TOTAL_COUNT} 件" \
   "Issue" "${ISSUE_COUNT} 件" \
   "PR" "${PR_COUNT} 件" \
