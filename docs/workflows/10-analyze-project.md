@@ -3,7 +3,7 @@
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-指定した GitHub `Project` のアイテムを走査し、滞留アイテム検知・プロジェクトサマリーレポート・工数集計レポート・アイテムエクスポートを 1 回の実行でまとめて生成します。`report_types` パラメータで実行する分析を選択することも可能です。
+指定した GitHub `Project` のアイテムを走査し、滞留アイテム検知・プロジェクトサマリーレポート・工数集計レポート・アイテムエクスポートを 1 回の実行でまとめて生成します。`report_types` パラメータで実行する機能を選択することも可能です。
 
 ## ✅ 前提
 
@@ -24,7 +24,7 @@
 | パラメータ | 説明 | 必須 | タイプ | デフォルト | 例 |
 |------------|------|:----:|--------|-----------|-----|
 | `project_number` | 対象 `Project` の Number | ✅ | `number` | — | `1` |
-| `report_types` | 実行する分析タイプ | — | `choice` | `all` | `stale` |
+| `report_types` | 実行する機能 | — | `choice` | `all` | `stale` |
 | `output_format` | 出力形式 | — | `choice` | `json` | `markdown` |
 | `item_type` | 対象アイテムの種別 | — | `choice` | `all` | `issues` |
 | `item_state` | 対象アイテムの状態 | — | `choice` | `all` | `open` |
