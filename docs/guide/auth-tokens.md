@@ -1,5 +1,7 @@
 # 🔑 認証・トークンガイド
 
+ワークフローを実行するために必要な PAT（Personal Access Token）の権限設定について説明します。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -9,8 +11,6 @@
 - [⚠️ Fine-grained token の制約事項](#-fine-grained-token-%E3%81%AE%E5%88%B6%E7%B4%84%E4%BA%8B%E9%A0%85)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-ワークフローを実行するために必要な PAT（Personal Access Token）の権限設定について説明します。
 
 ---
 

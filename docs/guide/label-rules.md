@@ -1,5 +1,7 @@
 # 🏷️ ラベル運用ルール
 
+本スターターキットで使用する Issue ラベルの運用ルールについて説明します。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -16,8 +18,6 @@
 - [⚡ 優先度ラベルの運用基準](#-%E5%84%AA%E5%85%88%E5%BA%A6%E3%83%A9%E3%83%99%E3%83%AB%E3%81%AE%E9%81%8B%E7%94%A8%E5%9F%BA%E6%BA%96)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-本スターターキットで使用する Issue ラベルの運用ルールについて説明します。
 
 ---
 

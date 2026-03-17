@@ -1,5 +1,7 @@
 # 📝 入力値ガイド
 
+ワークフロー実行時に入力するパラメータの確認方法をまとめています。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -12,8 +14,6 @@
   - [CLI で確認する方法](#cli-%E3%81%A7%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95-2)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-ワークフロー実行時に入力するパラメータの確認方法をまとめています。
 
 ---
 
