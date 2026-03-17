@@ -214,7 +214,7 @@ ASSIGNEE_EFFORT=$(echo "${ITEMS}" | jq '
         actual_hours: $item.actual_hours
       }
   ]
-  | group_by(.assignee)
+  | sort_by(.assignee) | group_by(.assignee)
   | map({
       assignee: .[0].assignee,
       count: length,
@@ -264,7 +264,7 @@ VARIANCE_ITEMS=$(echo "${ITEMS}" | jq --argjson threshold "${VARIANCE_THRESHOLD}
     }
   ]
   | [.[] | select((.variance_rate | fabs) >= $threshold)]
-  | sort_by(-.variance_rate | fabs) | .[:$top_n]
+  | sort_by(-(.variance_rate | fabs)) | .[:$top_n]
 ')
 
 VARIANCE_ITEMS_COUNT=$(echo "${VARIANCE_ITEMS}" | jq 'length')
