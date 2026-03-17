@@ -52,12 +52,12 @@ flowchart TD
   │   └── workflow-summary/
   │       └── action.yml             # ワークフローサマリー出力アクション
   └── workflows/
-      ├── 01-create-project.yml        # ① Project 新規作成ワークフロー
-      ├── 02-extend-project.yml        # ② Project 拡張ワークフロー
-      ├── _reusable-extend-project.yml # Project 拡張（再利用可能ワークフロー）
-      ├── 03-setup-repository-labels.yml  # ③ Issue ラベル一括追加ワークフロー
-      ├── 04-add-items-to-project.yml  # ④ Issue/PR 一括紐付けワークフロー
-      └── 05-analyze-project.yml         # ⑤ 統合プロジェクト分析ワークフロー
+      ├── 01-create-project.yml             # ① Project 新規作成ワークフロー
+      ├── 02-extend-project.yml             # ② Project 拡張ワークフロー
+      ├── _reusable-extend-project.yml      # Project 拡張（再利用可能ワークフロー）
+      ├── 03-setup-repository-labels.yml    # ③ Issue ラベル一括追加ワークフロー
+      ├── 04-add-items-to-project.yml       # ④ Issue/PR 一括紐付けワークフロー
+      └── 05-analyze-project.yml            # ⑤ 統合プロジェクト分析ワークフロー
 scripts/
   ├── config/
   │   ├── project-field-definitions.json   # カスタムフィールド定義
