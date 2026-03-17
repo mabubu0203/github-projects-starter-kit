@@ -1,6 +1,7 @@
 # ④ 🔗 Issue/PR 一括紐付け
 
 リポジトリの `Issue`/`PR` を `Project` に一括追加します。
+また、リポジトリと `Project` のリンク（紐付け）を自動的に行い、リポジトリの「Projects」タブから `Project` へアクセスできるようにします。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -57,11 +58,14 @@
 
 > **Note:** 既に `Project` に追加済みのアイテムは自動的にスキップされます。
 
+> **Note:** リポジトリと `Project` のリンクは自動的に行われます。既にリンク済みの場合はスキップされます。
+
 ## 📊 処理フロー
 
 ```mermaid
 flowchart TD
-    A["workflow_dispatch\n（project_number・target_repo・フィルタ条件）"] --> B["add-items ジョブ\nパラメータに基づき Issue/PR を取得し\nProject に一括追加（追加済みはスキップ）"]
+    A["workflow_dispatch\n（project_number・target_repo・フィルタ条件）"] --> L["add-items ジョブ\nリポジトリと Project のリンク確認\n（未リンクならリンク作成）"]
+    L --> B["Issue/PR を取得し\nProject に一括追加（追加済みはスキップ）"]
     B --> C{"結果判定"}
     C -- "成功" --> D["workflow-summary-success ジョブ\n成功サマリーを出力"]
     C -- "失敗" --> E["workflow-summary-failure ジョブ\n失敗サマリーを出力"]

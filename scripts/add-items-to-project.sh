@@ -112,6 +112,81 @@ if [[ -z "${DONE_STATUS_OPTION_ID}" ]]; then
 fi
 echo "  Done ステータス: Done (${DONE_STATUS_OPTION_ID})"
 
+# --- リポジトリとプロジェクトのリンク ---
+
+echo ""
+echo "リポジトリとプロジェクトのリンク状態を確認しています..."
+
+# リポジトリの node_id を取得
+REPO_NODE_ID=$(gh api "repos/${TARGET_REPO}" \
+  -H "X-GitHub-Api-Version: ${REST_API_VERSION}" \
+  --jq '.node_id' 2>&1) || {
+  safe_output=$(sanitize_for_workflow_command "${REPO_NODE_ID}")
+  echo "::error::リポジトリ情報の取得に失敗しました: ${safe_output}"
+  exit 1
+}
+
+if [[ -z "${REPO_NODE_ID}" || "${REPO_NODE_ID}" == "null" ]]; then
+  echo "::error::リポジトリの node_id を取得できませんでした。TARGET_REPO=${TARGET_REPO} が正しいか確認してください。"
+  exit 1
+fi
+echo "  Repository Node ID: ${REPO_NODE_ID}"
+
+# リンク状態を確認（プロジェクトにリンクされたリポジトリ一覧を取得）
+LINKED_REPOS_QUERY_TEMPLATE=$(cat <<'GRAPHQL'
+query($login: String!, $number: Int!) {
+  __OWNER_FIELD__(login: $login) {
+    projectV2(number: $number) {
+      repositories(first: 100) {
+        nodes {
+          id
+          nameWithOwner
+        }
+      }
+    }
+  }
+}
+GRAPHQL
+)
+LINKED_REPOS_QUERY=$(apply_owner_field "${LINKED_REPOS_QUERY_TEMPLATE}")
+
+LINKED_REPOS_RESULT=$(run_graphql_json "${LINKED_REPOS_QUERY}" "リンク済みリポジトリの取得" "${VARIABLES_JSON}")
+
+IS_LINKED=$(echo "${LINKED_REPOS_RESULT}" | jq -r \
+  --arg owner "${OWNER_QUERY_FIELD}" \
+  --arg repo "${TARGET_REPO}" \
+  '[.data.[($owner)].projectV2.repositories.nodes[] | select(.nameWithOwner == $repo)] | length > 0')
+
+LINK_STATUS=""
+if [[ "${IS_LINKED}" == "true" ]]; then
+  echo "  リポジトリは既にプロジェクトにリンク済みです。スキップします。"
+  LINK_STATUS="スキップ（リンク済み）"
+else
+  echo "  リポジトリをプロジェクトにリンクしています..."
+  LINK_MUTATION=$(cat <<'GRAPHQL'
+mutation($projectId: ID!, $repositoryId: ID!) {
+  linkProjectV2ToRepository(input: {
+    projectId: $projectId,
+    repositoryId: $repositoryId
+  }) {
+    repository {
+      id
+    }
+  }
+}
+GRAPHQL
+  )
+
+  LINK_VARIABLES_JSON=$(jq -n \
+    --arg projectId "${PROJECT_ID}" \
+    --arg repositoryId "${REPO_NODE_ID}" \
+    '{projectId: $projectId, repositoryId: $repositoryId}')
+
+  run_graphql_json "${LINK_MUTATION}" "リポジトリとプロジェクトのリンク" "${LINK_VARIABLES_JSON}" > /dev/null
+  echo "  リンク完了: ${TARGET_REPO} → Project #${PROJECT_NUMBER}"
+  LINK_STATUS="リンク作成"
+fi
+
 # --- ヘルパー関数 ---
 
 # アイテムにステータスを設定する
@@ -329,6 +404,7 @@ TOTAL_FAILED=$((ISSUE_FAILED + PR_FAILED))
 
 print_summary \
   "Target Repo" "${TARGET_REPO}" \
+  "リンク" "${LINK_STATUS}" \
   "Issue" "追加: ${ISSUE_ADDED}, スキップ: ${ISSUE_SKIPPED}, 失敗: ${ISSUE_FAILED}" \
   "PR" "追加: ${PR_ADDED}, スキップ: ${PR_SKIPPED}, 失敗: ${PR_FAILED}" \
   "合計" "追加: ${TOTAL_ADDED}, スキップ: ${TOTAL_SKIPPED}, 失敗: ${TOTAL_FAILED}"
@@ -340,6 +416,7 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     echo "| 項目 | 値 |"
     echo "|------|-----|"
     echo "| Target Repo | \`${TARGET_REPO}\` |"
+    echo "| Repo Link | ${LINK_STATUS} |"
     echo "| State Filter | ${ITEM_STATE} |"
     echo "| Status | open → Backlog / closed・merged → Done |"
     if [[ -n "${ITEM_LABEL}" ]]; then
