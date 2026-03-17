@@ -1,5 +1,7 @@
 # 👨‍💻 開発者へ
 
+ワークフローの内部構成やスクリプトの詳細など、開発者向けの技術情報をまとめています。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -15,8 +17,6 @@
 - [📜 スクリプト詳細](#-%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E8%A9%B3%E7%B4%B0)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-ワークフローの内部構成やスクリプトの詳細など、開発者向けの技術情報をまとめています。
 
 ## 🗺️ ワークフロー全体像
 

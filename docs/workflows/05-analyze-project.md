@@ -1,5 +1,7 @@
 # ⑤ 📊 統合プロジェクト分析
 
+指定した GitHub `Project` のアイテムを走査し、滞留アイテム検知・プロジェクトサマリーレポート・工数集計レポート・ベロシティレポート・アイテムエクスポートを 1 回の実行でまとめて生成します。`report_types` パラメータで実行する機能を選択することも可能です。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -55,8 +57,6 @@
 - [📊 処理フロー](#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-指定した GitHub `Project` のアイテムを走査し、滞留アイテム検知・プロジェクトサマリーレポート・工数集計レポート・ベロシティレポート・アイテムエクスポートを 1 回の実行でまとめて生成します。`report_types` パラメータで実行する機能を選択することも可能です。
 
 ## ✅ 前提
 

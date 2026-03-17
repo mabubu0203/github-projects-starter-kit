@@ -1,5 +1,7 @@
 # ① 📝 GitHub Project 新規作成
 
+新しい `Project` を作成し、カスタムフィールド・ステータスカラム・`View` を一括でセットアップします。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -11,8 +13,6 @@
 - [📊 処理フロー](#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-新しい `Project` を作成し、カスタムフィールド・ステータスカラム・`View` を一括でセットアップします。
 
 ## ✅ 前提
 

@@ -1,5 +1,9 @@
 # ⌨️ クイックスタート（コマンド版）
 
+`gh` CLI を使ったセットアップ手順です。`PAT` 作成を除き、すべての操作をターミナルから実行できます。
+
+> **Tip:** Claude Code などの **生成AIへのプロンプト** として、「[github-projects-starter-kit](https://mabubu0203.github.io/github-projects-starter-kit/)の[クイックスタート（コマンド版）](https://mabubu0203.github.io/github-projects-starter-kit/quickstart-cli)を参照しながら自分のアカウント上でセットアップして」と命じることで、セットアップ作業の自動化を支援できます。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -17,10 +21,6 @@
 - [👀 ワークフロー実行状況の確認](#-%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BC%E5%AE%9F%E8%A1%8C%E7%8A%B6%E6%B3%81%E3%81%AE%E7%A2%BA%E8%AA%8D)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-`gh` CLI を使ったセットアップ手順です。`PAT` 作成を除き、すべての操作をターミナルから実行できます。
-
-> **Tip:** Claude Code などの **生成AIへのプロンプト** として、「[github-projects-starter-kit](https://mabubu0203.github.io/github-projects-starter-kit/)の[クイックスタート（コマンド版）](https://mabubu0203.github.io/github-projects-starter-kit/quickstart-cli)を参照しながら自分のアカウント上でセットアップして」と命じることで、セットアップ作業の自動化を支援できます。
 
 ```mermaid
 flowchart LR

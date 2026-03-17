@@ -5,6 +5,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Platform: macOS/Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue.svg)
 
+GitHub Projects の初期セットアップを GitHub Actions で自動実行するためのスターターキットです。
+本リポジトリを fork し、GitHub Actions を手動実行することで、GitHub Project の作成から分析までを一貫して行えます。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -17,22 +20,29 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-GitHub Projects の初期セットアップを GitHub Actions で自動実行するためのスターターキットです。
-本リポジトリを fork し、GitHub Actions を手動実行することで、GitHub Project を作成できます。
-
 ## 🚀 このキットでできること
 
-- GitHub Projects の初期セットアップを GitHub Actions で自動実行
-- GitHub Project の新規作成・拡張
-- Issue/PR の一括紐付け
-- Project アイテムのエクスポート
+- **GitHub Project の新規作成・拡張**: カスタムフィールド・ステータス・ビューを一括セットアップ
+- **Issue ラベルの一括管理**: リポジトリへのラベル定義を一括作成
+- **Issue/PR の一括紐付け**: リポジトリの Issue や PR を Project に一括追加
+- **プロジェクト分析・レポート生成**:
+  - アイテムのエクスポート（JSON/Markdown/CSV/TSV）
+  - 滞留アイテムの検知（ステータス別閾値で判定）
+  - サマリーレポート（ステータス別・担当者別・ラベル別集計）
+  - 工数レポート（見積もり・実績の集計と乖離分析）
+  - ベロシティレポート（直近 8 週間の完了アイテム推移）
 
 ## ✅ セットアップ後にできること
 
-- GitHub Actions を手動実行して GitHub Project を作成
-- プロジェクトのカスタムフィールドやビューの拡張
-- Issue や PR をプロジェクトに一括追加
-- プロジェクトアイテムの CSV エクスポート
+| ワークフロー | 概要 |
+|---|---|
+| ① GitHub Project 新規作成 | Project を作成し、フィールド・ステータス・ビューを一括セットアップ |
+| ② GitHub Project 拡張 | 既存 Project にフィールド・ステータス・ビューを追加 |
+| ③ Issue ラベル一括追加 | 指定リポジトリにラベルを一括作成 |
+| ④ Issue/PR 一括紐付け | Issue や PR を Project に一括追加（種別・状態・ラベルでフィルタ可能） |
+| ⑤ 統合プロジェクト分析 | エクスポート・滞留検知・各種レポートを生成（アーティファクトとしてダウンロード可能） |
+
+すべてのワークフローは GitHub Actions の手動実行（`workflow_dispatch`）で利用できます。
 
 ## 📖 ドキュメント
 

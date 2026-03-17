@@ -1,5 +1,8 @@
 # 📜 generate-effort-report.sh
 
+指定した GitHub Project のアイテムを走査し、見積もり工数・実績工数の多角的な集計・分析レポートを生成するスクリプトです。
+担当者別・ステータス別の工数集計、乖離分析、リードタイム分析、工数未入力アイテムの抽出を行います。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -17,9 +20,6 @@
 - [🔄 使用ワークフロー](#-%E4%BD%BF%E7%94%A8%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BC)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-指定した GitHub Project のアイテムを走査し、見積もり工数・実績工数の多角的な集計・分析レポートを生成するスクリプトです。
-担当者別・ステータス別の工数集計、乖離分析、リードタイム分析、工数未入力アイテムの抽出を行います。
 
 ## 🔧 環境変数
 

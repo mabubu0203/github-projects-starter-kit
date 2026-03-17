@@ -1,5 +1,9 @@
 # ❓ よくある質問（FAQ）
 
+ワークフロー利用時につまづきやすいポイントをまとめています。
+
+> **ヒント:** トークンの権限設定については [認証・トークンガイド](guide/auth-tokens)、入力値の確認方法については [入力値ガイド](guide/input-values)、カンバン運用については [運用ルール](guide/kanban-rules)、ラベル運用については [ラベル運用ルール](guide/label-rules) をご覧ください。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -12,10 +16,6 @@
 - [💡 Q6. 同じ Issue/PR を複数回追加してしまいませんか？](#-q6-%E5%90%8C%E3%81%98-issuepr-%E3%82%92%E8%A4%87%E6%95%B0%E5%9B%9E%E8%BF%BD%E5%8A%A0%E3%81%97%E3%81%A6%E3%81%97%E3%81%BE%E3%81%84%E3%81%BE%E3%81%9B%E3%82%93%E3%81%8B)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-ワークフロー利用時につまづきやすいポイントをまとめています。
-
-> **ヒント:** トークンの権限設定については [認証・トークンガイド](guide/auth-tokens)、入力値の確認方法については [入力値ガイド](guide/input-values)、カンバン運用については [運用ルール](guide/kanban-rules)、ラベル運用については [ラベル運用ルール](guide/label-rules) をご覧ください。
 
 ---
 
