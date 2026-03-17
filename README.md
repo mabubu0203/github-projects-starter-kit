@@ -1,7 +1,9 @@
 # GitHub Projects Starter Kit
 
 ![Platform: macOS/Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue.svg)
+![GitHub Top Language](https://img.shields.io/github/languages/top/mabubu0203/github-projects-starter-kit)
 [![GitHub Release](https://img.shields.io/github/v/release/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   
 [![GitHub Stars](https://img.shields.io/github/stars/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/stargazers)
