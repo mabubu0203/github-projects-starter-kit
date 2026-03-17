@@ -27,7 +27,6 @@ name: TOC Generator
 
 jobs:
   generateTOC:
-    if: false # disabled: secrets.PROJECT_PAT に有効な値を設定後、この行を削除して有効化してください
     name: TOC Generator
     runs-on: ubuntu-latest
     steps:
