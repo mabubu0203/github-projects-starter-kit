@@ -60,7 +60,7 @@ flowchart TD
 | type / state フィルタリング | `ITEM_TYPE` による種別フィルタ、`ITEM_STATE` による状態フィルタ（`closed` は `CLOSED` + `MERGED` を含む）を適用 | `filter_items_by_type`・`filter_items_by_state` |
 | Markdown 出力 | Issue と PR を別セクションに分け、テーブル形式で出力。タイトル・ラベル・アサイン内の Markdown 特殊文字をエスケープ。エスケープには共通ライブラリの `JQ_MD_ESCAPE` を使用 | `format_markdown` 関数 |
 | CSV / TSV 出力 | jq の `@csv` / `@tsv` フィルタで変換 | `format_csv` / `format_tsv` 関数 |
-| JSON 出力 | jq で整形して出力 | `format_json` 関数 |
+| JSON 出力 | jq で整形して出力 | `jq '.'` |
 
 ## 📚 API リファレンス
 
