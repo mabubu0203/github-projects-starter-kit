@@ -9,7 +9,8 @@
 [![GitHub Stars](https://img.shields.io/github/stars/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/forks)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/commits)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/mabubu0203/github-projects-starter-kit/pulls)
+[![Issues Welcome](https://img.shields.io/badge/Issues-welcome-brightgreen)](https://github.com/mabubu0203/github-projects-starter-kit/issues)
+[![Discussions Welcome](https://img.shields.io/badge/Discussions-welcome-brightgreen)](https://github.com/mabubu0203/github-projects-starter-kit/discussions)
   
 [![TOC Generator](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/toc.yml/badge.svg)](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/toc.yml)
 [![Pages Deploy](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/pages/pages-build-deployment)
