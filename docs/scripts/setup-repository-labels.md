@@ -1,7 +1,24 @@
 # 📜 setup-repository-labels.sh
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🔧 環境変数](#-%E7%92%B0%E5%A2%83%E5%A4%89%E6%95%B0)
+- [📋 ラベル定義ファイル](#-%E3%83%A9%E3%83%99%E3%83%AB%E5%AE%9A%E7%BE%A9%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB)
+  - [スキーマ](#%E3%82%B9%E3%82%AD%E3%83%BC%E3%83%9E)
+  - [フィールド定義](#%E3%83%95%E3%82%A3%E3%83%BC%E3%83%AB%E3%83%89%E5%AE%9A%E7%BE%A9)
+  - [定義例](#%E5%AE%9A%E7%BE%A9%E4%BE%8B)
+  - [バリデーションルール](#%E3%83%90%E3%83%AA%E3%83%87%E3%83%BC%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%AB%E3%83%BC%E3%83%AB)
+- [📊 処理フロー](#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC)
+- [📝 処理詳細](#-%E5%87%A6%E7%90%86%E8%A9%B3%E7%B4%B0)
+  - [実行結果サマリーの出力形式](#%E5%AE%9F%E8%A1%8C%E7%B5%90%E6%9E%9C%E3%82%B5%E3%83%9E%E3%83%AA%E3%83%BC%E3%81%AE%E5%87%BA%E5%8A%9B%E5%BD%A2%E5%BC%8F)
+- [📚 API リファレンス](#-api-%E3%83%AA%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9)
+  - [PAT スコープ要件](#pat-%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%97%E8%A6%81%E4%BB%B6)
+  - [API レート制限](#api-%E3%83%AC%E3%83%BC%E3%83%88%E5%88%B6%E9%99%90)
+- [🔄 使用ワークフロー](#-%E4%BD%BF%E7%94%A8%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BC)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 指定リポジトリに対して、設定ファイルで定義した Issue ラベルを一括作成するスクリプトです。
 既存ラベルと同名のラベルが存在する場合はスキップします。

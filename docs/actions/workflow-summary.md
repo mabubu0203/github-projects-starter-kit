@@ -1,7 +1,21 @@
 # 📊 workflow-summary アクション
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [📋 概要](#-%E6%A6%82%E8%A6%81)
+- [⚙️ Inputs](#-inputs)
+- [📤 出力内容](#-%E5%87%BA%E5%8A%9B%E5%86%85%E5%AE%B9)
+  - [共通項目（成功・失敗共通）](#%E5%85%B1%E9%80%9A%E9%A0%85%E7%9B%AE%E6%88%90%E5%8A%9F%E3%83%BB%E5%A4%B1%E6%95%97%E5%85%B1%E9%80%9A)
+  - [ジョブ結果セクション（`job-results` 指定時）](#%E3%82%B8%E3%83%A7%E3%83%96%E7%B5%90%E6%9E%9C%E3%82%BB%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3job-results-%E6%8C%87%E5%AE%9A%E6%99%82)
+  - [失敗時の追加セクション](#%E5%A4%B1%E6%95%97%E6%99%82%E3%81%AE%E8%BF%BD%E5%8A%A0%E3%82%BB%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3)
+- [💡 使用例](#-%E4%BD%BF%E7%94%A8%E4%BE%8B)
+  - [① 新規作成ワークフロー（project-number なし・複数ジョブ）](#%E2%91%A0-%E6%96%B0%E8%A6%8F%E4%BD%9C%E6%88%90%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BCproject-number-%E3%81%AA%E3%81%97%E3%83%BB%E8%A4%87%E6%95%B0%E3%82%B8%E3%83%A7%E3%83%96)
+  - [②③④ 既存 Project 操作ワークフロー（project-number あり・単一ジョブ）](#%E2%91%A1%E2%91%A2%E2%91%A3-%E6%97%A2%E5%AD%98-project-%E6%93%8D%E4%BD%9C%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BCproject-number-%E3%81%82%E3%82%8A%E3%83%BB%E5%8D%98%E4%B8%80%E3%82%B8%E3%83%A7%E3%83%96)
+- [🔄 使用ワークフロー](#-%E4%BD%BF%E7%94%A8%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BC)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ワークフローの実行結果（成功・失敗）に応じたサマリーレポートを GitHub Actions の Job Summary に出力する複合アクションです。
 全4ワークフローの終了時ジョブで共通的に使用されています。

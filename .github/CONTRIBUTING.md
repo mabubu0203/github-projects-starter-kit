@@ -1,7 +1,15 @@
 # コントリビューションガイド
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [Issue の起票](#issue-%E3%81%AE%E8%B5%B7%E7%A5%A8)
+- [Pull Request の作成](#pull-request-%E3%81%AE%E4%BD%9C%E6%88%90)
+  - [コミットメッセージ](#%E3%82%B3%E3%83%9F%E3%83%83%E3%83%88%E3%83%A1%E3%83%83%E3%82%BB%E3%83%BC%E3%82%B8)
+- [行動規範](#%E8%A1%8C%E5%8B%95%E8%A6%8F%E7%AF%84)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 本プロジェクトへのコントリビューションを歓迎します。
 

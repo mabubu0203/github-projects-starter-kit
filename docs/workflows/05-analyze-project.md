@@ -1,7 +1,60 @@
 # ⑤ 📊 統合プロジェクト分析
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [✅ 前提](#-%E5%89%8D%E6%8F%90)
+- [📖 使い方](#-%E4%BD%BF%E3%81%84%E6%96%B9)
+- [⚙️ パラメータ](#-%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF)
+  - [`report_types` の選択肢](#report_types-%E3%81%AE%E9%81%B8%E6%8A%9E%E8%82%A2)
+  - [`output_format` の選択肢](#output_format-%E3%81%AE%E9%81%B8%E6%8A%9E%E8%82%A2)
+  - [`item_type` の選択肢](#item_type-%E3%81%AE%E9%81%B8%E6%8A%9E%E8%82%A2)
+  - [`item_state` の選択肢](#item_state-%E3%81%AE%E9%81%B8%E6%8A%9E%E8%82%A2)
+- [🔍 滞留アイテム検知（stale）](#-%E6%BB%9E%E7%95%99%E3%82%A2%E3%82%A4%E3%83%86%E3%83%A0%E6%A4%9C%E7%9F%A5stale)
+  - [滞留判定ルール](#%E6%BB%9E%E7%95%99%E5%88%A4%E5%AE%9A%E3%83%AB%E3%83%BC%E3%83%AB)
+    - [ステータス別閾値](#%E3%82%B9%E3%83%86%E3%83%BC%E3%82%BF%E3%82%B9%E5%88%A5%E9%96%BE%E5%80%A4)
+    - [判定基準](#%E5%88%A4%E5%AE%9A%E5%9F%BA%E6%BA%96)
+    - [除外条件](#%E9%99%A4%E5%A4%96%E6%9D%A1%E4%BB%B6)
+  - [出力](#%E5%87%BA%E5%8A%9B)
+    - [Workflow Summary（Markdown テーブル）](#workflow-summarymarkdown-%E3%83%86%E3%83%BC%E3%83%96%E3%83%AB)
+    - [Artifact](#artifact)
+- [📊 プロジェクトサマリーレポート（summary）](#-%E3%83%97%E3%83%AD%E3%82%B8%E3%82%A7%E3%82%AF%E3%83%88%E3%82%B5%E3%83%9E%E3%83%AA%E3%83%BC%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88summary)
+  - [集計項目](#%E9%9B%86%E8%A8%88%E9%A0%85%E7%9B%AE)
+    - [必須項目](#%E5%BF%85%E9%A0%88%E9%A0%85%E7%9B%AE)
+    - [オプション項目（カスタムフィールド使用時）](#%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3%E9%A0%85%E7%9B%AE%E3%82%AB%E3%82%B9%E3%82%BF%E3%83%A0%E3%83%95%E3%82%A3%E3%83%BC%E3%83%AB%E3%83%89%E4%BD%BF%E7%94%A8%E6%99%82)
+  - [出力](#%E5%87%BA%E5%8A%9B-1)
+    - [Workflow Summary（Markdown + Mermaid）](#workflow-summarymarkdown--mermaid)
+    - [Artifact](#artifact-1)
+- [📊 工数集計レポート（effort）](#-%E5%B7%A5%E6%95%B0%E9%9B%86%E8%A8%88%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88effort)
+  - [集計項目](#%E9%9B%86%E8%A8%88%E9%A0%85%E7%9B%AE-1)
+    - [必須項目](#%E5%BF%85%E9%A0%88%E9%A0%85%E7%9B%AE-1)
+    - [オプション項目（日付フィールド使用時）](#%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3%E9%A0%85%E7%9B%AE%E6%97%A5%E4%BB%98%E3%83%95%E3%82%A3%E3%83%BC%E3%83%AB%E3%83%89%E4%BD%BF%E7%94%A8%E6%99%82)
+  - [出力](#%E5%87%BA%E5%8A%9B-2)
+    - [Workflow Summary（Markdown + Mermaid）](#workflow-summarymarkdown--mermaid-1)
+    - [Artifact](#artifact-2)
+- [📈 ベロシティレポート（velocity）](#-%E3%83%99%E3%83%AD%E3%82%B7%E3%83%86%E3%82%A3%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88velocity)
+  - [集計項目](#%E9%9B%86%E8%A8%88%E9%A0%85%E7%9B%AE-2)
+    - [必須項目](#%E5%BF%85%E9%A0%88%E9%A0%85%E7%9B%AE-2)
+    - [オプション項目（工数フィールド使用時）](#%E3%82%AA%E3%83%97%E3%82%B7%E3%83%A7%E3%83%B3%E9%A0%85%E7%9B%AE%E5%B7%A5%E6%95%B0%E3%83%95%E3%82%A3%E3%83%BC%E3%83%AB%E3%83%89%E4%BD%BF%E7%94%A8%E6%99%82)
+  - [ベロシティ算出ルール](#%E3%83%99%E3%83%AD%E3%82%B7%E3%83%86%E3%82%A3%E7%AE%97%E5%87%BA%E3%83%AB%E3%83%BC%E3%83%AB)
+  - [出力](#%E5%87%BA%E5%8A%9B-3)
+    - [Workflow Summary（Markdown + Mermaid）](#workflow-summarymarkdown--mermaid-2)
+    - [Artifact](#artifact-3)
+- [📤 アイテムエクスポート（export）](#-%E3%82%A2%E3%82%A4%E3%83%86%E3%83%A0%E3%82%A8%E3%82%AF%E3%82%B9%E3%83%9D%E3%83%BC%E3%83%88export)
+  - [出力項目](#%E5%87%BA%E5%8A%9B%E9%A0%85%E7%9B%AE)
+  - [出力](#%E5%87%BA%E5%8A%9B-4)
+    - [Artifact](#artifact-4)
+- [⚠️ アーティファクトの公開範囲に関する注意事項](#-%E3%82%A2%E3%83%BC%E3%83%86%E3%82%A3%E3%83%95%E3%82%A1%E3%82%AF%E3%83%88%E3%81%AE%E5%85%AC%E9%96%8B%E7%AF%84%E5%9B%B2%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A0%85)
+  - [アーティファクトのアクセス範囲](#%E3%82%A2%E3%83%BC%E3%83%86%E3%82%A3%E3%83%95%E3%82%A1%E3%82%AF%E3%83%88%E3%81%AE%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E7%AF%84%E5%9B%B2)
+  - [Actions のアクセス制限に関する調査結果](#actions-%E3%81%AE%E3%82%A2%E3%82%AF%E3%82%BB%E3%82%B9%E5%88%B6%E9%99%90%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E8%AA%BF%E6%9F%BB%E7%B5%90%E6%9E%9C)
+    - [リポジトリ Settings > Actions > General](#%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA-settings--actions--general)
+    - [actions/upload-artifact v4 のパラメータ](#actionsupload-artifact-v4-%E3%81%AE%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF)
+    - [Organization レベルの設定](#organization-%E3%83%AC%E3%83%99%E3%83%AB%E3%81%AE%E8%A8%AD%E5%AE%9A)
+    - [代替手段](#%E4%BB%A3%E6%9B%BF%E6%89%8B%E6%AE%B5)
+- [📊 処理フロー](#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 指定した GitHub `Project` のアイテムを走査し、滞留アイテム検知・プロジェクトサマリーレポート・工数集計レポート・ベロシティレポート・アイテムエクスポートを 1 回の実行でまとめて生成します。`report_types` パラメータで実行する機能を選択することも可能です。
 

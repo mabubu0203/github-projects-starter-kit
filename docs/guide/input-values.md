@@ -1,7 +1,17 @@
 # 📝 入力値ガイド
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🔢 `project_number` の確認方法](#-project_number-%E3%81%AE%E7%A2%BA%E8%AA%8D%E6%96%B9%E6%B3%95)
+  - [CLI で確認する方法](#cli-%E3%81%A7%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95)
+- [📂 `target_repo` の確認方法](#-target_repo-%E3%81%AE%E7%A2%BA%E8%AA%8D%E6%96%B9%E6%B3%95)
+  - [CLI で確認する方法](#cli-%E3%81%A7%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95-1)
+- [🎫 Issue や Pull Request の確認方法](#-issue-%E3%82%84-pull-request-%E3%81%AE%E7%A2%BA%E8%AA%8D%E6%96%B9%E6%B3%95)
+  - [CLI で確認する方法](#cli-%E3%81%A7%E7%A2%BA%E8%AA%8D%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95-2)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ワークフロー実行時に入力するパラメータの確認方法をまとめています。
 

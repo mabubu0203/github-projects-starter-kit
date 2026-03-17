@@ -1,7 +1,18 @@
 # 🔍 トラブルシューティング
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [⚠️ フォーク後に GitHub Actions が動かない](#-%E3%83%95%E3%82%A9%E3%83%BC%E3%82%AF%E5%BE%8C%E3%81%AB-github-actions-%E3%81%8C%E5%8B%95%E3%81%8B%E3%81%AA%E3%81%84)
+  - [有効化手順（GUI）](#%E6%9C%89%E5%8A%B9%E5%8C%96%E6%89%8B%E9%A0%86gui)
+  - [有効化手順（CLI）](#%E6%9C%89%E5%8A%B9%E5%8C%96%E6%89%8B%E9%A0%86cli)
+- [🔐 権限エラーが発生する](#-%E6%A8%A9%E9%99%90%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%8C%E7%99%BA%E7%94%9F%E3%81%99%E3%82%8B)
+  - [チェックリスト](#%E3%83%81%E3%82%A7%E3%83%83%E3%82%AF%E3%83%AA%E3%82%B9%E3%83%88)
+  - [よくあるエラーメッセージ](#%E3%82%88%E3%81%8F%E3%81%82%E3%82%8B%E3%82%A8%E3%83%A9%E3%83%BC%E3%83%A1%E3%83%83%E3%82%BB%E3%83%BC%E3%82%B8)
+- [🔎 ワークフローが見つからない](#-%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%95%E3%83%AD%E3%83%BC%E3%81%8C%E8%A6%8B%E3%81%A4%E3%81%8B%E3%82%89%E3%81%AA%E3%81%84)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ワークフロー実行時に発生しやすい問題と対処法をまとめています。
 

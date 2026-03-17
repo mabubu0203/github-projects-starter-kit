@@ -1,7 +1,16 @@
 # セキュリティポリシー
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [脆弱性の報告](#%E8%84%86%E5%BC%B1%E6%80%A7%E3%81%AE%E5%A0%B1%E5%91%8A)
+  - [報告方法](#%E5%A0%B1%E5%91%8A%E6%96%B9%E6%B3%95)
+  - [報告に含めていただきたい情報](#%E5%A0%B1%E5%91%8A%E3%81%AB%E5%90%AB%E3%82%81%E3%81%A6%E3%81%84%E3%81%9F%E3%81%A0%E3%81%8D%E3%81%9F%E3%81%84%E6%83%85%E5%A0%B1)
+  - [対応について](#%E5%AF%BE%E5%BF%9C%E3%81%AB%E3%81%A4%E3%81%84%E3%81%A6)
+- [対象バージョン](#%E5%AF%BE%E8%B1%A1%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## 脆弱性の報告
 

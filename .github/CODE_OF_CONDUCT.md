@@ -1,7 +1,17 @@
 # 行動規範
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [私たちの誓い](#%E7%A7%81%E3%81%9F%E3%81%A1%E3%81%AE%E8%AA%93%E3%81%84)
+- [私たちの基準](#%E7%A7%81%E3%81%9F%E3%81%A1%E3%81%AE%E5%9F%BA%E6%BA%96)
+- [責任](#%E8%B2%AC%E4%BB%BB)
+- [適用範囲](#%E9%81%A9%E7%94%A8%E7%AF%84%E5%9B%B2)
+- [執行](#%E5%9F%B7%E8%A1%8C)
+- [帰属](#%E5%B8%B0%E5%B1%9E)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## 私たちの誓い
 

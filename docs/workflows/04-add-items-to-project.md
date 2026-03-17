@@ -1,7 +1,17 @@
 # ④ 🔗 Issue/PR 一括紐付け
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [✅ 前提](#-%E5%89%8D%E6%8F%90)
+- [📖 使い方](#-%E4%BD%BF%E3%81%84%E6%96%B9)
+- [⚙️ パラメータ](#-%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF)
+  - [アイテム種別](#%E3%82%A2%E3%82%A4%E3%83%86%E3%83%A0%E7%A8%AE%E5%88%A5)
+  - [アイテム状態](#%E3%82%A2%E3%82%A4%E3%83%86%E3%83%A0%E7%8A%B6%E6%85%8B)
+- [📊 処理フロー](#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 リポジトリの `Issue`/`PR` を `Project` に一括追加します。
 

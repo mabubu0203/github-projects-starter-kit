@@ -5,8 +5,17 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Platform: macOS/Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue.svg)
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**
+
+- [🚀 このキットでできること](#-%E3%81%93%E3%81%AE%E3%82%AD%E3%83%83%E3%83%88%E3%81%A7%E3%81%A7%E3%81%8D%E3%82%8B%E3%81%93%E3%81%A8)
+- [✅ セットアップ後にできること](#-%E3%82%BB%E3%83%83%E3%83%88%E3%82%A2%E3%83%83%E3%83%97%E5%BE%8C%E3%81%AB%E3%81%A7%E3%81%8D%E3%82%8B%E3%81%93%E3%81%A8)
+- [📖 ドキュメント](#-%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88)
+- [📋 更新履歴](#-%E6%9B%B4%E6%96%B0%E5%B1%A5%E6%AD%B4)
+- [📄 ライセンス](#-%E3%83%A9%E3%82%A4%E3%82%BB%E3%83%B3%E3%82%B9)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 GitHub Projects の初期セットアップを GitHub Actions で自動実行するためのスターターキットです。
 本リポジトリを fork し、GitHub Actions を手動実行することで、GitHub Project を作成できます。
