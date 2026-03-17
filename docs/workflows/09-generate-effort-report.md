@@ -76,3 +76,7 @@ flowchart TD
     C -- "成功" --> D["workflow-summary-success ジョブ\n成功サマリーを出力"]
     C -- "失敗" --> E["workflow-summary-failure ジョブ\n失敗サマリーを出力"]
 ```
+
+## 🔗 関連ワークフロー
+
+- [⑩ 統合プロジェクト分析](10-analyze-project) — 滞留検知・サマリーレポートとまとめて実行可能
