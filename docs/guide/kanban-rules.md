@@ -1,5 +1,7 @@
 # 📏 運用ルール
 
+本スターターキットで構築する GitHub Projects の運用ルールについて説明します。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -11,8 +13,6 @@
 - [👁️ View 構成](#-view-%E6%A7%8B%E6%88%90)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-本スターターキットで構築する GitHub Projects の運用ルールについて説明します。
 
 ---
 

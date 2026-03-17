@@ -1,5 +1,9 @@
 # 🗑️ アーティファクトの手動削除ガイド
 
+ワークフローで生成されたアーティファクトを手動で削除する方法を説明します。
+
+> **Note:** アーティファクトの公開範囲に関する注意事項は [⑤ 統合プロジェクト分析](../workflows/05-analyze-project.md#️-アーティファクトの公開範囲に関する注意事項) を参照してください。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
@@ -12,10 +16,6 @@
   - [REST API で削除する](#rest-api-%E3%81%A7%E5%89%8A%E9%99%A4%E3%81%99%E3%82%8B)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-ワークフローで生成されたアーティファクトを手動で削除する方法を説明します。
-
-> **Note:** アーティファクトの公開範囲に関する注意事項は [⑤ 統合プロジェクト分析](../workflows/05-analyze-project.md#️-アーティファクトの公開範囲に関する注意事項) を参照してください。
 
 ---
 
