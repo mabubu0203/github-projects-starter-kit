@@ -207,37 +207,7 @@ query($login: String!, $number: Int!, $after: String) {
 
 **推奨:** Workflow Summary（Markdown テーブル + Mermaid チャート）を主出力、Artifact（JSON）を補助出力とする。既存の `generate-summary-report.sh` と同じ方式を採用し、プロジェクト全体の一貫性を保つ。
 
-### 2.6 期間指定でのフィルタリング方法
-
-#### フィルタリング方式
-
-期間指定はワークフロー入力パラメータとして `period-start`（開始日）と `period-end`（終了日）をオプションで受け付ける。
-
-| パラメータ | 必須 | デフォルト | 説明 |
-|---|---|---|---|
-| `period-start` | No | なし（全期間） | フィルタ開始日（YYYY-MM-DD） |
-| `period-end` | No | なし（全期間） | フィルタ終了日（YYYY-MM-DD） |
-
-#### フィルタ対象フィールド
-
-期間フィルタは `created_at`（Issue/PR の作成日）を基準とする。
-
-理由:
-- 作成日は全アイテムに必ず存在し、null にならない
-- スプリント単位の集計（「このスプリントで作成されたアイテムの工数」）に適している
-- 日付カスタムフィールド（開始予定等）は任意入力のため、フィルタ基準には不適
-
-#### フィルタリングロジック
-
-```
-対象アイテム = アイテム
-  | WHERE created_at >= period_start (指定時)
-  | WHERE created_at <= period_end   (指定時)
-```
-
-両方未指定の場合は全アイテムを対象とする（既存のサマリーレポートと同じ挙動）。
-
-### 2.7 `jq` による数値集計処理の実装アプローチ
+### 2.6 `jq` による数値集計処理の実装アプローチ
 
 #### 基本的な集計パターン
 
@@ -324,7 +294,6 @@ fi
 
 - **Project:** プロジェクト名 (#番号)
 - **実行日時:** 2026-03-17T09:00:00Z
-- **対象期間:** 2026-03-01 〜 2026-03-31（指定時のみ表示）
 - **対象アイテム数:** 25 件（工数入力済み: 20 件、未入力: 5 件）
 
 ---
@@ -396,10 +365,6 @@ pie title 担当者別実績工数
     "number": 1
   },
   "executed_at": "2026-03-17T09:00:00Z",
-  "period": {
-    "start": "2026-03-01",
-    "end": "2026-03-31"
-  },
   "overview": {
     "total_items": 25,
     "items_with_effort": 20,
@@ -471,9 +436,7 @@ pie title 担当者別実績工数
 
 | パラメータ | 必須 | デフォルト | 説明 |
 |---|---|---|---|
-| `project-number` | Yes | - | 対象 Project の Number |
-| `period-start` | No | なし（全期間） | フィルタ開始日（YYYY-MM-DD） |
-| `period-end` | No | なし（全期間） | フィルタ終了日（YYYY-MM-DD） |
+| `project_number` | Yes | - | 対象 Project の Number |
 
 ### 4.2 スクリプト内定数
 
@@ -490,18 +453,10 @@ name: "⑨ 工数集計レポート"
 on:
   workflow_dispatch:
     inputs:
-      project-number:
+      project_number:
         description: "Project の Number"
         required: true
         type: number
-      period-start:
-        description: "集計開始日（YYYY-MM-DD、省略時は全期間）"
-        required: false
-        type: string
-      period-end:
-        description: "集計終了日（YYYY-MM-DD、省略時は全期間）"
-        required: false
-        type: string
 
 jobs:
   generate-effort-report:
@@ -514,9 +469,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PROJECT_PAT }}
           PROJECT_OWNER: ${{ github.repository_owner }}
-          PROJECT_NUMBER: ${{ inputs.project-number }}
-          PERIOD_START: ${{ inputs.period-start }}
-          PERIOD_END: ${{ inputs.period-end }}
+          PROJECT_NUMBER: ${{ inputs.project_number }}
         run: |
           chmod +x scripts/generate-effort-report.sh
           bash scripts/generate-effort-report.sh
@@ -524,8 +477,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7.0.0
         with:
-          name: effort-report-${{ inputs.project-number }}
+          name: effort-report-${{ inputs.project_number }}
           path: report-*.json
+          if-no-files-found: ignore
           retention-days: 90
 
   workflow-summary-failure:
@@ -538,7 +492,7 @@ jobs:
         with:
           status: failure
           project-owner: ${{ github.repository_owner }}
-          project-number: ${{ inputs.project-number }}
+          project-number: ${{ inputs.project_number }}
           job-results: |
             {"generate-effort-report": "${{ needs.generate-effort-report.result }}"}
 
@@ -552,7 +506,7 @@ jobs:
         with:
           status: success
           project-owner: ${{ github.repository_owner }}
-          project-number: ${{ inputs.project-number }}
+          project-number: ${{ inputs.project_number }}
           job-results: |
             {"generate-effort-report": "${{ needs.generate-effort-report.result }}"}
 ```
@@ -561,23 +515,23 @@ jobs:
 
 `scripts/generate-effort-report.sh` の処理フロー:
 
-1. 環境変数バリデーション（`validate_common_project_env` + 期間パラメータの日付形式チェック）
+1. 環境変数バリデーション（`validate_common_project_env`）
 2. プロジェクトアイテム取得（ページネーション対応、工数・日付フィールドを含む）
-3. 期間フィルタリング（`PERIOD_START` / `PERIOD_END` 指定時）
-4. 工数集計
+3. 工数集計
    - 全体サマリー（総見積もり/実績工数、乖離率、入力率）
    - 担当者別集計
    - ステータス別集計
    - 乖離アイテム抽出
-5. 日付分析（条件付き）
+4. 日付分析（条件付き）
    - リードタイム分析
    - スケジュール乖離分析
-6. 工数未入力アイテム抽出
-7. レポート生成（Workflow Summary 用 Markdown + Artifact 用 JSON）
-8. コンソールサマリー出力
+5. 工数未入力アイテム抽出
+6. レポート生成（Workflow Summary 用 Markdown + Artifact 用 JSON）
+7. コンソールサマリー出力
 
 ## 🚀 5. 今後の拡張候補
 
+- 期間指定フィルタリング（月次・スプリント単位での集計範囲指定）
 - 月次トレンドレポート（過去の実行結果との比較、工数推移グラフ）
 - ラベル別工数集計（機能カテゴリ別の工数分析）
 - リポジトリ別工数集計（マルチリポジトリプロジェクトでの分析）
