@@ -3,9 +3,9 @@
 <!-- START doctoc -->
 <!-- END doctoc -->
 
-指定した GitHub `Project` に紐づく `Issue` / `Pull Request` の一覧を取得し、エクスポートします。
+> **⚠️ このワークフローは [⑩ 統合プロジェクト分析](10-analyze-project) に統合されました。** `report_types: export` を選択して実行してください。
 
-> **💡 統合ワークフローのご案内:** この機能は [⑩ 統合プロジェクト分析](10-analyze-project) の `report_types: export` でも実行できます。他の分析（滞留検知・サマリー・工数集計）と一括で実行したい場合は、統合ワークフローをご利用ください。
+指定した GitHub `Project` に紐づく `Issue` / `Pull Request` の一覧を取得し、エクスポートします。
 
 ## ✅ 前提
 
