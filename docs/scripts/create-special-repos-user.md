@@ -31,21 +31,19 @@
 
 ## 📋 リポジトリ定義ファイル
 
-リポジトリ定義は `scripts/config/special-repo-definitions.json` の `user` 配列で管理します。
+リポジトリ定義は `scripts/config/special-repo-definitions-user.json` で管理します。
 
 ### スキーマ
 
 ```json
-{
-  "user": [
-    {
-      "name_template": "リポジトリ名テンプレート",
-      "description": "リポジトリの説明",
-      "visibility": "public または private",
-      "auto_init": true
-    }
-  ]
-}
+[
+  {
+    "name_template": "リポジトリ名テンプレート",
+    "description": "リポジトリの説明",
+    "visibility": "public または private",
+    "auto_init": true
+  }
+]
 ```
 
 ### フィールド定義
@@ -72,7 +70,7 @@ flowchart TD
     A["開始"] --> B["環境変数バリデーション"]
     B --> C["gh / jq コマンド存在チェック"]
     C --> D["オーナータイプ判定\n（User であることを確認）"]
-    D --> E["リポジトリ定義ファイル読み込み\n（config/special-repo-definitions.json）"]
+    D --> E["リポジトリ定義ファイル読み込み\n（config/special-repo-definitions-user.json）"]
     E --> F["user 定義を jq で事前解析\n（name_template の {{owner}} を置換）"]
     F --> G["リポジトリ定義をループ処理"]
 
@@ -95,7 +93,7 @@ flowchart TD
 | 環境変数バリデーション | `require_env` で `GH_TOKEN`, `PROJECT_OWNER` を検証 | `common.sh` |
 | コマンド存在チェック | `require_command` で `gh`, `jq` の存在を確認 | `common.sh` |
 | オーナータイプ判定 | `detect_owner_type` で User であることを確認 | `common.sh` |
-| リポジトリ定義読み込み | `scripts/config/special-repo-definitions.json` の `user` 配列を読み込み | `jq` |
+| リポジトリ定義読み込み | `scripts/config/special-repo-definitions-user.json` を読み込み | `cat` |
 | テンプレート置換 | `name_template` の `{{owner}}` を `PROJECT_OWNER` に置換 | `jq gsub` |
 | 重複チェック | `gh api repos/{owner}/{repo}` で既存リポジトリの存在を確認 | REST API `GET /repos/{owner}/{repo}` |
 | リポジトリ作成 | `gh api user/repos` でリポジトリを作成 | REST API `POST /user/repos` |

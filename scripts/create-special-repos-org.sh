@@ -31,13 +31,13 @@ fi
 
 # --- リポジトリ定義ファイルの読み込み ---
 
-REPO_DEFINITIONS_FILE="${SCRIPT_DIR}/config/special-repo-definitions.json"
+REPO_DEFINITIONS_FILE="${SCRIPT_DIR}/config/special-repo-definitions-org.json"
 if [[ ! -f "${REPO_DEFINITIONS_FILE}" ]]; then
   echo "::error::リポジトリ定義ファイルが見つかりません: ${REPO_DEFINITIONS_FILE}"
   exit 1
 fi
 
-REPO_DEFINITIONS=$(jq '.organization' "${REPO_DEFINITIONS_FILE}")
+REPO_DEFINITIONS=$(cat "${REPO_DEFINITIONS_FILE}")
 REPO_COUNT=$(echo "${REPO_DEFINITIONS}" | jq 'length')
 
 echo ""
