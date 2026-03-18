@@ -1,7 +1,7 @@
 # 📜 create-special-repos-user.sh
 
-個人アカウント用の特殊リポジトリ（プロフィール README、GitHub Pages、dotfiles）を一括作成するスクリプトです。
-既存リポジトリと同名のリポジトリが存在する場合はスキップします。
+個人アカウント用の特殊Repository（プロフィール README、GitHub Pages、dotfiles）を一括作成するスクリプトです。
+既存Repositoryと同名のRepositoryが存在する場合はスキップします。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -9,7 +9,7 @@
 <details><summary>（ここをクリック）目次</summary><ul>
 <li><a href="#-%E7%92%B0%E5%A2%83%E5%A4%89%E6%95%B0">🔧 環境変数</a></li>
 
-<li><a href="#-%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA%E5%AE%9A%E7%BE%A9%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB">📋 リポジトリ定義ファイル</a></li>
+<li><a href="#-%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA%E5%AE%9A%E7%BE%A9%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB">📋 Repository定義ファイル</a></li>
 
 <li><a href="#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC">📊 処理フロー</a></li>
 
@@ -29,17 +29,17 @@
 | `GH_TOKEN` | GitHub PAT（`repo` Scope または Fine-grained PAT の `Administration: write`） | ✅ |
 | `PROJECT_OWNER` | 対象の個人アカウント名 | ✅ |
 
-## 📋 リポジトリ定義ファイル
+## 📋 Repository定義ファイル
 
-リポジトリ定義は `scripts/config/special-repo-definitions-user.json` で管理します。
+Repository定義は `scripts/config/special-repo-definitions-user.json` で管理します。
 
 ### スキーマ
 
 ```json
 [
   {
-    "name_template": "リポジトリ名テンプレート",
-    "description": "リポジトリの説明",
+    "name_template": "Repository名テンプレート",
+    "description": "Repositoryの説明",
     "visibility": "public または private",
     "auto_init": true
   }
@@ -50,14 +50,14 @@
 
 | フィールド | 型 | 必須 | 説明 | 例 |
 |-----------|------|:----:|------|-----|
-| `name_template` | `string` | ✅ | リポジトリ名。`{{owner}}` は `PROJECT_OWNER` に置換される | `"{{owner}}"` |
-| `description` | `string` | ✅ | リポジトリの説明文 | `"プロフィール README 用リポジトリ"` |
+| `name_template` | `string` | ✅ | Repository名。`{{owner}}` は `PROJECT_OWNER` に置換される | `"{{owner}}"` |
+| `description` | `string` | ✅ | Repositoryの説明文 | `"プロフィール README 用Repository"` |
 | `visibility` | `string` | ✅ | `public` または `private` | `"public"` |
 | `auto_init` | `boolean` | ✅ | `true` で README.md 付きで初期化 | `true` |
 
 ### 個人アカウント用定義
 
-| リポジトリ名 | 説明 | 挙動 |
+| Repository名 | 説明 | 挙動 |
 |---|---|---|
 | `<username>` | プロフィール README 用 | README.md がプロフィールページに表示される |
 | `<username>.github.io` | GitHub Pages 用 | GitHub Pages として自動公開される |
@@ -70,17 +70,17 @@ flowchart TD
     A["開始"] --> B["環境変数バリデーション"]
     B --> C["gh / jq コマンド存在チェック"]
     C --> D["オーナータイプ判定\n（User であることを確認）"]
-    D --> E["リポジトリ定義ファイル読み込み\n（config/special-repo-definitions-user.json）"]
+    D --> E["Repository定義ファイル読み込み\n（config/special-repo-definitions-user.json）"]
     E --> F["user 定義を jq で事前解析\n（name_template の {{owner}} を置換）"]
-    F --> G["リポジトリ定義をループ処理"]
+    F --> G["Repository定義をループ処理"]
 
-    G --> H{"既存リポジトリに\n存在する?"}
+    G --> H{"既存Repositoryに\n存在する?"}
     H -- "Yes" --> I["スキップ"]
-    H -- "No" --> J["POST /user/repos\nでリポジトリ作成"]
+    H -- "No" --> J["POST /user/repos\nでRepository作成"]
 
     J --> K["結果を記録\n（作成 / 失敗）"]
 
-    I & K --> L{"次のリポジトリ\nあり?"}
+    I & K --> L{"次のRepository\nあり?"}
     L -- "Yes" --> G
     L -- "No" --> M["実行結果サマリー出力"]
     M --> N["完了"]
@@ -93,27 +93,27 @@ flowchart TD
 | 環境変数バリデーション | `require_env` で `GH_TOKEN`, `PROJECT_OWNER` を検証 | `common.sh` |
 | コマンド存在チェック | `require_command` で `gh`, `jq` の存在を確認 | `common.sh` |
 | オーナータイプ判定 | `detect_owner_type` で User であることを確認 | `common.sh` |
-| リポジトリ定義読み込み | `scripts/config/special-repo-definitions-user.json` を読み込み | `cat` |
+| Repository定義読み込み | `scripts/config/special-repo-definitions-user.json` を読み込み | `cat` |
 | テンプレート置換 | `name_template` の `{{owner}}` を `PROJECT_OWNER` に置換 | `jq gsub` |
-| 重複チェック | `gh api repos/{owner}/{repo}` で既存リポジトリの存在を確認 | REST API `GET /repos/{owner}/{repo}` |
-| リポジトリ作成 | `gh api user/repos` でリポジトリを作成 | REST API `POST /user/repos` |
+| 重複チェック | `gh api repos/{owner}/{repo}` で既存Repositoryの存在を確認 | REST API `GET /repos/{owner}/{repo}` |
+| Repository作成 | `gh api user/repos` でRepositoryを作成 | REST API `POST /user/repos` |
 | サマリー出力 | 作成/スキップ/失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | `print_summary`, `GITHUB_STEP_SUMMARY` |
 
 ## 📚 API リファレンス
 
 | API | 用途 | リファレンス |
 |-----|------|-------------|
-| `GET /repos/{owner}/{repo}` | 既存リポジトリの存在チェック | [Get a repository](https://docs.github.com/en/rest/repos/repos#get-a-repository) |
-| `POST /user/repos` | リポジトリの作成 | [Create a repository for the authenticated user](https://docs.github.com/en/rest/repos/repos#create-a-repository-for-the-authenticated-user) |
+| `GET /repos/{owner}/{repo}` | 既存Repositoryの存在チェック | [Get a repository](https://docs.github.com/en/rest/repos/repos#get-a-repository) |
+| `POST /user/repos` | Repositoryの作成 | [Create a repository for the authenticated user](https://docs.github.com/en/rest/repos/repos#create-a-repository-for-the-authenticated-user) |
 
 ### PAT Scope 要件
 
 | Scope | 用途 | 備考 |
 |---------|------|------|
-| `repo` | リポジトリの作成 | Classic PAT の場合 |
+| `repo` | Repositoryの作成 | Classic PAT の場合 |
 
 Fine-grained PAT の場合は、`Administration: write` 権限が必要です。
 
 ## 🔄 使用 Workflow
 
-- [⑥ 特殊リポジトリ一括作成](../workflows/06-create-special-repos)
+- [⑥ 特殊Repository一括作成](../workflows/06-create-special-repos)

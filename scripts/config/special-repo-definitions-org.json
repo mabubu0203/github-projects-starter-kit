@@ -13,7 +13,7 @@
   },
   {
     "name_template": "{{owner}}.github.io",
-    "description": "GitHub Pages 用リポジトリ",
+    "description": "GitHub Pages 用Repository",
     "visibility": "public",
     "auto_init": true
   }

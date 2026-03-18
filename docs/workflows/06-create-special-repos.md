@@ -1,6 +1,6 @@
-# ⑥ 🏗️ 特殊リポジトリ一括作成
+# ⑥ 🏗️ 特殊Repository一括作成
 
-GitHub の特殊命名規則リポジトリ（プロフィール README、GitHub Pages、dotfiles 等）を一括作成します。
+GitHub の特殊命名規則Repository（プロフィール README、GitHub Pages、dotfiles 等）を一括作成します。
 オーナータイプ（個人アカウント / Organization）を自動判定し、対応するスクリプトを実行します。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -13,7 +13,7 @@ GitHub の特殊命名規則リポジトリ（プロフィール README、GitHub
 
 <li><a href="#-%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF">⚙️ パラメータ</a></li>
 
-<li><a href="#-%E5%AF%BE%E8%B1%A1%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA">📋 対象リポジトリ</a></li>
+<li><a href="#-%E5%AF%BE%E8%B1%A1%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA">📋 対象Repository</a></li>
 
 <li><a href="#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC">📊 処理フロー</a></li>
 
@@ -34,7 +34,7 @@ GitHub の特殊命名規則リポジトリ（プロフィール README、GitHub
 ## 📖 使い方
 
 1. `Actions` タブを開く
-2. `⑥ 特殊リポジトリ一括作成` を選択
+2. `⑥ 特殊Repository一括作成` を選択
 3. `Run workflow` をクリック
 4. パラメータを入力して実行
 
@@ -44,13 +44,13 @@ GitHub の特殊命名規則リポジトリ（プロフィール README、GitHub
 |------------|------|:----:|--------|-----|
 | `project_owner` | 対象のオーナー（個人アカウントまたは Organization 名） | ✅ | `string` | `mabubu0203` |
 
-> **Note:** 既存リポジトリと同名のリポジトリが存在する場合はスキップされます。追加のみの安全設計です。
+> **Note:** 既存Repositoryと同名のRepositoryが存在する場合はスキップされます。追加のみの安全設計です。
 
-## 📋 対象リポジトリ
+## 📋 対象Repository
 
 ### 個人アカウント用
 
-| リポジトリ名 | 挙動 |
+| Repository名 | 挙動 |
 |---|---|
 | `<username>` | README.md がプロフィールページに表示される |
 | `<username>.github.io` | GitHub Pages として自動公開される |
@@ -58,7 +58,7 @@ GitHub の特殊命名規則リポジトリ（プロフィール README、GitHub
 
 ### Organization 用
 
-| リポジトリ名 | 挙動 |
+| Repository名 | 挙動 |
 |---|---|
 | `.github` | パブリックプロフィール・Community Health Files が Organization 全体に適用される |
 | `.github-private` | メンバーのみに表示されるプライベートプロフィール |
@@ -70,8 +70,8 @@ GitHub の特殊命名規則リポジトリ（プロフィール README、GitHub
 flowchart TD
     A["workflow_dispatch\n（project_owner）"] --> B["create-special-repos Job\nオーナータイプを自動判定"]
     B --> C{"User or\nOrganization?"}
-    C -- "User" --> D["create-special-repos-user.sh\n個人アカウント用リポジトリを作成"]
-    C -- "Organization" --> E["create-special-repos-org.sh\nOrganization 用リポジトリを作成"]
+    C -- "User" --> D["create-special-repos-user.sh\n個人アカウント用Repositoryを作成"]
+    C -- "Organization" --> E["create-special-repos-org.sh\nOrganization 用Repositoryを作成"]
     D & E --> F{"結果判定"}
     F -- "成功" --> G["workflow-summary-success Job\n成功サマリーを出力"]
     F -- "失敗" --> H["workflow-summary-failure Job\n失敗サマリーを出力"]
@@ -113,5 +113,5 @@ flowchart TD
 
 ## 📜 関連スクリプト
 
-- [create-special-repos-user.sh](../scripts/create-special-repos-user) — 個人アカウント用特殊リポジトリ一括作成スクリプト
-- [create-special-repos-org.sh](../scripts/create-special-repos-org) — Organization 用特殊リポジトリ一括作成スクリプト
+- [create-special-repos-user.sh](../scripts/create-special-repos-user) — 個人アカウント用特殊Repository一括作成スクリプト
+- [create-special-repos-org.sh](../scripts/create-special-repos-org) — Organization 用特殊Repository一括作成スクリプト

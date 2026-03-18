@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Organization 用の特殊リポジトリ一括作成スクリプト
+# Organization 用の特殊Repository一括作成スクリプト
 # https://mabubu0203.github.io/github-projects-starter-kit/scripts/create-special-repos-org
 #
 # 環境変数:
@@ -29,11 +29,11 @@ if [[ "${OWNER_TYPE}" != "Organization" ]]; then
   exit 1
 fi
 
-# --- リポジトリ定義ファイルの読み込み ---
+# --- Repository定義ファイルの読み込み ---
 
 REPO_DEFINITIONS_FILE="${SCRIPT_DIR}/config/special-repo-definitions-org.json"
 if [[ ! -f "${REPO_DEFINITIONS_FILE}" ]]; then
-  echo "::error::リポジトリ定義ファイルが見つかりません: ${REPO_DEFINITIONS_FILE}"
+  echo "::error::Repository定義ファイルが見つかりません: ${REPO_DEFINITIONS_FILE}"
   exit 1
 fi
 
@@ -41,18 +41,18 @@ REPO_DEFINITIONS=$(cat "${REPO_DEFINITIONS_FILE}")
 REPO_COUNT=$(echo "${REPO_DEFINITIONS}" | jq 'length')
 
 echo ""
-echo "Organization 用の特殊リポジトリを作成します..."
+echo "Organization 用の特殊Repositoryを作成します..."
 echo "  オーナー: ${PROJECT_OWNER}"
 echo "  定義数: ${REPO_COUNT} 件"
 
 if [[ "${REPO_COUNT}" -eq 0 ]]; then
   echo ""
-  echo "リポジトリ定義が空のため、処理をスキップします。"
+  echo "Repository定義が空のため、処理をスキップします。"
   print_summary "Owner" "${PROJECT_OWNER}" "作成" "0 件" "スキップ" "0 件" "失敗" "0 件"
   exit 0
 fi
 
-# --- リポジトリの一括作成 ---
+# --- Repositoryの一括作成 ---
 
 PARSED_REPOS=$(echo "${REPO_DEFINITIONS}" | jq -r --arg owner "${PROJECT_OWNER}" \
   '.[] | [(.name_template | gsub("\\{\\{owner\\}\\}"; $owner)), .description, .visibility, (.auto_init | tostring)] | @tsv')
@@ -68,11 +68,11 @@ while IFS=$'\t' read -r REPO_NAME REPO_DESCRIPTION REPO_VISIBILITY REPO_AUTO_INI
   echo ""
   echo "  [${REPO_INDEX}/${REPO_COUNT}] ${PROJECT_OWNER}/${REPO_NAME} (${REPO_VISIBILITY})"
 
-  # 既存リポジトリの重複チェック
+  # 既存Repositoryの重複チェック
   if gh api "repos/${PROJECT_OWNER}/${REPO_NAME}" \
     -H "X-GitHub-Api-Version: ${REST_API_VERSION}" \
     >/dev/null 2>&1; then
-    echo "    → 既存リポジトリのためスキップしました。"
+    echo "    → 既存Repositoryのためスキップしました。"
     SKIPPED_COUNT=$((SKIPPED_COUNT + 1))
     continue
   fi
@@ -83,7 +83,7 @@ while IFS=$'\t' read -r REPO_NAME REPO_DESCRIPTION REPO_VISIBILITY REPO_AUTO_INI
     PRIVATE_FLAG="true"
   fi
 
-  # リポジトリ作成（POST /orgs/{org}/repos）
+  # Repository作成（POST /orgs/{org}/repos）
   if gh api "orgs/${PROJECT_OWNER}/repos" \
     -H "X-GitHub-Api-Version: ${REST_API_VERSION}" \
     --method POST \
@@ -97,7 +97,7 @@ while IFS=$'\t' read -r REPO_NAME REPO_DESCRIPTION REPO_VISIBILITY REPO_AUTO_INI
   else
     echo "    → 作成に失敗しました。"
     SAFE_REPO_NAME=$(sanitize_for_workflow_command "${REPO_NAME}")
-    echo "::error::リポジトリ '${PROJECT_OWNER}/${SAFE_REPO_NAME}' の作成に失敗しました。"
+    echo "::error::Repository '${PROJECT_OWNER}/${SAFE_REPO_NAME}' の作成に失敗しました。"
     FAILED_COUNT=$((FAILED_COUNT + 1))
   fi
 done <<< "${PARSED_REPOS}"
@@ -106,7 +106,7 @@ done <<< "${PARSED_REPOS}"
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   {
-    echo "## Organization 用特殊リポジトリ一括作成完了"
+    echo "## Organization 用特殊Repository一括作成完了"
     echo ""
     echo "| 項目 | 件数 |"
     echo "|------|------|"
@@ -120,7 +120,7 @@ print_summary "Owner" "${PROJECT_OWNER}" "タイプ" "Organization" "作成" "${
 
 if [[ "${FAILED_COUNT}" -gt 0 ]]; then
   echo ""
-  echo "::error::${FAILED_COUNT} 件のリポジトリ作成に失敗しました。"
+  echo "::error::${FAILED_COUNT} 件のRepository作成に失敗しました。"
   exit 1
 fi
 
