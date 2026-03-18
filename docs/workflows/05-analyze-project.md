@@ -386,12 +386,12 @@ flowchart TD
     A["workflow_dispatch\n（project_number, report_types, output_format, item_type, item_state）"] --> B{"report_types 判定"}
     B -- "all or summary" --> C["generate-summary-report Job\nサマリーレポート生成"]
     B -- "all or effort" --> D["generate-effort-report Job\n工数集計レポート生成"]
-    B -- "all or velocity" --> V["generate-velocity-report Job\nベロシティレポート生成"]
-    B -- "all or stale" --> E["detect-stale-items Job\n滞留Item検知"]
-    B -- "all or export" --> I["export-items Job\nItemエクスポート"]
-    C & D & V & E & I --> F{"結果判定"}
-    F -- "成功" --> G["workflow-summary-success Job\n成功サマリーを出力"]
-    F -- "失敗" --> H["workflow-summary-failure Job\n失敗サマリーを出力"]
+    B -- "all or velocity" --> E["generate-velocity-report Job\nベロシティレポート生成"]
+    B -- "all or stale" --> F["detect-stale-items Job\n滞留Item検知"]
+    B -- "all or export" --> G["export-items Job\nItemエクスポート"]
+    C & D & E & F & G --> H{"結果判定"}
+    H -- "成功" --> I["workflow-summary-success Job\n成功サマリーを出力"]
+    H -- "失敗" --> J["workflow-summary-failure Job\n失敗サマリーを出力"]
 ```
 
 ## 🔧 Workflow 仕様

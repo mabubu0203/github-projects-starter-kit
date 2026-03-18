@@ -69,11 +69,11 @@ Project に Repository の `Issue`/`PR` を一括追加します。
 
 ```mermaid
 flowchart TD
-    A["workflow_dispatch\n（project_number・target_repo・フィルタ条件）"] --> L["add-items Job\nRepositoryと Project のリンク確認\n（未リンクならリンク作成）"]
-    L --> B["Issue/PR を取得し\nProject に一括追加（追加済みはスキップ）"]
-    B --> C{"結果判定"}
-    C -- "成功" --> D["workflow-summary-success Job\n成功サマリーを出力"]
-    C -- "失敗" --> E["workflow-summary-failure Job\n失敗サマリーを出力"]
+    A["workflow_dispatch\n（project_number・target_repo・フィルタ条件）"] --> B["add-items Job\nRepositoryと Project のリンク確認\n（未リンクならリンク作成）"]
+    B --> C["Issue/PR を取得し\nProject に一括追加（追加済みはスキップ）"]
+    C --> D{"結果判定"}
+    D -- "成功" --> E["workflow-summary-success Job\n成功サマリーを出力"]
+    D -- "失敗" --> F["workflow-summary-failure Job\n失敗サマリーを出力"]
 ```
 
 ## 🔧 Workflow 仕様

@@ -74,7 +74,7 @@ flowchart TD
 | 除外フィルタリング | 除外 Status（`Done`・`Backlog`）および除外 Label（`on-hold`・`blocked`）に該当する Item を除外 | `jq` |
 | 滞留判定 | 各 Item の `updatedAt` と現在日時の差分を計算し、 Status 別閾値を超過した Item を「滞留」と判定 | `jq`（`strptime`・`mktime` で日付計算） |
 | レポート出力 | `OUTPUT_FORMAT` に応じて Markdown / CSV / TSV / JSON 形式のレポートファイルを生成。 Markdown 形式では Status 別テーブル・`JQ_MD_ESCAPE` によるエスケープを適用 | `jq` + bash |
-| Workflow Summary 出力 | Markdown 形式のレポートを `$GITHUB_STEP_SUMMARY` に追記。`OUTPUT_FORMAT=markdown` の場合は出力ファイルを再利用 | — |
+| Workflow Summary 出力 | Markdown 形式のレポートを `$GITHUB_STEP_SUMMARY` に追記。`OUTPUT_FORMAT=markdown` の場合は出力ファイルを再利用 | `append_to_workflow_summary` |
 
 ## 📚 API リファレンス
 

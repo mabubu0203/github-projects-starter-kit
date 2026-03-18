@@ -65,6 +65,7 @@ flowchart TD
 | Markdown 出力 | Issue と PR を別セクションに分け、テーブル形式で出力。タイトル・ Label ・アサイン内の Markdown 特殊文字をエスケープ。エスケープには共通ライブラリの `JQ_MD_ESCAPE` を使用 | `format_markdown` 関数 |
 | CSV / TSV 出力 | jq の `@csv` / `@tsv` フィルタで変換 | `format_csv` / `format_tsv` 関数 |
 | JSON 出力 | jq で整形して出力 | `jq '.'` |
+| 出力ファイル構築 | `build_output_filename` で出力ファイルパスを構築 | `build_output_filename` |
 
 ## 📚 API リファレンス
 

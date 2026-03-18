@@ -53,16 +53,16 @@
 
 ```mermaid
 flowchart TD
-    A["workflow_dispatch\n（タイトル・公開範囲）"] --> P{"PAT 形式検証"}
-    P -- "有効" --> B["create-project Job\nProject を新規作成し project_number を出力"]
-    P -- "無効/未設定" --> S["ステップスキップ\n（project_number 空）"]
-    B -- "成功" --> C["extend-project Job\nField・Status・View を一括セットアップ"]
-    B -- "失敗" --> D["extend-project スキップ"]
-    S --> D
-    C --> E{"全体結果判定"}
-    D --> E
-    E -- "成功" --> F["workflow-summary-success Job\n成功サマリーを出力"]
-    E -- "失敗" --> G["workflow-summary-failure Job\n失敗サマリーを出力"]
+    A["workflow_dispatch\n（タイトル・公開範囲）"] --> B{"PAT 形式検証"}
+    B -- "有効" --> C["create-project Job\nProject を新規作成し project_number を出力"]
+    B -- "無効/未設定" --> D["ステップスキップ\n（project_number 空）"]
+    C -- "成功" --> E["extend-project Job\nField・Status・View を一括セットアップ"]
+    C -- "失敗" --> F["extend-project スキップ"]
+    D --> F
+    E --> G{"全体結果判定"}
+    F --> G
+    G -- "成功" --> H["workflow-summary-success Job\n成功サマリーを出力"]
+    G -- "失敗" --> I["workflow-summary-failure Job\n失敗サマリーを出力"]
 ```
 
 ## 🔧 Workflow 仕様
