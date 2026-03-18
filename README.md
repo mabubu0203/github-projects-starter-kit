@@ -16,8 +16,8 @@
 [![Pages Deploy](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/pages/pages-build-deployment)
 [![release-please](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/release-please.yml/badge.svg)](https://github.com/mabubu0203/github-projects-starter-kit/actions/workflows/release-please.yml)
 
-`GitHub Projects` の初期セットアップを `GitHub Actions` で自動実行するためのスターターキットです。
-本リポジトリを fork し、`GitHub Actions` を手動実行することで、`Project` の作成から分析までを一貫して行えます。
+`GitHub Projects` の初期セットアップを `GitHub Actions` で半自動実行するためのスターターキットです。
+本リポジトリを Fork し、Workflow を手動実行することで、Project の作成から分析までを一気通貫して行えます。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -34,8 +34,8 @@
 ## 🚀 このキットでできること
 
 - **GitHub Project の新規作成・拡張**: カスタムフィールド・ステータス・ビューを一括セットアップ
-- **Issue ラベルの一括管理**: リポジトリへのラベル定義を一括作成
-- **Issue/PR の一括紐付け**: リポジトリの Issue や PR を Project に一括追加
+- **Issue ラベルの一括管理**: Repository へのラベル定義を一括作成
+- **Issue/PR の一括紐付け**: Repository の Issue や PR を Project に一括追加
 - **プロジェクト分析・レポート生成**:
   - アイテムのエクスポート（JSON/Markdown/CSV/TSV）
   - 滞留アイテムの検知（ステータス別閾値で判定）
@@ -45,19 +45,19 @@
 
 ## ✅ セットアップ後にできること
 
-| ワークフロー | 概要 |
+| Workflow | 概要 |
 |---|---|
 | ① GitHub Project 新規作成 | Project を作成し、フィールド・ステータス・ビューを一括セットアップ |
 | ② GitHub Project 拡張 | 既存 Project にフィールド・ステータス・ビューを追加 |
-| ③ Issue ラベル一括追加 | 指定リポジトリにラベルを一括作成 |
+| ③ Issue ラベル一括追加 | 指定 Repository にラベルを一括作成 |
 | ④ Issue/PR 一括紐付け | Issue や PR を Project に一括追加（種別・状態・ラベルでフィルタ可能） |
-| ⑤ 統合プロジェクト分析 | エクスポート・滞留検知・各種レポートを生成（アーティファクトとしてダウンロード可能） |
+| ⑤ 統合プロジェクト分析 | エクスポート・滞留検知・各種レポートを生成（ Artifact としてダウンロード可能） |
 
-すべてのワークフローは `GitHub Actions` の手動実行（`workflow_dispatch`）で利用できます。
+すべての Workflow は `GitHub Actions` の手動実行（`workflow_dispatch`）で利用できます。
 
 ## 📖 ドキュメント
 
-導入手順や使い方の詳細は GitHub Pages をご参照ください。
+導入手順や使い方の詳細は `GitHub Pages` をご参照ください。
 
 📄 **ドキュメント（HTML版）**: [https://mabubu0203.github.io/github-projects-starter-kit/](https://mabubu0203.github.io/github-projects-starter-kit/)
 
