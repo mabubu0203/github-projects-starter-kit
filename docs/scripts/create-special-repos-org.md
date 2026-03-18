@@ -116,4 +116,4 @@ Fine-grained PAT の場合は、`Administration: write` 権限が必要です。
 
 ## 🔄 使用 Workflow
 
-- [⑥ 特殊 Repository 一括作成](../workflows/06-create-special-repos)
+- [③ 特殊 Repository 一括作成](../workflows/03-create-special-repos)

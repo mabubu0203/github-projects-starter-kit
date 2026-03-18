@@ -3,49 +3,41 @@
 # PAT の形式（ghp_ または github_pat_ で始まる）を検証し、
 # 無効な値の場合はステップをスキップします。
 # ---------------------------------------------------------
-name: "⑥ 🏗️ 特殊 Repository 一括作成"
+name: "④ 🏷️ Issue Label 一括追加"
 
 on:
   workflow_dispatch:
+    inputs:
+      target_repo:
+        description: "対象 Repository（owner/repo 形式）"
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
-  create-special-repos:
+  setup-repository-labels:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.PROJECT_PAT }}
-      PROJECT_OWNER: ${{ github.repository_owner }}
+      TARGET_REPO: ${{ inputs.target_repo }}
       PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
     # 前提: ubuntu-latest には gh (GitHub CLI) と jq がプリインストール済み
     # スクリプト内の require_command チェックはローカル実行時の UX 向上目的で残している
-    outputs:
-      owner-type: ${{ steps.detect-owner-type.outputs.owner_type }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
 
-      - name: オーナータイプを判定
-        id: detect-owner-type
+      - name: ラベルを一括作成
         if: ${{ startsWith(env.PROJECT_PAT, 'ghp_') || startsWith(env.PROJECT_PAT, 'github_pat_') }}
         run: |
-          OWNER_TYPE=$(gh api "users/${PROJECT_OWNER}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            --jq '.type')
-          echo "owner_type=${OWNER_TYPE}" >> "${GITHUB_OUTPUT}"
-          echo "オーナータイプ: ${OWNER_TYPE}（${PROJECT_OWNER}）"
-
-      - name: 個人アカウント用特殊 Repository を作成
-        if: ${{ steps.detect-owner-type.outputs.owner_type == 'User' }}
-        run: bash scripts/create-special-repos-user.sh
-
-      - name: Organization 用特殊 Repository を作成
-        if: ${{ steps.detect-owner-type.outputs.owner_type == 'Organization' }}
-        run: bash scripts/create-special-repos-org.sh
+          # トリム（前後の空白のみ削除、内部空白は保持）
+          TARGET_REPO="$(echo "$TARGET_REPO" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+          bash scripts/setup-repository-labels.sh
 
   workflow-summary-failure:
-    needs: [create-special-repos]
+    needs: [setup-repository-labels]
     if: failure()
     runs-on: ubuntu-latest
     steps:
@@ -58,10 +50,10 @@ jobs:
           status: failure
           project-owner: ${{ github.repository_owner }}
           job-results: |
-            {"create-special-repos": "${{ needs.create-special-repos.result }}"}
+            {"setup-repository-labels": "${{ needs.setup-repository-labels.result }}"}
 
   workflow-summary-success:
-    needs: [create-special-repos]
+    needs: [setup-repository-labels]
     if: success()
     runs-on: ubuntu-latest
     steps:
@@ -74,4 +66,4 @@ jobs:
           status: success
           project-owner: ${{ github.repository_owner }}
           job-results: |
-            {"create-special-repos": "${{ needs.create-special-repos.result }}"}
+            {"setup-repository-labels": "${{ needs.setup-repository-labels.result }}"}

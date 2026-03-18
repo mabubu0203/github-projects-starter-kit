@@ -1,4 +1,4 @@
-# ⑥ 🏗️ 特殊Repository一括作成
+# ③ 🏗️ 特殊 Repository 一括作成
 
 GitHub の特殊命名規則 Repository（プロフィール README、`GitHub Pages`、dotfiles 等）を一括作成します。
 オーナータイプ（個人アカウント / Organization）を自動判定し、対応するスクリプトを実行します。
@@ -32,7 +32,7 @@ GitHub の特殊命名規則 Repository（プロフィール README、`GitHub Pa
 ## 📖 使い方
 
 1. `Actions` タブを開く
-2. `⑥ 特殊 Repository 一括作成` を選択
+2. `③ 特殊 Repository 一括作成` を選択
 3. `Run workflow` をクリックして実行
 
 > **Note:** 既存 Repository と同名の Repository が存在する場合はスキップされます。追加のみの安全設計です。
@@ -72,7 +72,7 @@ flowchart TD
 
 ### ファイル
 
-`.github/workflows/06-create-special-repos.yml`
+`.github/workflows/03-create-special-repos.yml`
 
 ### トリガー
 
@@ -91,7 +91,7 @@ flowchart TD
 ### Job 構成
 
 ```
-.github/workflows/06-create-special-repos.yml
+.github/workflows/03-create-special-repos.yml
   ├── create-special-repos Job
   │   ├── オーナータイプ判定（User / Organization）
   │   ├── scripts/create-special-repos-user.sh    # 個人アカウント用

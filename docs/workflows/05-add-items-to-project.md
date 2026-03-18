@@ -1,4 +1,4 @@
-# ④ 🔗 Issue/PR 一括紐付け
+# ⑤ 🔗 Issue/PR 一括紐付け
 
 Project に Repository の `Issue`/`PR` を一括追加します。
 また、 Repository と Project のリンク（紐付け）を自動的に行い、 Repository の `Projects` タブから Project へアクセスできるようにします。
@@ -32,7 +32,7 @@ Project に Repository の `Issue`/`PR` を一括追加します。
 ## 📖 使い方
 
 1. `Actions` タブを開く
-2. `④ Issue/PR 一括紐付け` を選択
+2. `⑤ Issue/PR 一括紐付け` を選択
 3. `Run workflow` をクリック
 4. パラメータを入力して実行
 
@@ -80,7 +80,7 @@ flowchart TD
 
 ### ファイル
 
-`.github/workflows/04-add-items-to-project.yml`
+`.github/workflows/05-add-items-to-project.yml`
 
 ### トリガー
 
@@ -104,7 +104,7 @@ flowchart TD
 ### Job 構成
 
 ```
-.github/workflows/04-add-items-to-project.yml
+.github/workflows/05-add-items-to-project.yml
   ├── add-items Job
   │   └── scripts/add-items-to-project.sh          # Issue/PR 一括追加
   ├── workflow-summary-failure Job（失敗時）

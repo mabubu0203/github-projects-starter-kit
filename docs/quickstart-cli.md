@@ -91,17 +91,17 @@ gh workflow run 02-extend-project.yml \
   --field project_number="<PROJECT_NUMBER>"
 ```
 
-### ③ Issue Label 一括追加
+### ④ Issue Label 一括追加
 
 ```bash
-gh workflow run 03-setup-repository-labels.yml \
+gh workflow run 04-setup-repository-labels.yml \
   --field target_repo="<owner/repo>"
 ```
 
-### ④ Issue/PR 一括紐付け
+### ⑤ Issue/PR 一括紐付け
 
 ```bash
-gh workflow run 04-add-items-to-project.yml \
+gh workflow run 05-add-items-to-project.yml \
   --field project_number="<PROJECT_NUMBER>" \
   --field target_repo="<owner/repo>" \
   --field item_type="all" \
@@ -122,7 +122,7 @@ gh run watch
 
 - [① GitHub Project 新規作成](workflows/01-create-project)
 - [② GitHub Project 拡張](workflows/02-extend-project)
-- [③ Issue Label 一括追加](workflows/03-setup-repository-labels)
-- [④ Issue/PR 一括紐付け](workflows/04-add-items-to-project)
-- [⑤ 統合 Project 分析](workflows/05-analyze-project)
-- [⑥ 特殊 Repository 一括作成](workflows/06-create-special-repos)
+- [③ 特殊 Repository 一括作成](workflows/03-create-special-repos)
+- [④ Issue Label 一括追加](workflows/04-setup-repository-labels)
+- [⑤ Issue/PR 一括紐付け](workflows/05-add-items-to-project)
+- [⑥ 統合 Project 分析](workflows/06-analyze-project)
