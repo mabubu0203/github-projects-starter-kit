@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# プロジェクトサマリーレポート生成スクリプト
+# Project サマリーレポート生成スクリプト
 # https://mabubu0203.github.io/github-projects-starter-kit/scripts/generate-summary-report
 #
 # 環境変数:
@@ -228,7 +228,7 @@ fi
 
 format_summary_markdown() {
   {
-    echo "# 📊 プロジェクトサマリーレポート"
+    echo "# 📊 Project サマリーレポート"
     echo ""
     echo "- **Project:** ${PROJECT_TITLE} (#${PROJECT_NUMBER})"
     echo "- **実行日時:** ${EXECUTED_AT}"
@@ -413,4 +413,4 @@ print_summary "Project" "${PROJECT_TITLE} (#${PROJECT_NUMBER})" \
   "出力先" "${OUTPUT_FILE}"
 
 echo ""
-echo "::notice::プロジェクトサマリーレポートの生成が完了しました（${TOTAL_COUNT} 件）。"
+echo "::notice::Project サマリーレポートの生成が完了しました（${TOTAL_COUNT} 件）。"

@@ -112,10 +112,10 @@ if [[ -z "${DONE_STATUS_OPTION_ID}" ]]; then
 fi
 echo "  Done ステータス: Done (${DONE_STATUS_OPTION_ID})"
 
-# --- リポジトリとプロジェクトのリンク ---
+# --- リポジトリと Project のリンク ---
 
 echo ""
-echo "リポジトリとプロジェクトのリンクを確認しています..."
+echo "リポジトリと Project のリンクを確認しています..."
 
 # リポジトリの node_id を取得
 REPO_NODE_ID=$(gh api "repos/${TARGET_REPO}" \
@@ -165,7 +165,7 @@ LINK_RESULT=$(printf '%s' "${LINK_REQUEST_BODY}" | gh api graphql --input - 2>&1
   if echo "${LINK_RESULT}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
     # レスポンス内に GraphQL エラーがある場合（既にリンク済みなど）
     LINK_ERROR_MSG=$(echo "${LINK_RESULT}" | jq -r '.errors[0].message // empty')
-    echo "  リポジトリは既にプロジェクトにリンク済みです。スキップします。"
+    echo "  リポジトリは既に Project にリンク済みです。スキップします。"
     LINK_STATUS="スキップ（リンク済み）"
   else
     echo "  リンク完了: ${TARGET_REPO} → Project #${PROJECT_NUMBER}"
@@ -175,11 +175,11 @@ LINK_RESULT=$(printf '%s' "${LINK_REQUEST_BODY}" | gh api graphql --input - 2>&1
   # gh api コマンド自体が非ゼロで終了した場合
   # 既にリンク済みの場合のエラーはスキップ扱いにする
   if echo "${LINK_RESULT}" | grep -qi "already linked\|already exists"; then
-    echo "  リポジトリは既にプロジェクトにリンク済みです。スキップします。"
+    echo "  リポジトリは既に Project にリンク済みです。スキップします。"
     LINK_STATUS="スキップ（リンク済み）"
   else
     safe_output=$(sanitize_for_workflow_command "${LINK_RESULT}")
-    echo "::error::リポジトリとプロジェクトのリンクに失敗しました: ${safe_output}"
+    echo "::error::リポジトリと Project のリンクに失敗しました: ${safe_output}"
     exit 1
   fi
 }
