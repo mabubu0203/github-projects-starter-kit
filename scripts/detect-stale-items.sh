@@ -209,7 +209,7 @@ format_stale_markdown() {
       if [[ "${IN_REVIEW_COUNT}" -gt 0 ]]; then
         echo "## In Review（${STALE_DAYS_IN_REVIEW} 日以上）: ${IN_REVIEW_COUNT} 件"
         echo ""
-        echo "| # | タイトル | リポジトリ | アサイン | 最終更新 | 経過日数 |"
+        echo "| # | タイトル | Repository | アサイン | 最終更新 | 経過日数 |"
         echo "|---|---------|-----------|---------|---------|---------|"
         echo "${stale_items}" | jq -r "[.[] | select(.status == \"In Review\")] | sort_by(-.days_stale)[] | ${md_row_filter}"
         echo ""
@@ -218,7 +218,7 @@ format_stale_markdown() {
       if [[ "${IN_PROGRESS_COUNT}" -gt 0 ]]; then
         echo "## In Progress（${STALE_DAYS_IN_PROGRESS} 日以上）: ${IN_PROGRESS_COUNT} 件"
         echo ""
-        echo "| # | タイトル | リポジトリ | アサイン | 最終更新 | 経過日数 |"
+        echo "| # | タイトル | Repository | アサイン | 最終更新 | 経過日数 |"
         echo "|---|---------|-----------|---------|---------|---------|"
         echo "${stale_items}" | jq -r "[.[] | select(.status == \"In Progress\")] | sort_by(-.days_stale)[] | ${md_row_filter}"
         echo ""
@@ -227,7 +227,7 @@ format_stale_markdown() {
       if [[ "${TODO_COUNT}" -gt 0 ]]; then
         echo "## Todo（${STALE_DAYS_TODO} 日以上）: ${TODO_COUNT} 件"
         echo ""
-        echo "| # | タイトル | リポジトリ | アサイン | 最終更新 | 経過日数 |"
+        echo "| # | タイトル | Repository | アサイン | 最終更新 | 経過日数 |"
         echo "|---|---------|-----------|---------|---------|---------|"
         echo "${stale_items}" | jq -r "[.[] | select(.status == \"Todo\")] | sort_by(-.days_stale)[] | ${md_row_filter}"
         echo ""

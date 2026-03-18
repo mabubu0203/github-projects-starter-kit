@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 指定リポジトリへの Issue ラベル一括作成スクリプト
+# 指定 Repository への Issue ラベル一括作成スクリプト
 # https://mabubu0203.github.io/github-projects-starter-kit/scripts/setup-repository-labels
 #
 # 環境変数:
 #   GH_TOKEN    - GitHub PAT（repo または public_repo スコープが必要）
-#   TARGET_REPO - 対象リポジトリ（owner/repo 形式）
+#   TARGET_REPO - 対象 Repository（owner/repo 形式）
 
 # --- 共通ライブラリ読み込み ---
 
@@ -68,14 +68,14 @@ echo "  ${LABEL_COUNT} 件のラベル定義を読み込みました。"
 if [[ "${LABEL_COUNT}" -eq 0 ]]; then
   echo ""
   echo "ラベル定義が空のため、処理をスキップします。"
-  print_summary "リポジトリ" "${TARGET_REPO}" "作成" "0 件" "スキップ" "0 件" "失敗" "0 件"
+  print_summary "Repository" "${TARGET_REPO}" "作成" "0 件" "スキップ" "0 件" "失敗" "0 件"
   exit 0
 fi
 
 # --- 既存ラベル一覧の取得（重複チェック用） ---
 
 echo ""
-echo "リポジトリ ${TARGET_REPO} の既存ラベルを取得しています..."
+echo "Repository ${TARGET_REPO} の既存ラベルを取得しています..."
 
 EXISTING_LABELS=""
 if existing_output=$(gh label list --repo "${TARGET_REPO}" --limit 9999 --json name --jq ".[].name" 2>&1); then
@@ -90,7 +90,7 @@ fi
 # --- ラベルの一括作成 ---
 
 echo ""
-echo "リポジトリ ${TARGET_REPO} にラベルを作成します..."
+echo "Repository ${TARGET_REPO} にラベルを作成します..."
 
 # ループ前にラベル定義を 1 回の jq で事前解析する
 PARSED_LABELS=$(echo "${LABEL_DEFINITIONS}" | jq -r '.[] | [.name, .color, .description] | @tsv')
@@ -141,7 +141,7 @@ if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   } >> "${GITHUB_STEP_SUMMARY}"
 fi
 
-print_summary "リポジトリ" "${TARGET_REPO}" "作成" "${CREATED} 件" "スキップ" "${SKIPPED} 件" "失敗" "${FAILED} 件"
+print_summary "Repository" "${TARGET_REPO}" "作成" "${CREATED} 件" "スキップ" "${SKIPPED} 件" "失敗" "${FAILED} 件"
 
 if [[ "${FAILED}" -gt 0 ]]; then
   echo ""
