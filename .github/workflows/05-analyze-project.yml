@@ -13,7 +13,7 @@ on:
         required: true
         type: number
       report_types:
-        description: "実行するレポート/機能タイプ（all: 全機能, stale: 滞留検知, summary: サマリー, effort: 工数集計, velocity: ベロシティ, export: アイテムエクスポート）"
+        description: "実行するレポート/機能タイプ（all: 全機能, stale: 滞留検知, summary: サマリー, effort: 工数集計, velocity: ベロシティ, export: Item エクスポート）"
         required: true
         type: choice
         default: "all"
@@ -35,7 +35,7 @@ on:
           - csv
           - tsv
       item_type:
-        description: "対象アイテムの種別"
+        description: "対象 Item の種別"
         required: true
         type: choice
         default: "all"
@@ -44,7 +44,7 @@ on:
           - issues
           - prs
       item_state:
-        description: "対象アイテムの状態（open / closed / all）"
+        description: "対象 Item の状態（open / closed / all）"
         required: true
         type: choice
         default: "all"
@@ -149,7 +149,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
 
-      - name: 滞留アイテム検知
+      - name: 滞留 Item 検知
         if: ${{ startsWith(env.PROJECT_PAT, 'ghp_') || startsWith(env.PROJECT_PAT, 'github_pat_') }}
         run: bash scripts/detect-stale-items.sh
 
@@ -209,7 +209,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6.0.2
 
-      - name: Project アイテムをエクスポート
+      - name: Project Item をエクスポート
         if: ${{ startsWith(env.PROJECT_PAT, 'ghp_') || startsWith(env.PROJECT_PAT, 'github_pat_') }}
         run: bash scripts/export-project-items.sh
 

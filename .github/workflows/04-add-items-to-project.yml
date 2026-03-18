@@ -17,7 +17,7 @@ on:
         required: true
         type: string
       item_type:
-        description: "対象アイテムの種別"
+        description: "対象 Item の種別"
         required: true
         type: choice
         options:
@@ -26,7 +26,7 @@ on:
           - prs
         default: "all"
       item_state:
-        description: "取得するアイテムの状態"
+        description: "取得する Item の状態"
         required: true
         type: choice
         options:
