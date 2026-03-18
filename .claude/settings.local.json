@@ -1,7 +1,33 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(gh issue:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(gh api:*)",
+      "Bash(grep -v '`GitHub Actions`')",
+      "Bash(grep -v '`GitHub Projects`')",
+      "Bash(grep -v '`Actions`')",
+      "Bash(grep -v '`Fine-grained token`')",
+      "WebSearch",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh pr:*)",
+      "Bash(gh run:*)",
+      "Bash(grep -h \"check\\\\|deploy\\\\|schedule\\\\|matrix\\\\|container\\\\|strategy\\\\|timeout\\\\|concurrency\\\\|continue-on-error\\\\|outputs\\\\|result\\\\|cancel\\\\|pull_request\\\\|push\\\\|schedule\\\\|release\" /Users/lurest/Documents/Github/github-projects-starter-kit/.github/workflows/*.yml)",
+      "Bash(python3:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:technote-space.github.io)",
+      "Bash(grep -r \"assets\\\\|stylesheet\\\\|style.scss\" /Users/lurest/Documents/Github/github-projects-starter-kit --include=*.md --include=*.yml)",
+      "Bash(grep -r \"cayman\\\\|jekyll\" /Users/lurest/Documents/Github/github-projects-starter-kit --include=*.md --include=*.txt)",
+      "Bash(git:*)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }

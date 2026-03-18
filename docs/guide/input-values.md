@@ -34,7 +34,7 @@ GitHub Project の URL 末尾の数字が `project_number` です。
 <blockquote>
 <strong>参考画像:</strong> Organization の Projects 一覧画面では、各プロジェクト名の下に <code>#番号</code> が表示されます。
 <br><br>
-<img src="../images/faq-project-number.png" alt="project_number の確認例" width="50%">
+<img src="../assets/images/faq-project-number.png" alt="project_number の確認例" width="50%">
 </blockquote>
 
 </details>
@@ -61,7 +61,7 @@ gh project list
 <blockquote>
 <strong>参考画像:</strong> リポジトリページのヘッダーに <code>owner/repo</code> 形式で表示されています。
 <br><br>
-<img src="../images/faq-target-repo.png" alt="target_repo の確認例" width="50%">
+<img src="../assets/images/faq-target-repo.png" alt="target_repo の確認例" width="50%">
 </blockquote>
 
 </details>
