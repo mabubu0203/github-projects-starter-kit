@@ -11,7 +11,7 @@ GitHub の特殊命名規則 Repository（プロフィール README、`GitHub Pa
 
 <li><a href="#-%E4%BD%BF%E3%81%84%E6%96%B9">📖 使い方</a></li>
 
-<li><a href="#-%E5%AF%BE%E8%B1%A1%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA">📋 対象Repository</a></li>
+<li><a href="#-%E5%AF%BE%E8%B1%A1-repository">📋 対象 Repository</a></li>
 
 <li><a href="#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC">📊 処理フロー</a></li>
 
