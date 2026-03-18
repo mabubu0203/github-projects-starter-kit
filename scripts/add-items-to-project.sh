@@ -8,7 +8,7 @@ set -euo pipefail
 #   GH_TOKEN       - GitHub PAT（Projects 操作権限が必要）
 #   PROJECT_OWNER  - Project の所有者
 #   PROJECT_NUMBER - 対象 Project の Number
-#   TARGET_REPO    - 対象リポジトリ（owner/repo 形式）
+#   TARGET_REPO    - 対象 Repository（owner/repo 形式）
 #   ITEM_TYPE      - 対象アイテムの種別（all/issues/prs、デフォルト: all）
 #   ITEM_STATE     - 取得するアイテムの状態（open/closed/all、デフォルト: open）
 #   ITEM_LABEL     - 絞り込みラベル（指定ラベルの Issue/PR のみ追加、省略可）
@@ -112,22 +112,22 @@ if [[ -z "${DONE_STATUS_OPTION_ID}" ]]; then
 fi
 echo "  Done ステータス: Done (${DONE_STATUS_OPTION_ID})"
 
-# --- リポジトリと Project のリンク ---
+# --- Repository と Project のリンク ---
 
 echo ""
-echo "リポジトリと Project のリンクを確認しています..."
+echo "Repository と Project のリンクを確認しています..."
 
-# リポジトリの node_id を取得
+# Repository の node_id を取得
 REPO_NODE_ID=$(gh api "repos/${TARGET_REPO}" \
   -H "X-GitHub-Api-Version: ${REST_API_VERSION}" \
   --jq '.node_id' 2>&1) || {
   safe_output=$(sanitize_for_workflow_command "${REPO_NODE_ID}")
-  echo "::error::リポジトリ情報の取得に失敗しました: ${safe_output}"
+  echo "::error::Repository 情報の取得に失敗しました: ${safe_output}"
   exit 1
 }
 
 if [[ -z "${REPO_NODE_ID}" || "${REPO_NODE_ID}" == "null" ]]; then
-  echo "::error::リポジトリの node_id を取得できませんでした。TARGET_REPO=${TARGET_REPO} が正しいか確認してください。"
+  echo "::error::Repository の node_id を取得できませんでした。TARGET_REPO=${TARGET_REPO} が正しいか確認してください。"
   exit 1
 fi
 echo "  Repository Node ID: ${REPO_NODE_ID}"
@@ -165,7 +165,7 @@ LINK_RESULT=$(printf '%s' "${LINK_REQUEST_BODY}" | gh api graphql --input - 2>&1
   if echo "${LINK_RESULT}" | jq -e '.errors and (.errors | length > 0)' >/dev/null 2>&1; then
     # レスポンス内に GraphQL エラーがある場合（既にリンク済みなど）
     LINK_ERROR_MSG=$(echo "${LINK_RESULT}" | jq -r '.errors[0].message // empty')
-    echo "  リポジトリは既に Project にリンク済みです。スキップします。"
+    echo "  Repository は既に Project にリンク済みです。スキップします。"
     LINK_STATUS="スキップ（リンク済み）"
   else
     echo "  リンク完了: ${TARGET_REPO} → Project #${PROJECT_NUMBER}"
@@ -175,11 +175,11 @@ LINK_RESULT=$(printf '%s' "${LINK_REQUEST_BODY}" | gh api graphql --input - 2>&1
   # gh api コマンド自体が非ゼロで終了した場合
   # 既にリンク済みの場合のエラーはスキップ扱いにする
   if echo "${LINK_RESULT}" | grep -qi "already linked\|already exists"; then
-    echo "  リポジトリは既に Project にリンク済みです。スキップします。"
+    echo "  Repository は既に Project にリンク済みです。スキップします。"
     LINK_STATUS="スキップ（リンク済み）"
   else
     safe_output=$(sanitize_for_workflow_command "${LINK_RESULT}")
-    echo "::error::リポジトリと Project のリンクに失敗しました: ${safe_output}"
+    echo "::error::Repository と Project のリンクに失敗しました: ${safe_output}"
     exit 1
   fi
 }
@@ -309,7 +309,7 @@ fetch_and_add_items() {
   echo "" >&2
   echo "${label} を取得しています..." >&2
   if [[ "${label}" == "Issue" ]]; then
-    echo "  リポジトリ: ${TARGET_REPO}" >&2
+    echo "  Repository: ${TARGET_REPO}" >&2
     echo "  状態: ${ITEM_STATE}" >&2
     if [[ -n "${ITEM_LABEL}" ]]; then
       echo "  ラベル: ${ITEM_LABEL}" >&2

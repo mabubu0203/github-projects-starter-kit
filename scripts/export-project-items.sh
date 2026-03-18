@@ -45,7 +45,7 @@ format_markdown() {
     if [[ "${issue_count}" -gt 0 ]]; then
       echo "## Issues"
       echo ""
-      echo "| # | タイトル | 状態 | リポジトリ | 作成者 | アサイン | ラベル | 作成日 | 更新日 |"
+      echo "| # | タイトル | 状態 | Repository | 作成者 | アサイン | ラベル | 作成日 | 更新日 |"
       echo "|---|---------|------|-----------|--------|---------|--------|--------|--------|"
       echo "${items}" | jq -r ".[] | select(.type == \"Issue\") | ${md_row_filter}"
       echo ""
@@ -54,7 +54,7 @@ format_markdown() {
     if [[ "${pr_count}" -gt 0 ]]; then
       echo "## Pull Requests"
       echo ""
-      echo "| # | タイトル | 状態 | リポジトリ | 作成者 | アサイン | ラベル | 作成日 | 更新日 |"
+      echo "| # | タイトル | 状態 | Repository | 作成者 | アサイン | ラベル | 作成日 | 更新日 |"
       echo "|---|---------|------|-----------|--------|---------|--------|--------|--------|"
       echo "${items}" | jq -r ".[] | select(.type == \"PullRequest\") | ${md_row_filter}"
       echo ""
