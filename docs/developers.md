@@ -159,7 +159,7 @@ scripts/
       └── .github/actions/workflow-summary   # 成功サマリー出力
 ```
 
-### ⑤ 統合プロジェクト分析
+### ⑤ 統合 Project 分析
 
 ```
 05-analyze-project.yml
@@ -184,7 +184,7 @@ scripts/
       └── .github/actions/workflow-summary       # 成功サマリー出力
 ```
 
-### ⑥ 特殊Repository一括作成
+### ⑥ 特殊 Repository 一括作成
 
 ```
 06-create-special-repos.yml
@@ -213,5 +213,5 @@ scripts/
 | [generate-summary-report.sh](scripts/generate-summary-report) | 指定 Project の Item を Status 別・担当者別・ Label 別に集計しサマリーレポートを生成する |
 | [generate-effort-report.sh](scripts/generate-effort-report) | 指定 Project の見積もり工数・実績工数を多角的に集計・分析しレポートを生成する |
 | [generate-velocity-report.sh](scripts/generate-velocity-report) | 指定 Project の Done Item を週別に集計し、ベロシティレポートを生成する |
-| [create-special-repos-user.sh](scripts/create-special-repos-user) | 個人アカウント用の特殊Repository（プロフィール README、GitHub Pages、dotfiles）を一括作成する |
-| [create-special-repos-org.sh](scripts/create-special-repos-org) | Organization 用の特殊Repository（パブリック/プライベートプロフィール、GitHub Pages）を一括作成する |
+| [create-special-repos-user.sh](scripts/create-special-repos-user) | 個人アカウント用の特殊 Repository（プロフィール README、`GitHub Pages`、dotfiles）を一括作成する |
+| [create-special-repos-org.sh](scripts/create-special-repos-org) | Organization 用の特殊 Repository（パブリック/プライベートプロフィール、`GitHub Pages`）を一括作成する |

@@ -1,7 +1,7 @@
 # 📜 create-special-repos-org.sh
 
-Organization 用の特殊Repository（パブリックプロフィール、プライベートプロフィール、GitHub Pages）を一括作成するスクリプトです。
-既存Repositoryと同名のRepositoryが存在する場合はスキップします。
+Organization 用の特殊 Repository（パブリックプロフィール、プライベートプロフィール、`GitHub Pages`）を一括作成するスクリプトです。
+既存 Repository と同名の Repository が存在する場合はスキップします。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -26,12 +26,12 @@ Organization 用の特殊Repository（パブリックプロフィール、プラ
 
 | 環境変数 | 説明 | 必須 |
 |----------|------|:----:|
-| `GH_TOKEN` | GitHub PAT（`repo` Scope または Fine-grained PAT の `Administration: write`） | ✅ |
+| `GH_TOKEN` | GitHub PAT（`repo` Scope または `Fine-grained` PAT の `Administration: write`） | ✅ |
 | `PROJECT_OWNER` | 対象の Organization 名 | ✅ |
 
-## 📋 Repository定義ファイル
+## 📋 Repository 定義ファイル
 
-Repository定義は `scripts/config/special-repo-definitions-org.json` で管理します。
+Repository 定義は `scripts/config/special-repo-definitions-org.json` で管理します。
 
 ### スキーマ
 
@@ -50,10 +50,10 @@ Repository定義は `scripts/config/special-repo-definitions-org.json` で管理
 
 | フィールド | 型 | 必須 | 説明 | 例 |
 |-----------|------|:----:|------|-----|
-| `name_template` | `string` | ✅ | Repository名。`{{owner}}` は `PROJECT_OWNER` に置換される | `".github"` |
-| `description` | `string` | ✅ | Repositoryの説明文 | `"Organization パブリックプロフィール"` |
+| `name_template` | `string` | ✅ | Repository 名。`{{owner}}` は `PROJECT_OWNER` に置換される | `".github"` |
+| `description` | `string` | ✅ | Repository の説明文 | `"Organization パブリックプロフィール"` |
 | `visibility` | `string` | ✅ | `public` または `private` | `"public"` |
-| `auto_init` | `boolean` | ✅ | `true` で README.md 付きで初期化 | `true` |
+| `auto_init` | `boolean` | ✅ | `true` で `README.md` 付きで初期化 | `true` |
 
 ### Organization 用定義
 
@@ -61,7 +61,7 @@ Repository定義は `scripts/config/special-repo-definitions-org.json` で管理
 |---|---|---|
 | `.github` | パブリックプロフィール | Community Health Files が Organization 全体に適用される |
 | `.github-private` | プライベートプロフィール | メンバーのみに表示されるプロフィール |
-| `<orgname>.github.io` | GitHub Pages 用 | GitHub Pages として自動公開される |
+| `<orgname>.github.io` | `GitHub Pages` 用 | `GitHub Pages` として自動公開される |
 
 ## 📊 処理フロー
 
@@ -70,17 +70,17 @@ flowchart TD
     A["開始"] --> B["環境変数バリデーション"]
     B --> C["gh / jq コマンド存在チェック"]
     C --> D["オーナータイプ判定\n（Organization であることを確認）"]
-    D --> E["Repository定義ファイル読み込み\n（config/special-repo-definitions-org.json）"]
+    D --> E["Repository 定義ファイル読み込み\n（config/special-repo-definitions-org.json）"]
     E --> F["organization 定義を jq で事前解析\n（name_template の {{owner}} を置換）"]
-    F --> G["Repository定義をループ処理"]
+    F --> G["Repository 定義をループ処理"]
 
-    G --> H{"既存Repositoryに\n存在する?"}
+    G --> H{"既存 Repository に\n存在する?"}
     H -- "Yes" --> I["スキップ"]
-    H -- "No" --> J["POST /orgs/{org}/repos\nでRepository作成"]
+    H -- "No" --> J["POST /orgs/{org}/repos\nで Repository 作成"]
 
     J --> K["結果を記録\n（作成 / 失敗）"]
 
-    I & K --> L{"次のRepository\nあり?"}
+    I & K --> L{"次の Repository \nあり?"}
     L -- "Yes" --> G
     L -- "No" --> M["実行結果サマリー出力"]
     M --> N["完了"]
@@ -93,27 +93,27 @@ flowchart TD
 | 環境変数バリデーション | `require_env` で `GH_TOKEN`, `PROJECT_OWNER` を検証 | `common.sh` |
 | コマンド存在チェック | `require_command` で `gh`, `jq` の存在を確認 | `common.sh` |
 | オーナータイプ判定 | `detect_owner_type` で Organization であることを確認 | `common.sh` |
-| Repository定義読み込み | `scripts/config/special-repo-definitions-org.json` を読み込み | `cat` |
+| Repository 定義読み込み | `scripts/config/special-repo-definitions-org.json` を読み込み | `cat` |
 | テンプレート置換 | `name_template` の `{{owner}}` を `PROJECT_OWNER` に置換 | `jq gsub` |
-| 重複チェック | `gh api repos/{owner}/{repo}` で既存Repositoryの存在を確認 | REST API `GET /repos/{owner}/{repo}` |
-| Repository作成 | `gh api orgs/{org}/repos` でRepositoryを作成 | REST API `POST /orgs/{org}/repos` |
+| 重複チェック | `gh api repos/{owner}/{repo}` で既存 Repository の存在を確認 | REST API `GET /repos/{owner}/{repo}` |
+| Repository 作成 | `gh api orgs/{org}/repos` で Repository を作成 | REST API `POST /orgs/{org}/repos` |
 | サマリー出力 | 作成/スキップ/失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | `print_summary`, `GITHUB_STEP_SUMMARY` |
 
 ## 📚 API リファレンス
 
 | API | 用途 | リファレンス |
 |-----|------|-------------|
-| `GET /repos/{owner}/{repo}` | 既存Repositoryの存在チェック | [Get a repository](https://docs.github.com/en/rest/repos/repos#get-a-repository) |
-| `POST /orgs/{org}/repos` | Repositoryの作成 | [Create an organization repository](https://docs.github.com/en/rest/repos/repos#create-an-organization-repository) |
+| `GET /repos/{owner}/{repo}` | 既存 Repository の存在チェック | [Get a repository](https://docs.github.com/en/rest/repos/repos#get-a-repository) |
+| `POST /orgs/{org}/repos` | Repository の作成 | [Create an organization repository](https://docs.github.com/en/rest/repos/repos#create-an-organization-repository) |
 
 ### PAT Scope 要件
 
 | Scope | 用途 | 備考 |
 |---------|------|------|
-| `repo` | Repositoryの作成 | Classic PAT の場合 |
+| `repo` | Repository の作成 | Classic PAT の場合 |
 
 Fine-grained PAT の場合は、`Administration: write` 権限が必要です。
 
 ## 🔄 使用 Workflow
 
-- [⑥ 特殊Repository一括作成](../workflows/06-create-special-repos)
+- [⑥ 特殊 Repository 一括作成](../workflows/06-create-special-repos)

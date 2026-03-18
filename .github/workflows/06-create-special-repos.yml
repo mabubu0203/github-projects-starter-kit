@@ -3,7 +3,7 @@
 # PAT の形式（ghp_ または github_pat_ で始まる）を検証し、
 # 無効な値の場合はステップをスキップします。
 # ---------------------------------------------------------
-name: "⑥ 🏗️ 特殊Repository一括作成"
+name: "⑥ 🏗️ 特殊 Repository 一括作成"
 
 on:
   workflow_dispatch:
@@ -36,11 +36,11 @@ jobs:
           echo "owner_type=${OWNER_TYPE}" >> "${GITHUB_OUTPUT}"
           echo "オーナータイプ: ${OWNER_TYPE}（${PROJECT_OWNER}）"
 
-      - name: 個人アカウント用特殊Repositoryを作成
+      - name: 個人アカウント用特殊 Repository を作成
         if: ${{ steps.detect-owner-type.outputs.owner_type == 'User' }}
         run: bash scripts/create-special-repos-user.sh
 
-      - name: Organization 用特殊Repositoryを作成
+      - name: Organization 用特殊 Repository を作成
         if: ${{ steps.detect-owner-type.outputs.owner_type == 'Organization' }}
         run: bash scripts/create-special-repos-org.sh
 

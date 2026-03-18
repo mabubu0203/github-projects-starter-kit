@@ -1,6 +1,6 @@
 # ⑥ 🏗️ 特殊Repository一括作成
 
-GitHub の特殊命名規則Repository（プロフィール README、GitHub Pages、dotfiles 等）を一括作成します。
+GitHub の特殊命名規則 Repository（プロフィール README、`GitHub Pages`、dotfiles 等）を一括作成します。
 オーナータイプ（個人アカウント / Organization）を自動判定し、対応するスクリプトを実行します。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -32,21 +32,20 @@ GitHub の特殊命名規則Repository（プロフィール README、GitHub Page
 ## 📖 使い方
 
 1. `Actions` タブを開く
-2. `⑥ 特殊Repository一括作成` を選択
+2. `⑥ 特殊 Repository 一括作成` を選択
 3. `Run workflow` をクリックして実行
 
-> **Note:** パラメータの入力は不要です。`github.repository_owner`（このRepositoryをフォークしたオーナー）が自動的に使用されます。
-> 既存Repositoryと同名のRepositoryが存在する場合はスキップされます。追加のみの安全設計です。
+> **Note:** 既存 Repository と同名の Repository が存在する場合はスキップされます。追加のみの安全設計です。
 
-## 📋 対象Repository
+## 📋 対象 Repository
 
 ### 個人アカウント用
 
-| Repository名 | 挙動 |
+| Repository 名 | 挙動 |
 |---|---|
 | `<username>` | README.md がプロフィールページに表示される |
-| `<username>.github.io` | GitHub Pages として自動公開される |
-| `dotfiles` | Codespaces 起動時に dotfiles を自動インストール |
+| `<username>.github.io` | `GitHub Pages` として自動公開される |
+| `dotfiles` | `Codespaces` 起動時に dotfiles を自動インストール |
 
 ### Organization 用
 
@@ -54,7 +53,7 @@ GitHub の特殊命名規則Repository（プロフィール README、GitHub Page
 |---|---|
 | `.github` | パブリックプロフィール・Community Health Files が Organization 全体に適用される |
 | `.github-private` | メンバーのみに表示されるプライベートプロフィール |
-| `<orgname>.github.io` | GitHub Pages として自動公開される |
+| `<orgname>.github.io` | `GitHub Pages` として自動公開される |
 
 ## 📊 処理フロー
 
@@ -62,8 +61,8 @@ GitHub の特殊命名規則Repository（プロフィール README、GitHub Page
 flowchart TD
     A["workflow_dispatch"] --> B["create-special-repos Job\nオーナータイプを自動判定"]
     B --> C{"User or\nOrganization?"}
-    C -- "User" --> D["create-special-repos-user.sh\n個人アカウント用Repositoryを作成"]
-    C -- "Organization" --> E["create-special-repos-org.sh\nOrganization 用Repositoryを作成"]
+    C -- "User" --> D["create-special-repos-user.sh\n個人アカウント用 Repository を作成"]
+    C -- "Organization" --> E["create-special-repos-org.sh\nOrganization 用 Repository を作成"]
     D & E --> F{"結果判定"}
     F -- "成功" --> G["workflow-summary-success Job\n成功サマリーを出力"]
     F -- "失敗" --> H["workflow-summary-failure Job\n失敗サマリーを出力"]
@@ -105,5 +104,5 @@ flowchart TD
 
 ## 📜 関連スクリプト
 
-- [create-special-repos-user.sh](../scripts/create-special-repos-user) — 個人アカウント用特殊Repository一括作成スクリプト
-- [create-special-repos-org.sh](../scripts/create-special-repos-org) — Organization 用特殊Repository一括作成スクリプト
+- [create-special-repos-user.sh](../scripts/create-special-repos-user) — 個人アカウント用特殊 Repository 一括作成スクリプト
+- [create-special-repos-org.sh](../scripts/create-special-repos-org) — Organization 用特殊 Repository 一括作成スクリプト

@@ -118,4 +118,4 @@ Fork 先 Repository の `Actions` タブから Workflow を選択し、`Run work
 - [③ Issue Label 一括追加](workflows/03-setup-repository-labels)
 - [④ Issue/PR 一括紐付け](workflows/04-add-items-to-project)
 - [⑤ 統合 Project 分析](workflows/05-analyze-project)
-- [⑥ 特殊Repository一括作成](workflows/06-create-special-repos)
+- [⑥ 特殊 Repository 一括作成](workflows/06-create-special-repos)
