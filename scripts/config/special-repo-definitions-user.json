@@ -1,0 +1,20 @@
+[
+  {
+    "name_template": "{{owner}}",
+    "description": "プロフィール README 用Repository",
+    "visibility": "public",
+    "auto_init": true
+  },
+  {
+    "name_template": "{{owner}}.github.io",
+    "description": "GitHub Pages 用Repository",
+    "visibility": "public",
+    "auto_init": true
+  },
+  {
+    "name_template": "dotfiles",
+    "description": "Codespaces パーソナライズ用 dotfiles Repository",
+    "visibility": "public",
+    "auto_init": true
+  }
+]

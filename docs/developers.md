@@ -25,6 +25,7 @@ flowchart TD
     B --> C["③ Issue Label 一括追加"]
     C --> D["④ Issue/PR 一括紐付け"]
     D --> F["⑤ 統合 Project 分析"]
+    A ~~~ G["⑥ 特殊Repository一括作成"]
 
     A -- "Reusable Workflow" --> R["_reusable-extend-project"]
     B -- "Reusable Workflow" --> R
@@ -41,6 +42,8 @@ flowchart TD
         S9["generate-summary-report.sh"]
         S10["generate-effort-report.sh"]
         S11["generate-velocity-report.sh"]
+        S12["create-special-repos-user.sh"]
+        S13["create-special-repos-org.sh"]
         SL["lib/common.sh"]
     end
 
@@ -55,7 +58,9 @@ flowchart TD
     F --> S9
     F --> S10
     F --> S11
-    S1 & S2 & S3 & S4 & S5 & S6 & S7 & S8 & S9 & S10 & S11 --> SL
+    G --> S12
+    G --> S13
+    S1 & S2 & S3 & S4 & S5 & S6 & S7 & S8 & S9 & S10 & S11 & S12 & S13 --> SL
 ```
 
 ## 📁 構成ファイル
@@ -71,26 +76,31 @@ flowchart TD
       ├── _reusable-extend-project.yml      # Project 拡張（Reusable Workflow）
       ├── 03-setup-repository-labels.yml    # ③ Issue Label 一括追加 Workflow
       ├── 04-add-items-to-project.yml       # ④ Issue/PR 一括紐付け Workflow
-      └── 05-analyze-project.yml            # ⑤ 統合 Project 分析 Workflow
+      ├── 05-analyze-project.yml            # ⑤ 統合 Project 分析 Workflow
+      └── 06-create-special-repos.yml       # ⑥ 特殊Repository一括作成 Workflow
 scripts/
   ├── config/
-  │   ├── project-status-options.json        # カスタム Status 定義
-  │   ├── project-field-definitions.json     # カスタム Field 定義
-  │   ├── project-view-definitions.json      # View 定義
-  │   └── repository-label-definitions.json  # Issue Label 定義
+  │   ├── project-status-options.json          # カスタム Status 定義
+  │   ├── project-field-definitions.json       # カスタム Field 定義
+  │   ├── project-view-definitions.json        # View 定義
+  │   ├── repository-label-definitions.json    # Issue Label 定義
+  │   ├── special-repo-definitions-user.json   # 個人アカウント用特殊Repository定義
+  │   └── special-repo-definitions-org.json    # Organization 用特殊Repository定義
   ├── lib/
-  │   └── common.sh                # 共通関数ライブラリ
-  ├── setup-github-project.sh      # Project 作成スクリプト
-  ├── setup-project-status.sh      # カスタム Status 作成スクリプト
-  ├── setup-project-fields.sh      # カスタム Field 作成スクリプト
-  ├── setup-project-views.sh       # View 作成スクリプト
-  ├── add-items-to-project.sh      # Item 一括追加スクリプト
-  ├── export-project-items.sh      # Item エクスポートスクリプト
-  ├── setup-repository-labels.sh   # Issue Label 一括作成スクリプト
-  ├── detect-stale-items.sh        # 滞留 Item 検知スクリプト
-  ├── generate-summary-report.sh   # Project サマリーレポート生成スクリプト
-  ├── generate-effort-report.sh    # 工数集計レポート生成スクリプト
-  └── generate-velocity-report.sh  # ベロシティレポート生成スクリプト
+  │   └── common.sh                    # 共通関数ライブラリ
+  ├── setup-github-project.sh          # Project 作成スクリプト
+  ├── setup-project-status.sh          # カスタム Status 作成スクリプト
+  ├── setup-project-fields.sh          # カスタム Field 作成スクリプト
+  ├── setup-project-views.sh           # View 作成スクリプト
+  ├── add-items-to-project.sh          # Item 一括追加スクリプト
+  ├── export-project-items.sh          # Item エクスポートスクリプト
+  ├── setup-repository-labels.sh       # Issue Label 一括作成スクリプト
+  ├── detect-stale-items.sh            # 滞留 Item 検知スクリプト
+  ├── generate-summary-report.sh       # Project サマリーレポート生成スクリプト
+  ├── generate-effort-report.sh        # 工数集計レポート生成スクリプト
+  ├── generate-velocity-report.sh      # ベロシティレポート生成スクリプト
+  ├── create-special-repos-user.sh     # 個人アカウント用特殊Repository作成スクリプト
+  └── create-special-repos-org.sh      # Organization 用特殊Repository作成スクリプト
 ```
 
 ## ⚙️ 各 Workflow の構成
@@ -149,7 +159,7 @@ scripts/
       └── .github/actions/workflow-summary   # 成功サマリー出力
 ```
 
-### ⑤ 統合プロジェクト分析
+### ⑤ 統合 Project 分析
 
 ```
 05-analyze-project.yml
@@ -174,6 +184,20 @@ scripts/
       └── .github/actions/workflow-summary       # 成功サマリー出力
 ```
 
+### ⑥ 特殊 Repository 一括作成
+
+```
+06-create-special-repos.yml
+  ├── create-special-repos Job
+  │   ├── オーナータイプ判定（User / Organization）
+  │   ├── scripts/create-special-repos-user.sh    # 個人アカウント用
+  │   └── scripts/create-special-repos-org.sh     # Organization 用
+  ├── workflow-summary-failure Job（失敗時）
+  │   └── .github/actions/workflow-summary        # 失敗サマリー出力
+  └── workflow-summary-success Job（成功時）
+      └── .github/actions/workflow-summary        # 成功サマリー出力
+```
+
 ## 📜 スクリプト詳細
 
 | スクリプト | 概要 |
@@ -189,3 +213,5 @@ scripts/
 | [generate-summary-report.sh](scripts/generate-summary-report) | 指定 Project の Item を Status 別・担当者別・ Label 別に集計しサマリーレポートを生成する |
 | [generate-effort-report.sh](scripts/generate-effort-report) | 指定 Project の見積もり工数・実績工数を多角的に集計・分析しレポートを生成する |
 | [generate-velocity-report.sh](scripts/generate-velocity-report) | 指定 Project の Done Item を週別に集計し、ベロシティレポートを生成する |
+| [create-special-repos-user.sh](scripts/create-special-repos-user) | 個人アカウント用の特殊 Repository（プロフィール README、`GitHub Pages`、dotfiles）を一括作成する |
+| [create-special-repos-org.sh](scripts/create-special-repos-org) | Organization 用の特殊 Repository（パブリック/プライベートプロフィール、`GitHub Pages`）を一括作成する |

@@ -1,0 +1,77 @@
+# ---------------------------------------------------------
+# secrets.PROJECT_PAT には GitHub の Personal Access Token を設定します。
+# PAT の形式（ghp_ または github_pat_ で始まる）を検証し、
+# 無効な値の場合はステップをスキップします。
+# ---------------------------------------------------------
+name: "⑥ 🏗️ 特殊 Repository 一括作成"
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  create-special-repos:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      PROJECT_OWNER: ${{ github.repository_owner }}
+      PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
+    # 前提: ubuntu-latest には gh (GitHub CLI) と jq がプリインストール済み
+    # スクリプト内の require_command チェックはローカル実行時の UX 向上目的で残している
+    outputs:
+      owner-type: ${{ steps.detect-owner-type.outputs.owner_type }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: オーナータイプを判定
+        id: detect-owner-type
+        if: ${{ startsWith(env.PROJECT_PAT, 'ghp_') || startsWith(env.PROJECT_PAT, 'github_pat_') }}
+        run: |
+          OWNER_TYPE=$(gh api "users/${PROJECT_OWNER}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            --jq '.type')
+          echo "owner_type=${OWNER_TYPE}" >> "${GITHUB_OUTPUT}"
+          echo "オーナータイプ: ${OWNER_TYPE}（${PROJECT_OWNER}）"
+
+      - name: 個人アカウント用特殊 Repository を作成
+        if: ${{ steps.detect-owner-type.outputs.owner_type == 'User' }}
+        run: bash scripts/create-special-repos-user.sh
+
+      - name: Organization 用特殊 Repository を作成
+        if: ${{ steps.detect-owner-type.outputs.owner_type == 'Organization' }}
+        run: bash scripts/create-special-repos-org.sh
+
+  workflow-summary-failure:
+    needs: [create-special-repos]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 失敗サマリーを出力
+        uses: ./.github/actions/workflow-summary
+        with:
+          status: failure
+          project-owner: ${{ github.repository_owner }}
+          job-results: |
+            {"create-special-repos": "${{ needs.create-special-repos.result }}"}
+
+  workflow-summary-success:
+    needs: [create-special-repos]
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 成功サマリーを出力
+        uses: ./.github/actions/workflow-summary
+        with:
+          status: success
+          project-owner: ${{ github.repository_owner }}
+          job-results: |
+            {"create-special-repos": "${{ needs.create-special-repos.result }}"}

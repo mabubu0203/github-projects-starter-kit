@@ -1,0 +1,20 @@
+[
+  {
+    "name_template": ".github",
+    "description": "Organization パブリックプロフィール・Community Health Files",
+    "visibility": "public",
+    "auto_init": true
+  },
+  {
+    "name_template": ".github-private",
+    "description": "Organization メンバー限定プロフィール",
+    "visibility": "private",
+    "auto_init": true
+  },
+  {
+    "name_template": "{{owner}}.github.io",
+    "description": "GitHub Pages 用Repository",
+    "visibility": "public",
+    "auto_init": true
+  }
+]
