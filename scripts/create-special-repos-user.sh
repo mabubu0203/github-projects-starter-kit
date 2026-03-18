@@ -38,7 +38,39 @@ if [[ ! -f "${REPO_DEFINITIONS_FILE}" ]]; then
 fi
 
 REPO_DEFINITIONS=$(cat "${REPO_DEFINITIONS_FILE}")
+
+# --- JSON バリデーション ---
+
+echo ""
+echo "Repository定義ファイルを検証しています..."
+
+VALIDATION_ERRORS=$(echo "${REPO_DEFINITIONS}" | jq -r '
+  if type != "array" then
+    "Repository定義ファイルが JSON 配列ではありません。"
+  else
+    [to_entries[] |
+      .key as $i |
+      .value |
+      (if .name_template == null or .name_template == "" then "[\($i)]: name_template が未定義または空です。" else empty end),
+      (if .description == null then "[\($i)]: description が未定義です。" else empty end),
+      (if .visibility == null or .visibility == "" then "[\($i)]: visibility が未定義または空です。" else empty end),
+      (if .visibility != null and .visibility != "" and (.visibility | IN("public", "private") | not) then "[\($i)]: visibility の値が不正です: \(.visibility)（public / private を指定してください）" else empty end),
+      (if .auto_init == null then "[\($i)]: auto_init が未定義です。" else empty end),
+      (if .auto_init != null and (.auto_init | type) != "boolean" then "[\($i)]: auto_init は boolean で指定してください。" else empty end)
+    ] | join("\n")
+  end
+')
+
+if [[ -n "${VALIDATION_ERRORS}" ]]; then
+  echo "::error::Repository定義ファイルのバリデーションに失敗しました:"
+  echo "${VALIDATION_ERRORS}" | while IFS= read -r line; do
+    echo "::error::  ${line}"
+  done
+  exit 1
+fi
+
 REPO_COUNT=$(echo "${REPO_DEFINITIONS}" | jq 'length')
+echo "  ${REPO_COUNT} 件のRepository定義を読み込みました。"
 
 echo ""
 echo "個人アカウント用の特殊Repositoryを作成します..."
@@ -77,11 +109,19 @@ while IFS=$'\t' read -r REPO_NAME REPO_DESCRIPTION REPO_VISIBILITY REPO_AUTO_INI
     continue
   fi
 
-  # visibility を private パラメータに変換
-  PRIVATE_FLAG="false"
-  if [[ "${REPO_VISIBILITY}" == "private" ]]; then
-    PRIVATE_FLAG="true"
-  fi
+  # visibility の検証と private パラメータへの変換
+  PRIVATE_FLAG=""
+  case "${REPO_VISIBILITY}" in
+    public)  PRIVATE_FLAG="false" ;;
+    private) PRIVATE_FLAG="true" ;;
+    *)
+      echo "    → 不正な visibility: ${REPO_VISIBILITY}"
+      SAFE_REPO_NAME=$(sanitize_for_workflow_command "${REPO_NAME}")
+      echo "::error::Repository '${PROJECT_OWNER}/${SAFE_REPO_NAME}' の visibility が不正です: ${REPO_VISIBILITY}（public / private を指定してください）"
+      FAILED_COUNT=$((FAILED_COUNT + 1))
+      continue
+      ;;
+  esac
 
   # Repository作成（POST /user/repos）
   if gh api "user/repos" \

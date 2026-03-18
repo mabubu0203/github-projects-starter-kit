@@ -11,8 +11,6 @@ GitHub の特殊命名規則Repository（プロフィール README、GitHub Page
 
 <li><a href="#-%E4%BD%BF%E3%81%84%E6%96%B9">📖 使い方</a></li>
 
-<li><a href="#-%E3%83%91%E3%83%A9%E3%83%A1%E3%83%BC%E3%82%BF">⚙️ パラメータ</a></li>
-
 <li><a href="#-%E5%AF%BE%E8%B1%A1%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA">📋 対象Repository</a></li>
 
 <li><a href="#-%E5%87%A6%E7%90%86%E3%83%95%E3%83%AD%E3%83%BC">📊 処理フロー</a></li>
@@ -35,16 +33,10 @@ GitHub の特殊命名規則Repository（プロフィール README、GitHub Page
 
 1. `Actions` タブを開く
 2. `⑥ 特殊Repository一括作成` を選択
-3. `Run workflow` をクリック
-4. パラメータを入力して実行
+3. `Run workflow` をクリックして実行
 
-## ⚙️ パラメータ
-
-| パラメータ | 説明 | 必須 | タイプ | 例 |
-|------------|------|:----:|--------|-----|
-| `project_owner` | 対象のオーナー（個人アカウントまたは Organization 名） | ✅ | `string` | `mabubu0203` |
-
-> **Note:** 既存Repositoryと同名のRepositoryが存在する場合はスキップされます。追加のみの安全設計です。
+> **Note:** パラメータの入力は不要です。`github.repository_owner`（このRepositoryをフォークしたオーナー）が自動的に使用されます。
+> 既存Repositoryと同名のRepositoryが存在する場合はスキップされます。追加のみの安全設計です。
 
 ## 📋 対象Repository
 
@@ -68,7 +60,7 @@ GitHub の特殊命名規則Repository（プロフィール README、GitHub Page
 
 ```mermaid
 flowchart TD
-    A["workflow_dispatch\n（project_owner）"] --> B["create-special-repos Job\nオーナータイプを自動判定"]
+    A["workflow_dispatch"] --> B["create-special-repos Job\nオーナータイプを自動判定"]
     B --> C{"User or\nOrganization?"}
     C -- "User" --> D["create-special-repos-user.sh\n個人アカウント用Repositoryを作成"]
     C -- "Organization" --> E["create-special-repos-org.sh\nOrganization 用Repositoryを作成"]
@@ -92,7 +84,7 @@ flowchart TD
 | 環境変数 | ソース | 説明 |
 |----------|--------|------|
 | `GH_TOKEN` | `secrets.PROJECT_PAT` | GitHub PAT（`repo` Scope または `Administration: write`） |
-| `PROJECT_OWNER` | `inputs.project_owner` | 対象のオーナー |
+| `PROJECT_OWNER` | `github.repository_owner` | Repository オーナー（自動取得） |
 | `PROJECT_PAT` | `secrets.PROJECT_PAT` | PAT 形式検証用（`ghp_` または `github_pat_` で始まるか検証） |
 
 > **Note:** `PROJECT_PAT` が未設定または無効な形式の場合、PAT を使用するステップはスキップされます。
