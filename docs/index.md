@@ -27,7 +27,7 @@
 
 <li><a href="#-%E9%96%8B%E7%99%BA%E8%80%85%E5%90%91%E3%81%91">👨‍💻 開発者向け</a></li>
 
-<li><a href="#-%E3%83%AA%E3%83%9D%E3%82%B8%E3%83%88%E3%83%AA">🏠 リポジトリ</a></li>
+<li><a href="#-repository">🏠 Repository</a></li>
 </ul></details>
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -101,6 +101,6 @@ Workflow の内部構成やスクリプトの詳細については [開発者向
 
 ---
 
-## 🏠 リポジトリ
+## 🏠 Repository
 
 - GitHub: [mabubu0203/github-projects-starter-kit](https://github.com/mabubu0203/github-projects-starter-kit)

@@ -36,11 +36,11 @@ Repository ページ右上の「 Fork 」ボタンをクリックします。
 <details>
 <summary>（ここをクリック）Fork ボタンのスクリーンショットを表示</summary>
 
-> **参考画像:** リポジトリページ右上に「 Fork 」ボタンが表示されています。
+> **参考画像:** Repository ページ右上に「 Fork 」ボタンが表示されています。
 >
 > <img src="assets/images/quickstart-fork-button.png" alt="Fork ボタンの位置" width="50%">
 >
-> <img src="assets/images/quickstart-fork-page.png" alt="Fork ボタンが表示されたリポジトリページ" width="50%">
+> <img src="assets/images/quickstart-fork-page.png" alt="Fork ボタンが表示された Repository ページ" width="50%">
 
 </details>
 
