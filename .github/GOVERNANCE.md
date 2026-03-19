@@ -24,7 +24,7 @@
 | ロール | 概要 |
 |--------|------|
 | **メンテナー** | リポジトリへの書き込み権限を持ち、Issue のトリアージ・PR のレビューとマージ・リリースを行う。行動規範の執行責任は [行動規範](CODE_OF_CONDUCT.md#責任) を参照 |
-| **コントリビューター** | Issue の起票や Pull Request を通じてプロジェクトに貢献する。コントリビューションの手順は [コントリビューションガイド](CONTRIBUTING.md) を参照 |
+| **コントリビューター** | Issue の起票や Pull Request を通じてプロジェクトに貢献する。コントリビューションの手順は [コントリビューションガイド](CONTRIBUTING.md) を参照。バグ報告・機能リクエストは [Issues](https://github.com/lurest-inc/github-starter-kit/issues/new/choose)、質問やアイデアの共有は [Discussions](https://github.com/lurest-inc/github-starter-kit/discussions) を利用する |
 
 ## 意思決定プロセス
 
