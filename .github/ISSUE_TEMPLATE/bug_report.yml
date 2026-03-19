@@ -1,0 +1,69 @@
+name: バグ報告
+description: バグや不具合の報告
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        バグ報告をお寄せいただきありがとうございます。
+        以下の項目をできるだけ詳しくご記入ください。
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: 概要
+      description: 発生しているバグの概要を簡潔に記述してください
+      placeholder: 例）Workflow 01 を実行すると、Field の作成でエラーが発生する
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: 再現手順
+      description: バグを再現するための手順を記述してください
+      placeholder: |
+        1. Workflow 01 を実行する
+        2. パラメータに `project_name: test` を指定する
+        3. エラーが発生する
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: 期待する動作
+      description: 本来どのように動作すべきかを記述してください
+      placeholder: 例）Field が正常に作成され、Workflow が成功する
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: 実際の動作
+      description: 実際にどのような動作が起きたかを記述してください
+      placeholder: 例）`gh project field-create` コマンドがエラーコード 1 で終了する
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 環境情報
+      description: 実行環境の情報を記述してください
+      placeholder: |
+        - 実行方法: GitHub Actions / ローカル
+        - OS: ubuntu-latest / macOS 14 等
+        - GitHub CLI バージョン: gh 2.x.x
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: 補足情報
+      description: エラーログ、スクリーンショット、関連 Issue など、補足情報があれば記述してください
+    validations:
+      required: false
