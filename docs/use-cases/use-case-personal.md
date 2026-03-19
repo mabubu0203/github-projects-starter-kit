@@ -44,7 +44,7 @@ GitHub Projects を新しく作るたびに、Field・Status・View を手作業
 
 **GitHub Starter Kit なら:** Workflow を 1 回実行するだけで、Project の作成から Field・Status・View の設定までが自動で完了します。
 
-→ [Workflow ① GitHub Project 新規作成](workflows/01-create-project)
+→ [Workflow ① GitHub Project 新規作成](../workflows/01-create-project)
 
 ### Field・Status・View を毎回手作業で作るのが大変
 
@@ -52,7 +52,7 @@ GitHub Projects を新しく作るたびに、Field・Status・View を手作業
 
 **GitHub Starter Kit なら:** JSON 定義ファイルに構成を書いておけば、何度でも同じ構成を一括で構築できます。定義ファイルをカスタマイズすれば、自分専用のテンプレートとして使い回せます。
 
-→ [Workflow ② GitHub Project 拡張](workflows/02-extend-project)
+→ [Workflow ② GitHub Project 拡張](../workflows/02-extend-project)
 
 ### 個人開発の進捗を可視化したい
 
@@ -60,7 +60,7 @@ GitHub Projects を新しく作るたびに、Field・Status・View を手作業
 
 **GitHub Starter Kit なら:** レポート生成 Workflow で Status 別・担当者別の集計や、滞留タスクの検知が簡単にできます。振り返りや計画の見直しに活用できます。
 
-→ [Workflow ⑥ 統合 Project 分析](workflows/06-analyze-project)
+→ [Workflow ⑥ 統合 Project 分析](../workflows/06-analyze-project)
 
 ---
 
@@ -76,5 +76,5 @@ GitHub Projects を新しく作るたびに、Field・Status・View を手作業
 ## はじめ方
 
 1. [このリポジトリを Fork する](https://github.com/lurest-inc/github-starter-kit/fork)
-2. [クイックスタート（GUI）](quickstart-gui) または [クイックスタート（CLI）](quickstart-cli) に沿ってセットアップ
+2. [クイックスタート（GUI）](../getting-started/quickstart-gui) または [クイックスタート（CLI）](../getting-started/quickstart-cli) に沿ってセットアップ
 3. Workflow を実行して Project を自動構築

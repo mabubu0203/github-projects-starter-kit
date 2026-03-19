@@ -26,8 +26,8 @@ GitHub の特殊命名規則 Repository（プロフィール README、`GitHub Pa
 
 この Workflow を実行する前に、クイックスタートを完了してください。
 
-- [クイックスタート（GUI）](../quickstart-gui)
-- [クイックスタート（CLI）](../quickstart-cli)
+- [クイックスタート（GUI）](../getting-started/quickstart-gui)
+- [クイックスタート（CLI）](../getting-started/quickstart-cli)
 
 ## 📖 使い方
 
