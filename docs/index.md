@@ -1,15 +1,15 @@
 # 📖 GitHub Starter Kit ドキュメント
 
 ![Platform: macOS/Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue.svg)
-![GitHub Top Language](https://img.shields.io/github/languages/top/mabubu0203/github-projects-starter-kit)
-[![GitHub Release](https://img.shields.io/github/v/release/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/releases)
-[![GitHub Release Date](https://img.shields.io/github/release-date/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/releases)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/mabubu0203/github-projects-starter-kit/blob/main/LICENSE)
+![GitHub Top Language](https://img.shields.io/github/languages/top/lurest-inc/github-starter-kit)
+[![GitHub Release](https://img.shields.io/github/v/release/lurest-inc/github-starter-kit)](https://github.com/lurest-inc/github-starter-kit/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/lurest-inc/github-starter-kit)](https://github.com/lurest-inc/github-starter-kit/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/lurest-inc/github-starter-kit/blob/main/LICENSE)
 
-[![GitHub Stars](https://img.shields.io/github/stars/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/mabubu0203/github-projects-starter-kit)](https://github.com/mabubu0203/github-projects-starter-kit/forks)
-[![Issues Welcome](https://img.shields.io/badge/Issues-welcome-brightgreen)](https://github.com/mabubu0203/github-projects-starter-kit/issues)
-[![Discussions Welcome](https://img.shields.io/badge/Discussions-welcome-brightgreen)](https://github.com/mabubu0203/github-projects-starter-kit/discussions)
+[![GitHub Stars](https://img.shields.io/github/stars/lurest-inc/github-starter-kit)](https://github.com/lurest-inc/github-starter-kit/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/lurest-inc/github-starter-kit)](https://github.com/lurest-inc/github-starter-kit/forks)
+[![Issues Welcome](https://img.shields.io/badge/Issues-welcome-brightgreen)](https://github.com/lurest-inc/github-starter-kit/issues)
+[![Discussions Welcome](https://img.shields.io/badge/Discussions-welcome-brightgreen)](https://github.com/lurest-inc/github-starter-kit/discussions)
 
 `GitHub Projects` の初期セットアップを `GitHub Actions` で自動実行するための **スターターキット** です。
 
