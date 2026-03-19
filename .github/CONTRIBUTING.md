@@ -26,7 +26,7 @@
 | [バグ報告](https://github.com/lurest-inc/github-starter-kit/issues/new?template=bug_report.yml) | バグや不具合の報告 |
 | [機能リクエスト](https://github.com/lurest-inc/github-starter-kit/issues/new?template=feature_request.yml) | 新しい機能や改善の提案 |
 
-質問やアイデアの共有は [Discussions](https://github.com/lurest-inc/github-starter-kit/discussions) をご利用ください。
+質問・アイデア・雑談・成果共有などは [Discussions](https://github.com/lurest-inc/github-starter-kit/discussions) をご利用ください。
 
 | カテゴリ | 用途 |
 |---------|------|
