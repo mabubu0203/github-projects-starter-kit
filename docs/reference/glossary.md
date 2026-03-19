@@ -77,6 +77,7 @@
 | **Issue**<br>（イシュー） | バグ報告・機能要望・タスクなどを記録するチケット。Repository 単位で管理される |
 | **Pull Request**<br>（プルリクエスト / PR） | コードの変更をレビュー・マージするための仕組み。変更内容を他のメンバーに確認してもらう際に使用する |
 | **Fork**<br>（フォーク） | 他の Repository を自分のアカウントにコピーすること。コピー先で自由に変更を加えられる |
+| **Sync fork**<br>（フォーク同期） | Fork 先の Repository で、Fork 元（Upstream）の最新の変更を取り込む GitHub の機能。Repository ページのブランチ名の右側に表示される **Sync fork** ボタンからワンクリックで実行できる |
 | **Label**<br>（ラベル） | Issue や Pull Request に付与する分類タグ。優先度・種別・ステータスなどの分類に使用する |
 | **Milestone**<br>（マイルストーン） | Issue や Pull Request をグループ化して進捗を追跡する仕組み。リリース計画などの管理に使用する |
 | **GitHub Release**<br>（リリース） | Repository の特定時点のスナップショットを公開する仕組み。Tag と紐付けてリリースノートやバイナリを配布できる。 |
