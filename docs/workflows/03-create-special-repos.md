@@ -62,8 +62,8 @@ flowchart TD
     A["workflow_dispatch"] --> B["create-special-repos Job"]
     B --> C["create-special-repos.sh\ndetect_owner_type() で\nオーナータイプを自動判定"]
     C --> D{"User or\nOrganization?"}
-    D -- "User" --> E["create-special-repos-user.sh\n個人アカウント用 Repository を作成"]
-    D -- "Organization" --> F["create-special-repos-org.sh\nOrganization 用 Repository を作成"]
+    D -- "User" --> E["個人アカウント用 Repository を作成\n（POST /user/repos）"]
+    D -- "Organization" --> F["Organization 用 Repository を作成\n（POST /orgs/{org}/repos）"]
     E & F --> G{"結果判定"}
     G -- "成功" --> H["workflow-summary-success Job\n成功サマリーを出力"]
     G -- "失敗" --> I["workflow-summary-failure Job\n失敗サマリーを出力"]
@@ -94,10 +94,7 @@ flowchart TD
 ```
 .github/workflows/03-create-special-repos.yml
   ├── create-special-repos Job
-  │   └── scripts/create-special-repos.sh         # 統合エントリポイント
-  │       ├── detect_owner_type() でオーナータイプを自動判定
-  │       ├── → scripts/create-special-repos-user.sh  # User の場合
-  │       └── → scripts/create-special-repos-org.sh   # Organization の場合
+  │   └── scripts/create-special-repos.sh         # オーナータイプ自動判定 → 一括作成
   ├── workflow-summary-failure Job（失敗時）
   │   └── .github/actions/workflow-summary        # 失敗サマリー出力
   └── workflow-summary-success Job（成功時）
@@ -106,6 +103,4 @@ flowchart TD
 
 ## 📜 関連スクリプト
 
-- [create-special-repos.sh](../scripts/create-special-repos) — 特殊 Repository 一括作成 統合エントリポイント
-- [create-special-repos-user.sh](../scripts/create-special-repos-user) — 個人アカウント用特殊 Repository 一括作成スクリプト
-- [create-special-repos-org.sh](../scripts/create-special-repos-org) — Organization 用特殊 Repository 一括作成スクリプト
+- [create-special-repos.sh](../scripts/create-special-repos) — 特殊 Repository 一括作成スクリプト

@@ -42,8 +42,7 @@ flowchart TD
         S9["generate-summary-report.sh"]
         S10["generate-effort-report.sh"]
         S11["generate-velocity-report.sh"]
-        S12["create-special-repos-user.sh"]
-        S13["create-special-repos-org.sh"]
+        S12["create-special-repos.sh"]
         SL["lib/common.sh"]
     end
 
@@ -59,8 +58,7 @@ flowchart TD
     F --> S10
     F --> S11
     G --> S12
-    G --> S13
-    S1 & S2 & S3 & S4 & S5 & S6 & S7 & S8 & S9 & S10 & S11 & S12 & S13 --> SL
+    S1 & S2 & S3 & S4 & S5 & S6 & S7 & S8 & S9 & S10 & S11 & S12 --> SL
 ```
 
 ## 📁 構成ファイル
@@ -99,8 +97,7 @@ scripts/
   ├── generate-summary-report.sh       # Project サマリーレポート生成スクリプト
   ├── generate-effort-report.sh        # 工数集計レポート生成スクリプト
   ├── generate-velocity-report.sh      # ベロシティレポート生成スクリプト
-  ├── create-special-repos-user.sh     # 個人アカウント用特殊 Repository作成スクリプト
-  └── create-special-repos-org.sh      # Organization 用特殊 Repository作成スクリプト
+  └── create-special-repos.sh          # 特殊 Repository 一括作成スクリプト
 ```
 
 ## ⚙️ 各 Workflow の構成
@@ -140,9 +137,7 @@ scripts/
 ```
 03-create-special-repos.yml
   ├── create-special-repos Job
-  │   ├── オーナータイプ判定（User / Organization）
-  │   ├── scripts/create-special-repos-user.sh    # 個人アカウント用
-  │   └── scripts/create-special-repos-org.sh     # Organization 用
+  │   └── scripts/create-special-repos.sh         # オーナータイプ自動判定 → 一括作成
   ├── workflow-summary-failure Job（失敗時）
   │   └── .github/actions/workflow-summary        # 失敗サマリー出力
   └── workflow-summary-success Job（成功時）
@@ -213,5 +208,4 @@ scripts/
 | [generate-summary-report.sh](scripts/generate-summary-report) | 指定 Project の Item を Status 別・担当者別・ Label 別に集計しサマリーレポートを生成する |
 | [generate-effort-report.sh](scripts/generate-effort-report) | 指定 Project の見積もり工数・実績工数を多角的に集計・分析しレポートを生成する |
 | [generate-velocity-report.sh](scripts/generate-velocity-report) | 指定 Project の Done Item を週別に集計し、ベロシティレポートを生成する |
-| [create-special-repos-user.sh](scripts/create-special-repos-user) | 個人アカウント用の特殊 Repository（プロフィール README、`GitHub Pages`、dotfiles）を一括作成する |
-| [create-special-repos-org.sh](scripts/create-special-repos-org) | Organization 用の特殊 Repository（パブリック/プライベートプロフィール、`GitHub Pages`）を一括作成する |
+| [create-special-repos.sh](scripts/create-special-repos) | オーナータイプを自動判定し、特殊 Repository（プロフィール README、`GitHub Pages`、dotfiles 等）を一括作成する |
