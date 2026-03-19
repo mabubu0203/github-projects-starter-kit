@@ -1,4 +1,4 @@
-# ② 🔧 GitHub Project 拡張
+# ② GitHub Project 拡張
 
 既存の Project に Field ・ Status ・ View を追加します。
 [① GitHub Project 新規作成](01-create-project) を実行していない既存 Project 向けです。

@@ -3,7 +3,7 @@
 # PAT の形式（ghp_ または github_pat_ で始まる）を検証し、
 # 無効な値の場合はステップをスキップします。
 # ---------------------------------------------------------
-name: "③ 🏗️ 特殊 Repository 一括作成"
+name: "③ 特殊 Repository 一括作成"
 
 on:
   workflow_dispatch:

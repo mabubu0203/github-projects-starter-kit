@@ -1,4 +1,4 @@
-# ⑤ 🔗 Issue/PR 一括紐付け
+# ⑤ Issue/PR 一括紐付け
 
 Project に Repository の `Issue`/`PR` を一括追加します。
 また、 Repository と Project のリンク（紐付け）を自動的に行い、 Repository の `Projects` タブから Project へアクセスできるようにします。

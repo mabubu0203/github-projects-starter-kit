@@ -82,6 +82,8 @@
 | **GitHub Release**<br>（リリース） | Repository の特定時点のスナップショットを公開する仕組み。Tag と紐付けてリリースノートやバイナリを配布できる。 |
 | **Upstream Repository**<br>（アップストリーム） | Fork 元のオリジナル Repository。Fork 先から変更を取り込む際の参照元となる。 |
 | **`GitHub Pages`** | Repository から直接静的な Web サイトを公開できる GitHub のホスティングサービス。ドキュメントやプロジェクトサイトの公開に使用する。 |
+| **`GitHub Codespaces`** | GitHub が提供するクラウドベースの開発環境。Repository からワンクリックで起動でき、ブラウザ上または `VS Code` から即座にコーディングを開始できる。開発環境のセットアップを不要にし、チーム間で統一された環境を提供する |
+| **Community Health Files**<br>（コミュニティヘルスファイル） | `CODE_OF_CONDUCT.md`・`CONTRIBUTING.md`・`SECURITY.md` など、オープンソースプロジェクトの運営に必要なガイドラインファイルの総称。Organization の `.github` Repository に配置すると、個別の Repository にファイルがなくてもデフォルトとして適用される |
 
 ---
 

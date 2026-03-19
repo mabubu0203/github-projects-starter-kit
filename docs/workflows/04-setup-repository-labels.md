@@ -1,4 +1,4 @@
-# ④ 🏷️ Issue Label 一括追加
+# ④ Issue Label 一括追加
 
 指定 Repository に対して、設定ファイルで定義した Issue Label を一括作成します。
 既存 Label と同名の Label が存在する場合はスキップします。

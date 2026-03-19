@@ -1,4 +1,4 @@
-# ① 📝 GitHub Project 新規作成
+# ① GitHub Project 新規作成
 
 新しい `Project` を作成し、 Field ・ Status ・ View を一括でセットアップします。
 
