@@ -1,18 +1,14 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-<details><summary>（ここをクリック）目次</summary><ul>
-<li><a href="#-organization-%E7%AE%A1%E7%90%86%E8%80%85%E3%83%BBpm%E3%83%BBem-%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE-github-projects-%E6%B4%BB%E7%94%A8%E3%82%AC%E3%82%A4%E3%83%89">🏢 Organization 管理者・PM・EM のための GitHub Projects 活用ガイド</a></li>
-</ul></details>
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # 🏢 Organization 管理者・PM・EM のための GitHub Projects 活用ガイド
 
 **レポート自動生成。外部ツール不要でコスト削減。立ち上げ 10 分。**
 
 GitHub Projects を導入してみたものの、継続的な運用が定着しない...。レポート作成が手作業で回らない...。チーム横断の状況把握がしづらい...。
 **GitHub Projects Ops Kit** なら、標準化された運用基盤の構築から、分析・レポートの自動生成まで、マネジメントに必要な仕組みを GitHub だけで実現できます。
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ---
 
