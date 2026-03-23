@@ -19,7 +19,7 @@ GitHub Projects、使っていますか？
 |---|---|
 | リポジトリ | https://github.com/lurest-inc/github-projects-ops-kit |
 | ドキュメント | https://lurest-inc.github.io/github-projects-ops-kit/ |
-| バージョン | v1.1.2 |
+| バージョン | v1.2.0 |
 | ライセンス | MIT |
 | 主要言語 | Bash |
 | 依存ツール | GitHub CLI (`gh`)、`jq` |
@@ -215,7 +215,7 @@ GUI 操作のみでセットアップできる **[クイックスタート（GUI
 
 「GitHub Projects を使いたいけどセットアップが面倒」「プロジェクトの進捗を定量的に把握したい」という方にぜひ試していただきたいです。
 
-現在 v1.1.2 ですが、今後もエンハンスを続けていきます。
+現在 v1.2.0 ですが、今後もエンハンスを続けていきます。
 
 - 分析レポートの拡充（バーンダウンチャート等）
 - 定期実行による自動レポート配信
