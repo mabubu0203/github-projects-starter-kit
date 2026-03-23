@@ -24,44 +24,44 @@ JSON 定義ファイルで構成を管理するため、何度でも同じ環境
 GitHub Projects Ops Kit は、個人開発者から Organization 管理者まで、さまざまな立場・フェーズの方にお使いいただけます。
 自分に近い状況を選んで、最適なページへ進んでください。
 
-### 🧑‍💻 個人で GitHub Projects を使い始めたい
+### 🧑‍💻 個人開発者・ソロメンテナーの方
 
-Issue の整理や進捗管理を、手軽に始めたい個人開発者・OSS メンテナー向け。
+初期設定が面倒で後回しにしていた GitHub Projects を、すぐに使い始めたい方向け。
 
-- Fork して Workflow を実行するだけで、Project のセットアップが完了します
+- Fork して Workflow を実行するだけ。約 1 分でセットアップ完了
 - 複数の個人リポジトリを 1 つの Project で一元管理できます
 
 | 次のステップ | リンク |
 |---|---|
-| 個人向け活用ガイドを読む | [個人アカウント向け活用ガイド](use-cases/use-case-personal) |
+| 活用ガイドを読む | [個人開発者・ソロメンテナー向けガイド](use-cases/use-case-personal) |
 | すぐに始める（GUI） | [GUI クイックスタート](getting-started/quickstart-gui) |
 | すぐに始める（CLI） | [CLI クイックスタート](getting-started/quickstart-cli) |
 
-### 🏢 チーム・Organization で導入したい
+### 🤝 OSS メンテナー・小規模チームの方
 
-運用ルールの統一、複数リポジトリの横断管理、レポート作成の効率化を実現したい方向け。
+コントリビュータが増えてきて、運用ルールの統一や Issue/PR 管理の標準化が課題になっている方向け。
 
-- JSON 定義ファイルで Field・Status・Label を標準化し、誰が Project を作っても同じ構成にできます
-- 滞留検知・ベロシティレポートで、チームの生産性を定量的に把握できます
+- JSON 定義ファイルで構成をコード管理し、誰が Project を作っても同じ構成を再現
+- Label も一括設定。チーム全員が同じ画面で作業できます
 
 | 次のステップ | リンク |
 |---|---|
-| Organization 向け活用ガイドを読む | [Organization 向け活用ガイド](use-cases/use-case-organization) |
+| 活用ガイドを読む | [OSS メンテナー・小規模チーム向けガイド](use-cases/use-case-oss-team) |
 | すぐに始める（GUI） | [GUI クイックスタート](getting-started/quickstart-gui) |
 | すぐに始める（CLI） | [CLI クイックスタート](getting-started/quickstart-cli) |
 
-### 📊 プロジェクトの分析・レポートを活用したい
+### 🏢 Organization 管理者・PM・EM の方
 
-すでに GitHub Projects を運用中で、滞留検知やデータ分析・レポート生成を自動化したい方向け。
+複数チーム・リポジトリの横断管理、レポート自動生成、運用の標準化と定着を実現したい方向け。
 
-- サマリー・工数・ベロシティレポートを Workflow 実行だけで自動生成できます
-- 滞留タスクを自動検知し、対応漏れを防止できます
+- レポート自動生成で定例報告の準備時間を大幅削減
+- 外部ツール不要。GitHub だけで運用基盤を構築できます
 
 | 次のステップ | リンク |
 |---|---|
-| 統合分析 Workflow の詳細 | [Workflow ⑥ 統合 Project 分析](workflows/06-analyze-project) |
-| エクスポート機能の詳細 | [export-project-items スクリプト](scripts/export-project-items) |
-| 滞留検知の詳細 | [detect-stale-items スクリプト](scripts/detect-stale-items) |
+| 活用ガイドを読む | [Organization 管理者・PM・EM 向けガイド](use-cases/use-case-organization) |
+| すぐに始める（GUI） | [GUI クイックスタート](getting-started/quickstart-gui) |
+| すぐに始める（CLI） | [CLI クイックスタート](getting-started/quickstart-cli) |
 
 ---
 
@@ -121,7 +121,7 @@ Docs サイトは以下のカテゴリで構成されています。目的に応
 | カテゴリ | 内容 | 対象 |
 |----------|------|------|
 | **[はじめに](getting-started/quickstart-gui)** | Fork〜Workflow 実行までのクイックスタート | 初めて使う方 |
-| **[ユースケース](use-cases/use-case-personal)** | 個人・Organization 向けの活用ガイド | 導入検討中の方 |
+| **[ユースケース](use-cases/use-case-personal)** | 個人・OSS チーム・Organization 向けの活用ガイド | 導入検討中の方 |
 | **[Workflow リファレンス](workflows/01-create-project)** | 各 Workflow の入力値・動作・出力の詳細 | 導入後に Workflow を使う方 |
 | **[運用ガイド](guide/kanban-rules)** | カンバンルール・Label 運用・認証設定 | 運用を整えたい方 |
 | **[スクリプトリファレンス](scripts/setup-github-project)** | 各スクリプトの仕様・パラメータ | カスタマイズしたい方・開発者 |
