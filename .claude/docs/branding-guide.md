@@ -1,6 +1,6 @@
 # ブランドメッセージ・想定顧客セグメント ガイド
 
-このドキュメントは、GitHub Projects Ops Kit のブランドメッセージと想定顧客セグメントを整理した基礎資料です。
+このドキュメントは、**GitHub Projects Ops Kit** のブランドメッセージと想定顧客セグメントを整理した基礎資料です。
 README / Docs / SNS / Issue / 登壇資料に流用できる文言の元データとして活用してください。
 
 ---
@@ -126,7 +126,7 @@ GitHub Actions の Workflow 実行だけで完結させます。
 
 ### やや詳しい紹介文（3〜5 文）
 
-> GitHub Projects Ops Kit は、GitHub Projects の運用立ち上げと継続運用を支援するツールキットです。Project の作成、Field・Status・View の一括セットアップ、Issue/PR の紐付け、滞留検知、各種レポート生成までを GitHub Actions の Workflow で実行できます。JSON 定義ファイルで構成を管理するため、何度でも同じ環境を再現でき、チーム内での標準化にも活用できます。個人開発者から Organization 管理者まで、GitHub Projects を本格的に運用したいすべての方に向けたキットです。
+> **GitHub Projects Ops Kit** は、GitHub Projects の運用立ち上げと継続運用を支援するツールキットです。Project の作成、Field・Status・View の一括セットアップ、Issue/PR の紐付け、滞留検知、各種レポート生成までを GitHub Actions の Workflow で実行できます。JSON 定義ファイルで構成を管理するため、何度でも同じ環境を再現でき、チーム内での標準化にも活用できます。個人開発者から Organization 管理者まで、GitHub Projects を本格的に運用したいすべての方に向けたキットです。
 
 ### 特徴を伝える箇条書き
 

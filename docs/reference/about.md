@@ -1,15 +1,11 @@
+# 🏢 About
+
+**GitHub Projects Ops Kit** の運営元と開発者をご紹介します。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-<details><summary>（ここをクリック）目次</summary><ul>
-<li><a href="#-about">🏢 About</a></li>
-</ul></details>
-
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# 🏢 About
-
-GitHub Projects Ops Kit の運営元と開発者をご紹介します。
 
 ---
 
@@ -17,7 +13,7 @@ GitHub Projects Ops Kit の運営元と開発者をご紹介します。
 
 **株式会社 Lurest** は、東京を拠点に活動するソフトウェア開発企業です。
 
-GitHub 上での開発プロセスの効率化・自動化に取り組んでおり、GitHub Projects Ops Kit をはじめとする OSS ツールを公開しています。
+GitHub 上での開発プロセスの効率化・自動化に取り組んでおり、**GitHub Projects Ops Kit** をはじめとする OSS ツールを公開しています。
 
 | 項目 | 内容 |
 |------|------|

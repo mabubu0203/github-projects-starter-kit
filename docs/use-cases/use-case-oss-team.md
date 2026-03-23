@@ -1,16 +1,12 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-<details><summary>（ここをクリック）目次</summary><ul>
-<li><a href="#-oss-%E3%83%A1%E3%83%B3%E3%83%86%E3%83%8A%E3%83%BC%E3%83%BB%E5%B0%8F%E8%A6%8F%E6%A8%A1%E3%83%81%E3%83%BC%E3%83%A0%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE-github-projects-%E6%B4%BB%E7%94%A8%E3%82%AC%E3%82%A4%E3%83%89">🤝 OSS メンテナー・小規模チームのための GitHub Projects 活用ガイド</a></li>
-</ul></details>
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # 🤝 OSS メンテナー・小規模チームのための GitHub Projects 活用ガイド
 
 コントリビュータが増えてきた OSS プロジェクトや、2〜5 名規模の開発チームで `GitHub Projects` を活用しませんか？
 **GitHub Projects Ops Kit** を使えば、運用ルールの統一と Project の可視化を Workflow 実行だけで実現できます。
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ---
 

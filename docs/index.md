@@ -1,12 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-<details><summary>（ここをクリック）目次</summary><ul>
-<li><a href="#-github-projects-ops-kit-%E3%83%89%E3%82%AD%E3%83%A5%E3%83%A1%E3%83%B3%E3%83%88">📖 GitHub Projects Ops Kit ドキュメント</a></li>
-</ul></details>
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # 📖 GitHub Projects Ops Kit ドキュメント
 
 ![Platform: macOS/Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue.svg)
@@ -22,15 +13,20 @@
 
 **GitHub Projects の「立ち上げ」と「運用」を、まるごと自動化。**
 
-GitHub Projects Ops Kit は、GitHub Projects の運用立ち上げと継続運用を支援するツールキットです。
+**GitHub Projects Ops Kit** は、GitHub Projects の運用立ち上げと継続運用を支援するツールキットです。
 Project の作成、Field・Status・View の一括セットアップ、Issue/PR の紐付け、滞留検知、各種レポート生成までを GitHub Actions の Workflow 実行だけで完結させます。
 JSON 定義ファイルで構成を管理するため、何度でも同じ環境を再現でき、チーム内での標準化にも活用できます。
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ---
 
 ## 🧭 あなたの状況に合わせて始める
 
-GitHub Projects Ops Kit は、個人開発者から Organization 管理者まで、さまざまな立場・フェーズの方にお使いいただけます。
+**GitHub Projects Ops Kit** は、個人開発者から Organization 管理者まで、さまざまな立場・フェーズの方にお使いいただけます。
 自分に近い状況を選んで、最適なページへ進んでください。
 
 ### 🧑‍💻 個人開発者・ソロメンテナーの方
