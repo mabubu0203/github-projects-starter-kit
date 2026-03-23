@@ -136,6 +136,7 @@ Docs サイトは以下のカテゴリで構成されています。目的に応
 | **[スクリプトリファレンス](scripts/setup-github-project)** | 各スクリプトの仕様・パラメータ | カスタマイズしたい方・開発者 |
 | **[FAQ・トラブルシューティング](support/faq)** | よくある質問とエラー対応 | 困ったときに |
 | **[開発者向け](reference/developers)** | 内部構成・コントリビューション情報 | 開発に参加したい方 |
+| **[About](reference/about)** | 運営元 Lurest・開発者 mabubu0203 の紹介 | プロジェクトの背景を知りたい方 |
 
 ---
 
@@ -178,3 +179,4 @@ Docs サイトは以下のカテゴリで構成されています。目的に応
 ## 🏠 Repository
 
 - GitHub: [lurest-inc/github-projects-ops-kit](https://github.com/lurest-inc/github-projects-ops-kit)
+- [About — 運営元・開発者の紹介](reference/about)
