@@ -42,6 +42,8 @@ Organization 配下の複数リポジトリにまたがる Issue や PR を、1 
 
 ---
 
+![チーム・組織のプロジェクト運営の導入前後イメージ](../assets/images/use-case-organization.png)
+
 ## ⚡ Before/After — 手作業 vs Starter Kit
 
 | 作業内容 | 手作業の場合 | Starter Kit の場合 |
