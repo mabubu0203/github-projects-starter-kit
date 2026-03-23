@@ -1,3 +1,12 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<details><summary>（ここをクリック）目次</summary><ul>
+<li><a href="#-%E5%80%8B%E4%BA%BA%E9%96%8B%E7%99%BA%E8%80%85%E3%83%BB%E3%82%BD%E3%83%AD%E3%83%A1%E3%83%B3%E3%83%86%E3%83%8A%E3%83%BC%E3%81%AE%E3%81%9F%E3%82%81%E3%81%AE-github-projects-%E6%B4%BB%E7%94%A8%E3%82%AC%E3%82%A4%E3%83%89">🧑‍💻 個人開発者・ソロメンテナーのための GitHub Projects 活用ガイド</a></li>
+</ul></details>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # 🧑‍💻 個人開発者・ソロメンテナーのための GitHub Projects 活用ガイド
 
 **Fork して実行するだけ。約 1 分でセットアップ完了。**
