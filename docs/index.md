@@ -1,4 +1,4 @@
-# 📖 GitHub Starter Kit ドキュメント
+# 📖 GitHub Projects Ops Kit ドキュメント
 
 ![Platform: macOS/Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue.svg)
 ![GitHub Top Language](https://img.shields.io/github/languages/top/lurest-inc/github-starter-kit)
@@ -11,7 +11,7 @@
 [![Issues Welcome](https://img.shields.io/badge/Issues-welcome-brightgreen)](https://github.com/lurest-inc/github-starter-kit/issues)
 [![Discussions Welcome](https://img.shields.io/badge/Discussions-welcome-brightgreen)](https://github.com/lurest-inc/github-starter-kit/discussions)
 
-`GitHub Projects` の初期セットアップを `GitHub Actions` で自動実行するための **スターターキット** です。
+`GitHub Projects` の初期構築から運用分析までを `GitHub Actions` で自動実行するための **運用キット** です。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
