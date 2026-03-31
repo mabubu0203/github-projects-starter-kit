@@ -214,7 +214,7 @@ github-projects-ops-kit/
 │   ├── 02-extend-project.yml
 │   ├── 03-create-special-repos.yml
 │   ├── 04-setup-repository-labels.yml
-│   ├── 05-setup-repository-health-files.yml
+│   ├── 05-setup-repository-files.yml
 │   ├── 06-add-items-to-project.yml
 │   └── 07-analyze-project.yml
 ├── scripts/

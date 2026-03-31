@@ -58,7 +58,7 @@ flowchart TD
       ├── _reusable-extend-project.yml      # Project 拡張（Reusable Workflow）
       ├── 03-create-special-repos.yml       # ③ 特殊 Repository 一括作成 Workflow
       ├── 04-setup-repository-labels.yml    # ④ Issue Label 一括追加 Workflow
-      ├── 05-setup-repository-health-files.yml # ⑤ Community Health Files 一括登録 Workflow
+      ├── 05-setup-repository-files.yml       # ⑤ Repository 初期ファイル一括登録 Workflow
       ├── 06-add-items-to-project.yml       # ⑥ Issue/PR 一括紐付け Workflow
       └── 07-analyze-project.yml            # ⑦ 統合 Project 分析 Workflow
 scripts/
@@ -142,12 +142,14 @@ scripts/
       └── .github/actions/workflow-summary       # 成功サマリー出力
 ```
 
-### ⑤ Community Health Files 一括登録
+### ⑤ Repository 初期ファイル一括登録
 
 ```
-05-setup-repository-health-files.yml
+05-setup-repository-files.yml
   ├── setup-repository-health-files Job
   │   └── scripts/setup-repository-health-files.sh  # Community Health Files 一括登録
+  ├── setup-repository-scaffold-files Job
+  │   └── scripts/setup-repository-scaffold-files.sh # Scaffold ファイル一括登録
   ├── workflow-summary-failure Job（失敗時）
   │   └── .github/actions/workflow-summary       # 失敗サマリー出力
   └── workflow-summary-success Job（成功時）

@@ -86,7 +86,7 @@ flowchart TD
 
 ### ファイル
 
-`.github/workflows/05-setup-repository-health-files.yml`
+`.github/workflows/05-setup-repository-files.yml`
 
 ### トリガー
 
@@ -105,7 +105,7 @@ flowchart TD
 ### Job 構成
 
 ```
-.github/workflows/05-setup-repository-health-files.yml
+.github/workflows/05-setup-repository-files.yml
   ├── setup-repository-health-files Job
   │   └── scripts/setup-repository-health-files.sh     # Community Health Files 一括登録
   ├── setup-repository-scaffold-files Job
