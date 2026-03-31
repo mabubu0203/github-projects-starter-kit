@@ -22,6 +22,7 @@
 | [setup-project-status.sh](setup-project-status) | ステータスカラムを設定 |
 | [setup-project-views.sh](setup-project-views) | ビューを自動作成 |
 | [setup-repository-labels.sh](setup-repository-labels) | Repository に Label を一括作成 |
+| [create-special-repos.sh](create-special-repos) | 特殊 Repository を一括作成 |
 
 ### 📥 データ操作系
 
