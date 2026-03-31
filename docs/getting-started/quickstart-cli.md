@@ -111,6 +111,14 @@ gh workflow run 04-setup-repository-labels.yml \
   --field target_repo="<owner/repo>"
 ```
 
+### ⑤ 初期ファイル一括作成
+
+```bash
+gh workflow run 05-setup-repository-files.yml \
+  --field target_repo="<owner/repo>" \
+  --field setup_types="all"
+```
+
 ### ⑥ Issue/PR 一括紐付け
 
 ```bash
@@ -147,5 +155,6 @@ gh run watch
 - [② GitHub Project 拡張](../workflows/02-extend-project.md)
 - [③ 特殊 Repository 一括作成](../workflows/03-create-special-repos.md)
 - [④ Issue Label 一括作成](../workflows/04-setup-repository-labels.md)
+- [⑤ 初期ファイル一括作成](../workflows/05-setup-repository-files.md)
 - [⑥ Issue/PR 一括紐付け](../workflows/06-add-items-to-project.md)
 - [⑦ 統合 Project 分析](../workflows/07-analyze-project.md)
