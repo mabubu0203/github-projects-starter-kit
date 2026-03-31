@@ -41,7 +41,7 @@ flowchart TD
     subgraph repos ["GitHub Repository 用"]
         G["③ 特殊 Repository 一括作成"]
         C["④ Issue Label 一括作成"]
-        E["⑤ Community Health Files 一括登録"]
+        E["⑤ 初期ファイル一括作成"]
     end
 ```
 
@@ -58,32 +58,35 @@ flowchart TD
       ├── _reusable-extend-project.yml      # Project 拡張（Reusable Workflow）
       ├── 03-create-special-repos.yml       # ③ 特殊 Repository 一括作成 Workflow
       ├── 04-setup-repository-labels.yml    # ④ Issue Label 一括作成 Workflow
-      ├── 05-setup-repository-files.yml       # ⑤ 初期ファイル一括作成 Workflow
+      ├── 05-setup-repository-files.yml     # ⑤ 初期ファイル一括作成 Workflow
       ├── 06-add-items-to-project.yml       # ⑥ Issue/PR 一括紐付け Workflow
       └── 07-analyze-project.yml            # ⑦ 統合 Project 分析 Workflow
 scripts/
   ├── config/
-  │   ├── project-status-options.json          # カスタム Status 定義
-  │   ├── project-field-definitions.json       # カスタム Field 定義
-  │   ├── project-view-definitions.json        # View 定義
-  │   ├── repo-label-definitions.json    # Issue Label 定義
-  │   ├── special-repo-definitions-user.json   # 個人アカウント用特殊 Repository定義
-  │   └── special-repo-definitions-org.json    # Organization 用特殊 Repository定義
+  │   ├── project-status-options.json        # カスタム Status 定義
+  │   ├── project-field-definitions.json     # カスタム Field 定義
+  │   ├── project-view-definitions.json      # View 定義
+  │   ├── repo-label-definitions.json        # Issue Label 定義
+  │   ├── repo-health-file-definitions.json  # Community Health Files 定義
+  │   ├── repo-scaffold-definitions.json     # Scaffold ファイル定義
+  │   ├── special-repo-definitions-user.json # 個人アカウント用特殊 Repository 定義
+  │   └── special-repo-definitions-org.json  # Organization 用特殊 Repository 定義
   ├── lib/
-  │   └── common.sh                    # 共通関数ライブラリ
-  ├── setup-github-project.sh          # Project 作成スクリプト
-  ├── setup-project-status.sh          # カスタム Status 作成スクリプト
-  ├── setup-project-fields.sh          # カスタム Field 作成スクリプト
-  ├── setup-project-views.sh           # View 作成スクリプト
-  ├── create-special-repos.sh          # 特殊 Repository 一括作成スクリプト
-  ├── setup-repository-labels.sh       # Issue Label 一括作成スクリプト
-  ├── setup-repository-health-files.sh # Community Health Files 一括登録スクリプト
-  ├── add-items-to-project.sh          # Item 一括追加スクリプト
-  ├── export-project-items.sh          # Item エクスポートスクリプト
-  ├── detect-stale-items.sh            # 滞留 Item 検知スクリプト
-  ├── generate-summary-report.sh       # Project サマリーレポート生成スクリプト
-  ├── generate-effort-report.sh        # 工数集計レポート生成スクリプト
-  └── generate-velocity-report.sh      # ベロシティレポート生成スクリプト
+  │   └── common.sh                          # 共通関数ライブラリ
+  ├── setup-github-project.sh                # Project 作成スクリプト
+  ├── setup-project-status.sh                # カスタム Status 作成スクリプト
+  ├── setup-project-fields.sh                # カスタム Field 作成スクリプト
+  ├── setup-project-views.sh                 # View 作成スクリプト
+  ├── create-special-repos.sh                # 特殊 Repository 一括作成スクリプト
+  ├── setup-repository-labels.sh             # Issue Label 一括作成スクリプト
+  ├── setup-repository-health-files.sh       # Community Health Files 一括作成スクリプト
+  ├── setup-repository-scaffold-files.sh     # Scaffold ファイル一括作成スクリプト
+  ├── add-items-to-project.sh                # Item 一括追加スクリプト
+  ├── export-project-items.sh                # Item エクスポートスクリプト
+  ├── detect-stale-items.sh                  # 滞留 Item 検知スクリプト
+  ├── generate-summary-report.sh             # Project サマリーレポート生成スクリプト
+  ├── generate-effort-report.sh              # 工数集計レポート生成スクリプト
+  └── generate-velocity-report.sh            # ベロシティレポート生成スクリプト
 ```
 
 ## ⚙️ 各 Workflow の構成
