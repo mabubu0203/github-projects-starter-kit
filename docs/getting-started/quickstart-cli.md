@@ -51,6 +51,15 @@ cd github-projects-ops-kit
 
 GitHub の [Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens) から PAT を作成します。
 
+<details>
+<summary>（ここをクリック）PAT 作成画面のスクリーンショットを表示</summary>
+
+> **参考画像:** Settings > Developer settings > Personal access tokens 画面
+>
+> <img src="../assets/images/quickstart-pat.png" alt="PAT 作成画面" width="50%">
+
+</details>
+
 必要な権限の詳細は [認証・トークンガイド](../guide/auth-tokens) を参照してください。`Fine-grained token` の制約事項については [`Fine-grained token` の制約事項](../guide/auth-tokens#fine-grained-token-の制約事項) も合わせてご確認ください。
 
 ## 3. 🔒 Secrets を設定する
