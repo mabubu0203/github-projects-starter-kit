@@ -1,0 +1,14 @@
+[
+  {
+    "path": ".vscode/.gitkeep",
+    "description": "VS Code 設定ディレクトリの保持"
+  },
+  {
+    "path": ".claude/.gitkeep",
+    "description": "Claude Code 設定ディレクトリの保持"
+  },
+  {
+    "path": ".claude/.gitignore",
+    "description": "Claude Code 用 gitignore"
+  }
+]

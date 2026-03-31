@@ -26,7 +26,7 @@ require_command "jq" "JSON の解析に必要です。"
 
 # --- ラベル定義ファイルの読み込み ---
 
-LABEL_DEFINITIONS_FILE="${SCRIPT_DIR}/config/repository-label-definitions.json"
+LABEL_DEFINITIONS_FILE="${SCRIPT_DIR}/config/repo-label-definitions.json"
 if [[ ! -f "${LABEL_DEFINITIONS_FILE}" ]]; then
   echo "::error::ラベル定義ファイルが見つかりません: ${LABEL_DEFINITIONS_FILE}"
   exit 1

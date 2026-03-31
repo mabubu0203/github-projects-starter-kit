@@ -3,7 +3,7 @@
 # PAT の形式（ghp_ または github_pat_ で始まる）を検証し、
 # 無効な値の場合はステップをスキップします。
 # ---------------------------------------------------------
-name: "⑤ Community Health Files 一括登録"
+name: "⑤ 初期ファイル一括作成"
 
 on:
   workflow_dispatch:
@@ -12,12 +12,23 @@ on:
         description: "対象 Repository（owner/repo 形式）"
         required: true
         type: string
+      setup_types:
+        description: "実行するセットアップタイプ（all: 全機能, health: Community Health Files, scaffold: Scaffold ファイル）"
+        required: true
+        type: choice
+        default: "all"
+        options:
+          - all
+          - health
+          - scaffold
 
 permissions:
   contents: read
 
 jobs:
   setup-repository-health-files:
+    if: >-
+      inputs.setup_types == 'all' || inputs.setup_types == 'health'
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ secrets.PROJECT_PAT }}
@@ -36,9 +47,28 @@ jobs:
           TARGET_REPO="$(echo "$TARGET_REPO" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
           bash scripts/setup-repository-health-files.sh
 
+  setup-repository-scaffold-files:
+    if: >-
+      inputs.setup_types == 'all' || inputs.setup_types == 'scaffold'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      TARGET_REPO: ${{ inputs.target_repo }}
+      PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Scaffold ファイルを登録
+        if: ${{ startsWith(env.PROJECT_PAT, 'ghp_') || startsWith(env.PROJECT_PAT, 'github_pat_') }}
+        run: |
+          # トリム（前後の空白のみ削除、内部空白は保持）
+          TARGET_REPO="$(echo "$TARGET_REPO" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+          bash scripts/setup-repository-scaffold-files.sh
+
   workflow-summary-failure:
-    needs: [setup-repository-health-files]
-    if: failure()
+    needs: [setup-repository-health-files, setup-repository-scaffold-files]
+    if: always() && contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -50,11 +80,11 @@ jobs:
           status: failure
           project-owner: ${{ github.repository_owner }}
           job-results: |
-            {"setup-repository-health-files": "${{ needs.setup-repository-health-files.result }}"}
+            {"setup-repository-health-files": "${{ needs.setup-repository-health-files.result }}", "setup-repository-scaffold-files": "${{ needs.setup-repository-scaffold-files.result }}"}
 
   workflow-summary-success:
-    needs: [setup-repository-health-files]
-    if: success()
+    needs: [setup-repository-health-files, setup-repository-scaffold-files]
+    if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -66,4 +96,4 @@ jobs:
           status: success
           project-owner: ${{ github.repository_owner }}
           job-results: |
-            {"setup-repository-health-files": "${{ needs.setup-repository-health-files.result }}"}
+            {"setup-repository-health-files": "${{ needs.setup-repository-health-files.result }}", "setup-repository-scaffold-files": "${{ needs.setup-repository-scaffold-files.result }}"}

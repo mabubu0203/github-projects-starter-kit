@@ -1,6 +1,6 @@
-# ⑤ Community Health Files 一括登録
+# ⑤ 初期ファイル一括作成
 
-指定 Repository に対して、Community Health Files を空ファイルとして一括登録します。
+指定 Repository に対して、Community Health Files および開発に必要な Scaffold ファイルを空ファイルとして一括登録します。
 既にファイルが存在する場合はスキップし、作成ファイルがあればデフォルトブランチへの PR を自動作成します。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -32,21 +32,30 @@
 ## 📖 使い方
 
 1. `Actions` タブを開く
-2. `⑤ Community Health Files 一括登録` を選択
+2. `⑤ 初期ファイル一括作成` を選択
 3. `Run workflow` をクリック
 4. パラメータを入力して実行
 
 ## ⚙️ パラメータ
 
-| パラメータ | 説明 | 必須 | タイプ | 例 |
-|------------|------|:----:|--------|-----|
-| `target_repo` | 対象 Repository（owner/repo 形式） | ✅ | `string` | `myorg/myrepo` |
+| パラメータ | 説明 | 必須 | タイプ | デフォルト | 例 |
+|------------|------|:----:|--------|------------|-----|
+| `target_repo` | 対象 Repository（owner/repo 形式） | ✅ | `string` | — | `myorg/myrepo` |
+| `setup_types` | 実行するセットアップタイプ | ✅ | `choice` | `all` | `health` / `scaffold` |
+
+`setup_types` の選択肢:
+
+| 値 | 説明 |
+|----|------|
+| `all` | 全機能を実行（Community Health Files + Scaffold ファイル） |
+| `health` | Community Health Files のみ |
+| `scaffold` | Scaffold ファイルのみ |
 
 > **Note:** 対象リポジトリに同名ファイルが既に存在する場合はスキップされます（上書き禁止）。全ファイルが既に存在する場合は PR を作成しません。
 
-### 対象ファイル
+### 対象ファイル（Community Health Files）
 
-対象ファイルは [`scripts/config/health-file-definitions.json`](../../scripts/config/health-file-definitions.json) で定義されています。
+対象ファイルは [`scripts/config/repo-health-file-definitions.json`](../../scripts/config/repo-health-file-definitions.json) で定義されています。
 JSON ファイルを編集することで、スクリプトを変更せずに登録対象をカスタマイズできます。
 
 | ファイル | パス |
@@ -59,12 +68,25 @@ JSON ファイルを編集することで、スクリプトを変更せずに登
 | `PULL_REQUEST_TEMPLATE.md` | `.github/PULL_REQUEST_TEMPLATE.md` |
 | Issue テンプレート設定 | `.github/ISSUE_TEMPLATE/config.yml` |
 
+### 対象ファイル（Scaffold Files）
+
+対象ファイルは [`scripts/config/repo-scaffold-definitions.json`](../../scripts/config/repo-scaffold-definitions.json) で定義されています。
+JSON ファイルを編集することで、スクリプトを変更せずに登録対象をカスタマイズできます。
+
+| ファイル | パス |
+|----------|------|
+| `.gitkeep` | `.vscode/.gitkeep` |
+| `.gitkeep` | `.claude/.gitkeep` |
+| `.gitignore` | `.claude/.gitignore` |
+
 ## 📊 処理フロー
 
 ```mermaid
 flowchart TD
     A["workflow_dispatch\n（target_repo）"] --> B["setup-repository-health-files Job\nデフォルトブランチから作業ブランチを作成\nCommunity Health Filesを一括登録\nPRを自動作成"]
+    A --> F["setup-repository-scaffold-files Job\nデフォルトブランチから作業ブランチを作成\nScaffold Filesを一括登録\nPRを自動作成"]
     B --> C{"結果判定"}
+    F --> C
     C -- "成功" --> D["workflow-summary-success Job\n成功サマリーを出力"]
     C -- "失敗" --> E["workflow-summary-failure Job\n失敗サマリーを出力"]
 ```
@@ -73,7 +95,7 @@ flowchart TD
 
 ### ファイル
 
-`.github/workflows/05-setup-repository-health-files.yml`
+`.github/workflows/05-setup-repository-files.yml`
 
 ### トリガー
 
@@ -92,9 +114,11 @@ flowchart TD
 ### Job 構成
 
 ```
-.github/workflows/05-setup-repository-health-files.yml
+.github/workflows/05-setup-repository-files.yml
   ├── setup-repository-health-files Job
   │   └── scripts/setup-repository-health-files.sh     # Community Health Files 一括登録
+  ├── setup-repository-scaffold-files Job
+  │   └── scripts/setup-repository-scaffold-files.sh   # Scaffold ファイル一括登録
   ├── workflow-summary-failure Job（失敗時）
   │   └── .github/actions/workflow-summary            # 失敗サマリー出力
   └── workflow-summary-success Job（成功時）
@@ -104,3 +128,4 @@ flowchart TD
 ## 📜 関連スクリプト
 
 - [setup-repository-health-files.sh](../scripts/setup-repository-health-files.md) — Community Health Files 一括登録スクリプト
+- [setup-repository-scaffold-files.sh](../scripts/setup-repository-scaffold-files.md) — Scaffold ファイル一括登録スクリプト

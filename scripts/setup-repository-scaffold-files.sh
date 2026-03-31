@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# 指定 Repository への Community Health Files 一括登録スクリプト
+# 指定 Repository への開発用 Scaffold ファイル一括登録スクリプト
 #
-# 対象リポジトリに作業ブランチを作成し、Community Health Files を
-# 空ファイルとして登録した後、デフォルトブランチへの PR を作成する。
+# 対象リポジトリに作業ブランチを作成し、開発に必要な空ファイル（scaffold ファイル）を
+# 登録した後、デフォルトブランチへの PR を作成する。
 # 既に存在するファイルはスキップする（上書き禁止）。
 #
 # 環境変数:
@@ -30,15 +30,15 @@ require_command "jq" "JSON の解析に必要です。"
 # --- 対象ファイル定義（JSON から読み込み） ---
 
 CONFIG_DIR="${SCRIPT_DIR}/config"
-HEALTH_FILE_DEFINITIONS="${CONFIG_DIR}/repo-health-file-definitions.json"
+SCAFFOLD_FILE_DEFINITIONS="${CONFIG_DIR}/repo-scaffold-definitions.json"
 
-if [[ ! -f "${HEALTH_FILE_DEFINITIONS}" ]]; then
-  echo "::error::設定ファイルが見つかりません: ${HEALTH_FILE_DEFINITIONS}"
+if [[ ! -f "${SCAFFOLD_FILE_DEFINITIONS}" ]]; then
+  echo "::error::設定ファイルが見つかりません: ${SCAFFOLD_FILE_DEFINITIONS}"
   exit 1
 fi
 
-mapfile -t HEALTH_FILES < <(jq -r '.[].path' "${HEALTH_FILE_DEFINITIONS}")
-FILE_COUNT=${#HEALTH_FILES[@]}
+mapfile -t SCAFFOLD_FILES < <(jq -r '.[].path' "${SCAFFOLD_FILE_DEFINITIONS}")
+FILE_COUNT=${#SCAFFOLD_FILES[@]}
 
 if [[ "${FILE_COUNT}" -eq 0 ]]; then
   echo "::error::設定ファイルに対象ファイルが定義されていません。"
@@ -85,7 +85,7 @@ echo "既存ファイルを確認しています..."
 FILES_TO_CREATE=()
 SKIPPED_COUNT=0
 
-for file_path in "${HEALTH_FILES[@]}"; do
+for file_path in "${SCAFFOLD_FILES[@]}"; do
   if gh api "repos/${TARGET_REPO}/contents/${file_path}" \
     -H "X-GitHub-Api-Version: ${REST_API_VERSION}" \
     --jq '.sha' >/dev/null 2>&1; then
@@ -108,7 +108,7 @@ if [[ ${#FILES_TO_CREATE[@]} -eq 0 ]]; then
 
   if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
     {
-      echo "## Community Health Files 一括登録完了"
+      echo "## Scaffold ファイル一括登録完了"
       echo ""
       echo "| 項目 | 件数 |"
       echo "|------|------|"
@@ -126,7 +126,7 @@ fi
 
 # --- 作業ブランチ作成 ---
 
-WORK_BRANCH="chore/add-community-health-files"
+WORK_BRANCH="chore/add-scaffold-files"
 
 echo ""
 echo "作業ブランチ ${WORK_BRANCH} を作成しています..."
@@ -146,7 +146,7 @@ echo "  作成しました。"
 # --- ファイル登録 ---
 
 echo ""
-echo "Community Health Files を登録します..."
+echo "Scaffold ファイルを登録します..."
 
 FILE_INDEX=0
 
@@ -162,7 +162,7 @@ for file_path in "${FILES_TO_CREATE[@]}"; do
   if gh api "repos/${TARGET_REPO}/contents/${file_path}" \
     -H "X-GitHub-Api-Version: ${REST_API_VERSION}" \
     --method PUT \
-    -f "message=docs: add ${file_path}" \
+    -f "message=chore: add ${file_path}" \
     -f "content=${CONTENT_BASE64}" \
     -f "branch=${WORK_BRANCH}" \
     >/dev/null 2>&1; then
@@ -184,14 +184,14 @@ if [[ "${CREATED_COUNT}" -gt 0 ]]; then
 
   PR_BODY="## 概要
 
-Community Health Files を一括登録します。
+開発に必要な Scaffold ファイルを一括登録します。
 
 ### 追加ファイル
 
 | ファイル | 状態 |
 |---|---|"
 
-  for file_path in "${HEALTH_FILES[@]}"; do
+  for file_path in "${SCAFFOLD_FILES[@]}"; do
     # FILES_TO_CREATE に含まれるかチェック
     local_status="スキップ（既存）"
     for created_file in "${FILES_TO_CREATE[@]}"; do
@@ -208,7 +208,7 @@ Community Health Files を一括登録します。
     --repo "${TARGET_REPO}" \
     --base "${DEFAULT_BRANCH}" \
     --head "${WORK_BRANCH}" \
-    --title "docs: add community health files" \
+    --title "chore: add scaffold files" \
     --body "${PR_BODY}" 2>&1); then
     echo "  PR を作成しました: ${PR_URL}"
   else
@@ -221,7 +221,7 @@ fi
 
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   {
-    echo "## Community Health Files 一括登録完了"
+    echo "## Scaffold ファイル一括登録完了"
     echo ""
     echo "| 項目 | 件数 |"
     echo "|------|------|"

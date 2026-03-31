@@ -134,7 +134,7 @@ GitHub には特殊な命名規則を持つ Repository があります。
 </details>
 
 <details>
-<summary>④ Issue Label 一括追加</summary>
+<summary>④ Issue Label 一括作成</summary>
 
 - 指定 Repository に 13 種類の Issue Label を一括作成
 - 種別（bug, enhancement, documentation...）、状態（on-hold, blocked...）、優先度（priority: high/low）をカバー
@@ -214,7 +214,7 @@ github-projects-ops-kit/
 │   ├── 02-extend-project.yml
 │   ├── 03-create-special-repos.yml
 │   ├── 04-setup-repository-labels.yml
-│   ├── 05-setup-repository-health-files.yml
+│   ├── 05-setup-repository-files.yml
 │   ├── 06-add-items-to-project.yml
 │   └── 07-analyze-project.yml
 ├── scripts/

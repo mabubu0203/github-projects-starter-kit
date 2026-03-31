@@ -1,6 +1,6 @@
-# 📜 setup-repository-health-files.sh
+# 📜 setup-repository-scaffold-files.sh
 
-指定 Repository に対して、Community Health Files を空ファイルとして一括登録するスクリプトです。
+指定 Repository に対して、開発に必要な Scaffold ファイルを空ファイルとして一括登録するスクリプトです。
 作業ブランチを作成し、Contents API でファイルを登録した後、デフォルトブランチへの PR を作成します。
 既にファイルが存在する場合はスキップします（上書き禁止）。
 
@@ -32,30 +32,24 @@
 
 ## 📋 対象ファイル
 
-以下の Community Health Files を空ファイルとして登録します。
-対象ファイルは `scripts/config/repo-health-file-definitions.json` で定義されており、ユーザーがスクリプトを直接編集せずにカスタマイズできます。
+以下の Scaffold ファイルを空ファイルとして登録します。
+対象ファイルは `scripts/config/repo-scaffold-definitions.json` で定義されており、ユーザーがスクリプトを直接編集せずにカスタマイズできます。
 
 | ファイル | パス | 説明 |
 |----------|------|------|
-| `CODE_OF_CONDUCT.md` | `.github/CODE_OF_CONDUCT.md` | 行動規範 |
-| `CONTRIBUTING.md` | `.github/CONTRIBUTING.md` | コントリビューションガイド |
-| `GOVERNANCE.md` | `.github/GOVERNANCE.md` | ガバナンスポリシー |
-| `SECURITY.md` | `.github/SECURITY.md` | セキュリティポリシー |
-| `SUPPORT.md` | `.github/SUPPORT.md` | サポート情報 |
-| `PULL_REQUEST_TEMPLATE.md` | `.github/PULL_REQUEST_TEMPLATE.md` | PR テンプレート |
-| Issue テンプレート設定 | `.github/ISSUE_TEMPLATE/config.yml` | Issue テンプレートの設定ファイル |
-
-> **Note:** `FUNDING.yml` は対象外です。
+| `.gitkeep` | `.vscode/.gitkeep` | VS Code 設定ディレクトリの保持 |
+| `.gitkeep` | `.claude/.gitkeep` | Claude Code 設定ディレクトリの保持 |
+| `.gitignore` | `.claude/.gitignore` | Claude Code 用 gitignore |
 
 ### 設定ファイルのカスタマイズ
 
-`scripts/config/repo-health-file-definitions.json` を編集することで、登録対象のファイルを追加・削除できます。
+`scripts/config/repo-scaffold-definitions.json` を編集することで、登録対象のファイルを追加・削除できます。
 
 ```json
 [
   {
-    "path": ".github/CODE_OF_CONDUCT.md",
-    "description": "行動規範"
+    "path": ".vscode/.gitkeep",
+    "description": "VS Code 設定ディレクトリの保持"
   }
 ]
 ```
@@ -105,7 +99,7 @@ flowchart TD
 | デフォルトブランチ取得 | 対象リポジトリのデフォルトブランチ名を取得 | `GET /repos/{owner}/{repo}` |
 | デフォルトブランチ SHA 取得 | 作業ブランチ作成用にデフォルトブランチの最新 SHA を取得 | `GET /repos/{owner}/{repo}/git/ref/heads/{branch}` |
 | 既存ファイルチェック | 対象ファイルごとに Contents API で存在確認。存在すればスキップ | `GET /repos/{owner}/{repo}/contents/{path}` |
-| 作業ブランチ作成 | デフォルトブランチの SHA から `chore/add-community-health-files` ブランチを作成 | `POST /repos/{owner}/{repo}/git/refs` |
+| 作業ブランチ作成 | デフォルトブランチの SHA から `chore/add-scaffold-files` ブランチを作成 | `POST /repos/{owner}/{repo}/git/refs` |
 | ファイル登録 | Contents API で空ファイル（改行のみ）を base64 エンコードして作成。1 ファイル 1 コミット | `PUT /repos/{owner}/{repo}/contents/{path}` |
 | PR 作成 | 作成ファイルが 1 件以上あればデフォルトブランチへの PR を作成 | `gh pr create` |
 | サマリー出力 | 作成/スキップ/失敗の件数をコンソールと `GITHUB_STEP_SUMMARY` に出力 | `print_summary`, `GITHUB_STEP_SUMMARY` |
@@ -119,8 +113,8 @@ flowchart TD
   完了サマリー
 =========================================
   Repository: owner/repo
-  作成:     5 件
-  スキップ:  2 件
+  作成:     3 件
+  スキップ:  0 件
   失敗:     0 件
 =========================================
 ```
@@ -129,8 +123,8 @@ flowchart TD
 
 | 項目 | 件数 |
 |------|------|
-| 作成 | 5 |
-| スキップ | 2 |
+| 作成 | 3 |
+| スキップ | 0 |
 | 失敗 | 0 |
 
 ## 📚 API リファレンス
@@ -160,7 +154,7 @@ Fine-grained PAT の場合は、対象 Repository に対する **Contents** と 
 |---------|------|------|
 | REST API (Core) | 5,000 リクエスト/時 | 認証済みユーザーの場合 |
 
-対象ファイル 7 件に対して、既存チェック (7) + ブランチ作成 (1) + ファイル作成 (最大 7) + PR 作成 (1) = 最大 16 リクエストを消費します。
+対象ファイル 3 件に対して、既存チェック (3) + ブランチ作成 (1) + ファイル作成 (最大 3) + PR 作成 (1) = 最大 8 リクエストを消費します。
 レート制限の影響はありません。
 
 ## 🔄 使用 Workflow
