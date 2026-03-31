@@ -1,3 +1,7 @@
+# 📚 開発者向け
+
+用語集、内部構成、プロジェクトの背景情報など、開発者やコントリビューター向けの情報です。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -6,10 +10,6 @@
 </ul></details>
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# 📚 開発者向け
-
-用語集、内部構成、プロジェクトの背景情報など、開発者やコントリビューター向けの情報です。
 
 ## ページ一覧
 

@@ -1,3 +1,7 @@
+# 🔧 FAQ・トラブルシューティング
+
+困ったときやエラーが発生したときに参照するページです。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -6,10 +10,6 @@
 </ul></details>
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# 🔧 FAQ・トラブルシューティング
-
-困ったときやエラーが発生したときに参照するページです。
 
 ## ページ一覧
 

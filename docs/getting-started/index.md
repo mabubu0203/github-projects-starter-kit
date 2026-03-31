@@ -1,3 +1,7 @@
+# 🚀 はじめに
+
+GitHub Projects Ops Kit を使い始めるためのクイックスタートガイドです。お好みの方法でセットアップを進めてください。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -6,10 +10,6 @@
 </ul></details>
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# 🚀 はじめに
-
-GitHub Projects Ops Kit を使い始めるためのクイックスタートガイドです。お好みの方法でセットアップを進めてください。
 
 ## ページ一覧
 

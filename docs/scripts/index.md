@@ -1,3 +1,7 @@
+# 📜 スクリプトリファレンス
+
+各 Bash スクリプトの仕様・パラメータ・使用方法の詳細ドキュメントです。Workflow をカスタマイズしたい方や開発者向けの情報です。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -6,10 +10,6 @@
 </ul></details>
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# 📜 スクリプトリファレンス
-
-各 Bash スクリプトの仕様・パラメータ・使用方法の詳細ドキュメントです。Workflow をカスタマイズしたい方や開発者向けの情報です。
 
 ## ページ一覧
 

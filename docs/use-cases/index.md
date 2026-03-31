@@ -1,3 +1,7 @@
+# 🧭 ユースケース
+
+あなたの立場やチーム規模に合わせた活用ガイドです。導入を検討している方は、自分に近いケースを参考にしてください。
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
@@ -6,10 +10,6 @@
 </ul></details>
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# 🧭 ユースケース
-
-あなたの立場やチーム規模に合わせた活用ガイドです。導入を検討している方は、自分に近いケースを参考にしてください。
 
 ## ページ一覧
 
