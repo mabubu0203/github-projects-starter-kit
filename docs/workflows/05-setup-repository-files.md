@@ -75,9 +75,24 @@ JSON ファイルを編集することで、スクリプトを変更せずに登
 
 | ファイル | パス |
 |----------|------|
-| `.gitkeep` | `.vscode/.gitkeep` |
-| `.gitkeep` | `.claude/.gitkeep` |
 | `.gitignore` | `.claude/.gitignore` |
+| `.gitkeep` | `.claude/.gitkeep` |
+| `.gitignore` | `.cline/.gitignore` |
+| `.gitkeep` | `.cline/.gitkeep` |
+| `.gitignore` | `.codex/.gitignore` |
+| `.gitkeep` | `.codex/.gitkeep` |
+| `.gitignore` | `.cursor/.gitignore` |
+| `.gitkeep` | `.cursor/.gitkeep` |
+| `.gitignore` | `.gemini/.gitignore` |
+| `.gitkeep` | `.gemini/.gitkeep` |
+| `copilot-instructions.md` | `.github/copilot-instructions.md` |
+| `release.yml` | `.github/release.yml` |
+| `.gitkeep` | `.idea/.gitkeep` |
+| `.gitkeep` | `.vscode/.gitkeep` |
+| `.gitignore` | `.windsurf/.gitignore` |
+| `.gitkeep` | `.windsurf/.gitkeep` |
+| `.gitignore` | `.gitignore` |
+| `README.md` | `README.md` |
 
 ## 📊 処理フロー
 
