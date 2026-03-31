@@ -75,8 +75,6 @@ JSON ファイルを編集することで、スクリプトを変更せずに登
 
 | ファイル | パス |
 |----------|------|
-| `.gitignore` | `.amazonq/.gitignore` |
-| `.gitkeep` | `.amazonq/.gitkeep` |
 | `.gitignore` | `.claude/.gitignore` |
 | `.gitkeep` | `.claude/.gitkeep` |
 | `.gitignore` | `.cline/.gitignore` |

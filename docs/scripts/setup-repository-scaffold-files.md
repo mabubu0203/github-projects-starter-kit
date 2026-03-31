@@ -37,8 +37,6 @@
 
 | ファイル | パス | 説明 |
 |----------|------|------|
-| `.gitignore` | `.amazonq/.gitignore` | Amazon Q Developer 用 gitignore |
-| `.gitkeep` | `.amazonq/.gitkeep` | Amazon Q Developer 設定ディレクトリの保持 |
 | `.gitignore` | `.claude/.gitignore` | Claude Code 用 gitignore |
 | `.gitkeep` | `.claude/.gitkeep` | Claude Code 設定ディレクトリの保持 |
 | `.gitignore` | `.cline/.gitignore` | Cline 用 gitignore |
@@ -171,7 +169,7 @@ Fine-grained PAT の場合は、対象 Repository に対する **Contents** と 
 |---------|------|------|
 | REST API (Core) | 5,000 リクエスト/時 | 認証済みユーザーの場合 |
 
-対象ファイル 20 件に対して、既存チェック (20) + ブランチ作成 (1) + ファイル作成 (最大 20) + PR 作成 (1) = 最大 42 リクエストを消費します。
+対象ファイル 18 件に対して、既存チェック (18) + ブランチ作成 (1) + ファイル作成 (最大 18) + PR 作成 (1) = 最大 38 リクエストを消費します。
 レート制限の影響はありません。
 
 ## 🔄 使用 Workflow
