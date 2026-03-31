@@ -146,4 +146,4 @@ Fine-grained PAT の場合は、対象 Repository に対する **Contents** と 
 
 ## 🔄 使用 Workflow
 
-- [⑦ Community Health Files 一括登録](../workflows/07-setup-repository-health-files.md)
+- [⑤ Community Health Files 一括登録](../workflows/05-setup-repository-health-files.md)

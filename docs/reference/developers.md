@@ -27,19 +27,21 @@ flowchart TD
     root --> B
     root --> G
     root --> C
+    root --> E
     root --> D
     root --> F
 
     subgraph projects ["GitHub Projects 用"]
         A["① Project 新規作成"]
         B["② Project 拡張"]
-        D["⑤ Issue/PR 一括紐付け"]
-        F["⑥ 統合 Project 分析"]
+        D["⑥ Issue/PR 一括紐付け"]
+        F["⑦ 統合 Project 分析"]
     end
 
     subgraph repos ["GitHub Repository 用"]
         G["③ 特殊 Repository 一括作成"]
         C["④ Issue Label 一括追加"]
+        E["⑤ Community Health Files 一括登録"]
     end
 ```
 
@@ -56,8 +58,9 @@ flowchart TD
       ├── _reusable-extend-project.yml      # Project 拡張（Reusable Workflow）
       ├── 03-create-special-repos.yml       # ③ 特殊 Repository 一括作成 Workflow
       ├── 04-setup-repository-labels.yml    # ④ Issue Label 一括追加 Workflow
-      ├── 05-add-items-to-project.yml       # ⑤ Issue/PR 一括紐付け Workflow
-      └── 06-analyze-project.yml            # ⑥ 統合 Project 分析 Workflow
+      ├── 05-setup-repository-health-files.yml # ⑤ Community Health Files 一括登録 Workflow
+      ├── 06-add-items-to-project.yml       # ⑥ Issue/PR 一括紐付け Workflow
+      └── 07-analyze-project.yml            # ⑦ 統合 Project 分析 Workflow
 scripts/
   ├── config/
   │   ├── project-status-options.json          # カスタム Status 定義
@@ -74,6 +77,7 @@ scripts/
   ├── setup-project-views.sh           # View 作成スクリプト
   ├── create-special-repos.sh          # 特殊 Repository 一括作成スクリプト
   ├── setup-repository-labels.sh       # Issue Label 一括作成スクリプト
+  ├── setup-repository-health-files.sh # Community Health Files 一括登録スクリプト
   ├── add-items-to-project.sh          # Item 一括追加スクリプト
   ├── export-project-items.sh          # Item エクスポートスクリプト
   ├── detect-stale-items.sh            # 滞留 Item 検知スクリプト
@@ -138,10 +142,22 @@ scripts/
       └── .github/actions/workflow-summary       # 成功サマリー出力
 ```
 
-### ⑤ Issue/PR 一括紐付け
+### ⑤ Community Health Files 一括登録
 
 ```
-05-add-items-to-project.yml
+05-setup-repository-health-files.yml
+  ├── setup-repository-health-files Job
+  │   └── scripts/setup-repository-health-files.sh  # Community Health Files 一括登録
+  ├── workflow-summary-failure Job（失敗時）
+  │   └── .github/actions/workflow-summary       # 失敗サマリー出力
+  └── workflow-summary-success Job（成功時）
+      └── .github/actions/workflow-summary       # 成功サマリー出力
+```
+
+### ⑥ Issue/PR 一括紐付け
+
+```
+06-add-items-to-project.yml
   ├── add-items Job
   │   └── scripts/add-items-to-project.sh        # Item 一括追加
   ├── workflow-summary-failure Job（失敗時）
@@ -150,10 +166,10 @@ scripts/
       └── .github/actions/workflow-summary       # 成功サマリー出力
 ```
 
-### ⑥ 統合 Project 分析
+### ⑦ 統合 Project 分析
 
 ```
-06-analyze-project.yml
+07-analyze-project.yml
   ├── generate-summary-report Job（report_types: all or summary）
   │   ├── scripts/generate-summary-report.sh     # サマリーレポート生成
   │   └── actions/upload-artifact                # サマリーレポートを保存
@@ -185,6 +201,7 @@ scripts/
 | [setup-project-views.sh](../scripts/setup-project-views.md) | `Table`・`Board`・`Roadmap` の 3 種類の View を作成する |
 | [create-special-repos.sh](../scripts/create-special-repos.md) | オーナータイプを自動判定し、特殊 Repository（プロフィール README、`GitHub Pages`、dotfiles 等）を一括作成する |
 | [setup-repository-labels.sh](../scripts/setup-repository-labels.md) | 指定 Repository に対して、設定ファイルで定義した Issue Label を一括作成する |
+| [setup-repository-health-files.sh](../scripts/setup-repository-health-files.md) | 指定 Repository に Community Health Files（CONTRIBUTING、CODE_OF_CONDUCT 等）を一括登録する |
 | [add-items-to-project.sh](../scripts/add-items-to-project.md) | 指定 Repository の Issue/PR を Project に一括追加する。追加済み Item は自動スキップ |
 | [export-project-items.sh](../scripts/export-project-items.md) | 指定 Project の Issue/PR 一覧を取得し、指定形式でエクスポートする |
 | [detect-stale-items.sh](../scripts/detect-stale-items.md) | 指定 Project の Item を走査し、 Status 別の閾値に基づいて滞留 Item を検知する |

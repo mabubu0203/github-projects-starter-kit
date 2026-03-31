@@ -1,4 +1,4 @@
-# ⑦ Community Health Files 一括登録
+# ⑤ Community Health Files 一括登録
 
 指定 Repository に対して、Community Health Files を空ファイルとして一括登録します。
 既にファイルが存在する場合はスキップし、作成ファイルがあればデフォルトブランチへの PR を自動作成します。
@@ -32,7 +32,7 @@
 ## 📖 使い方
 
 1. `Actions` タブを開く
-2. `⑦ Community Health Files 一括登録` を選択
+2. `⑤ Community Health Files 一括登録` を選択
 3. `Run workflow` をクリック
 4. パラメータを入力して実行
 
@@ -70,7 +70,7 @@ flowchart TD
 
 ### ファイル
 
-`.github/workflows/07-setup-repository-health-files.yml`
+`.github/workflows/05-setup-repository-health-files.yml`
 
 ### トリガー
 
@@ -89,7 +89,7 @@ flowchart TD
 ### Job 構成
 
 ```
-.github/workflows/07-setup-repository-health-files.yml
+.github/workflows/05-setup-repository-health-files.yml
   ├── setup-repository-health-files Job
   │   └── scripts/setup-repository-health-files.sh     # Community Health Files 一括登録
   ├── workflow-summary-failure Job（失敗時）

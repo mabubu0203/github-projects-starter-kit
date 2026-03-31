@@ -33,15 +33,16 @@ scripts/
   _reusable-extend-project.yml # 再利用可能ワークフロー
   03-create-special-repos.yml  # 特殊リポジトリ作成
   04-setup-repository-labels.yml
-  05-add-items-to-project.yml
-  06-analyze-project.yml       # 統合分析 (エクスポート・停滞検出・レポート)
+  05-setup-repository-health-files.yml  # Community Health Files 一括登録
+  06-add-items-to-project.yml
+  07-analyze-project.yml       # 統合分析 (エクスポート・停滞検出・レポート)
 ```
 
 ## アーキテクチャ上の重要ポイント
 
 - `scripts/lib/common.sh` は全スクリプトが `source` する共通ライブラリ。環境変数チェック (`require_env`)、コマンド存在確認 (`require_command`)、ワークフローコマンドインジェクション防止 (`sanitize_for_workflow_command`) 等を提供
 - `scripts/config/` 配下の JSON ファイルがプロジェクトのフィールド定義・ステータス・ラベル等の設定を保持。スクリプトはこれらを `jq` で読み取って GitHub API を呼び出す
-- ワークフローは番号付きで実行順序を示す (01 → 02 → ... → 06)
+- ワークフローは番号付きで実行順序を示す (01 → 02 → ... → 07)
 - すべてのワークフローは `PROJECT_PAT` シークレット (GitHub Personal Access Token) を必要とする
 - `.github/actions/workflow-summary/` にワークフロー実行結果のサマリー表示用カスタムアクションがある
 
