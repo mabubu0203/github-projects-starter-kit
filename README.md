@@ -85,17 +85,17 @@ gh workflow run 01-create-project.yml
 
 | Workflow | 概要 |
 |---|---|
-| ① GitHub Project 新規作成 | Project を作成し、Field・Status・View を一括セットアップ |
-| ② GitHub Project 拡張 | 既存 Project に Field・Status・View を追加 |
-| ③ 特殊 Repository 一括作成 | プロフィール README・GitHub Pages 等の特殊命名 Repository を一括作成 |
-| ④ Issue Label 一括追加 | 指定 Repository に Issue Label を一括作成 |
-| ⑤ Issue/PR 一括紐付け | Issue や PR を Project に一括追加（種別・状態・ラベルでフィルタ可能） |
+| [① GitHub Project 新規作成](.github/workflows/01-create-project.yml) | Project を作成し、Field・Status・View を一括セットアップ |
+| [② GitHub Project 拡張](.github/workflows/02-extend-project.yml) | 既存 Project に Field・Status・View を追加 |
+| [③ 特殊 Repository 一括作成](.github/workflows/03-create-special-repos.yml) | プロフィール README・GitHub Pages 等の特殊命名 Repository を一括作成 |
+| [④ Issue Label 一括追加](.github/workflows/04-setup-repository-labels.yml) | 指定 Repository に Issue Label を一括作成 |
+| [⑤ Issue/PR 一括紐付け](.github/workflows/05-add-items-to-project.yml) | Issue や PR を Project に一括追加（種別・状態・ラベルでフィルタ可能） |
 
 ### 運用・分析系
 
 | Workflow | 概要 |
 |---|---|
-| ⑥ 統合 Project 分析 | エクスポート・滞留検知・各種レポートを生成（Artifact としてダウンロード可能） |
+| [⑥ 統合 Project 分析](.github/workflows/06-analyze-project.yml) | エクスポート・滞留検知・各種レポートを生成（Artifact としてダウンロード可能） |
 
 すべての Workflow は `GitHub Actions` の手動実行（`workflow_dispatch`）で利用できます。
 
