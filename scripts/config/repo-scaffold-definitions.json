@@ -10,5 +10,29 @@
   {
     "path": ".claude/.gitignore",
     "description": "Claude Code 用 gitignore"
+  },
+  {
+    "path": ".cursor/.gitkeep",
+    "description": "Cursor 設定ディレクトリの保持"
+  },
+  {
+    "path": ".cursor/.gitignore",
+    "description": "Cursor 用 gitignore"
+  },
+  {
+    "path": ".windsurf/.gitkeep",
+    "description": "Windsurf 設定ディレクトリの保持"
+  },
+  {
+    "path": ".windsurf/.gitignore",
+    "description": "Windsurf 用 gitignore"
+  },
+  {
+    "path": ".github/copilot-instructions.md",
+    "description": "GitHub Copilot カスタム指示ファイル"
+  },
+  {
+    "path": ".idea/.gitkeep",
+    "description": "JetBrains IDE 設定ディレクトリの保持"
   }
 ]

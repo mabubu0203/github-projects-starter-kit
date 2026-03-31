@@ -78,6 +78,12 @@ JSON ファイルを編集することで、スクリプトを変更せずに登
 | `.gitkeep` | `.vscode/.gitkeep` |
 | `.gitkeep` | `.claude/.gitkeep` |
 | `.gitignore` | `.claude/.gitignore` |
+| `.gitkeep` | `.cursor/.gitkeep` |
+| `.gitignore` | `.cursor/.gitignore` |
+| `.gitkeep` | `.windsurf/.gitkeep` |
+| `.gitignore` | `.windsurf/.gitignore` |
+| `copilot-instructions.md` | `.github/copilot-instructions.md` |
+| `.gitkeep` | `.idea/.gitkeep` |
 
 ## 📊 処理フロー
 
