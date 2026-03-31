@@ -44,6 +44,10 @@
     "description": "GitHub Copilot カスタム指示ファイル"
   },
   {
+    "path": ".github/release.yml",
+    "description": "リリースノート自動生成設定"
+  },
+  {
     "path": ".idea/.gitkeep",
     "description": "JetBrains IDE 設定ディレクトリの保持"
   },

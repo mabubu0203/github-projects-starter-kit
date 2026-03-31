@@ -88,6 +88,7 @@ JSON ファイルを編集することで、スクリプトを変更せずに登
 | `.gitignore` | `.gemini/.gitignore` |
 | `.gitkeep` | `.gemini/.gitkeep` |
 | `copilot-instructions.md` | `.github/copilot-instructions.md` |
+| `release.yml` | `.github/release.yml` |
 | `.gitkeep` | `.idea/.gitkeep` |
 | `.gitkeep` | `.vscode/.gitkeep` |
 | `.gitignore` | `.windsurf/.gitignore` |

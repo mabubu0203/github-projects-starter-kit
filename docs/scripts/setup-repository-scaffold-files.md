@@ -50,6 +50,7 @@
 | `.gitignore` | `.gemini/.gitignore` | Gemini 用 gitignore |
 | `.gitkeep` | `.gemini/.gitkeep` | Gemini 設定ディレクトリの保持 |
 | `copilot-instructions.md` | `.github/copilot-instructions.md` | GitHub Copilot カスタム指示ファイル |
+| `release.yml` | `.github/release.yml` | リリースノート自動生成設定 |
 | `.gitkeep` | `.idea/.gitkeep` | JetBrains IDE 設定ディレクトリの保持 |
 | `.gitkeep` | `.vscode/.gitkeep` | VS Code 設定ディレクトリの保持 |
 | `.gitignore` | `.windsurf/.gitignore` | Windsurf 用 gitignore |
@@ -170,7 +171,7 @@ Fine-grained PAT の場合は、対象 Repository に対する **Contents** と 
 |---------|------|------|
 | REST API (Core) | 5,000 リクエスト/時 | 認証済みユーザーの場合 |
 
-対象ファイル 19 件に対して、既存チェック (19) + ブランチ作成 (1) + ファイル作成 (最大 19) + PR 作成 (1) = 最大 40 リクエストを消費します。
+対象ファイル 20 件に対して、既存チェック (20) + ブランチ作成 (1) + ファイル作成 (最大 20) + PR 作成 (1) = 最大 42 リクエストを消費します。
 レート制限の影響はありません。
 
 ## 🔄 使用 Workflow
