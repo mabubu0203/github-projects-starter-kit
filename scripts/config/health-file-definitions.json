@@ -1,0 +1,30 @@
+[
+  {
+    "path": ".github/CODE_OF_CONDUCT.md",
+    "description": "行動規範"
+  },
+  {
+    "path": ".github/CONTRIBUTING.md",
+    "description": "コントリビューションガイド"
+  },
+  {
+    "path": ".github/GOVERNANCE.md",
+    "description": "ガバナンスポリシー"
+  },
+  {
+    "path": ".github/SECURITY.md",
+    "description": "セキュリティポリシー"
+  },
+  {
+    "path": ".github/SUPPORT.md",
+    "description": "サポート情報"
+  },
+  {
+    "path": ".github/PULL_REQUEST_TEMPLATE.md",
+    "description": "PR テンプレート"
+  },
+  {
+    "path": ".github/ISSUE_TEMPLATE/config.yml",
+    "description": "Issue テンプレートの設定ファイル"
+  }
+]

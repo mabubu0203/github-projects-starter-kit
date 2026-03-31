@@ -33,6 +33,7 @@
 ## 📋 対象ファイル
 
 以下の Community Health Files を空ファイルとして登録します。
+対象ファイルは `scripts/config/health-file-definitions.json` で定義されており、ユーザーがスクリプトを直接編集せずにカスタマイズできます。
 
 | ファイル | パス | 説明 |
 |----------|------|------|
@@ -45,6 +46,24 @@
 | Issue テンプレート設定 | `.github/ISSUE_TEMPLATE/config.yml` | Issue テンプレートの設定ファイル |
 
 > **Note:** `FUNDING.yml` は対象外です。
+
+### 設定ファイルのカスタマイズ
+
+`scripts/config/health-file-definitions.json` を編集することで、登録対象のファイルを追加・削除できます。
+
+```json
+[
+  {
+    "path": ".github/CODE_OF_CONDUCT.md",
+    "description": "行動規範"
+  }
+]
+```
+
+| フィールド | 説明 | 必須 |
+|------------|------|:----:|
+| `path` | Repository 内のファイルパス | ✅ |
+| `description` | ファイルの説明 | — |
 
 ## 📊 処理フロー
 

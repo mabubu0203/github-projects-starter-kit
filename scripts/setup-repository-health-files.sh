@@ -27,19 +27,23 @@ fi
 require_command "gh" "GitHub CLI (gh) が必要です。PATH を確認してください。"
 require_command "jq" "JSON の解析に必要です。"
 
-# --- 対象ファイル定義 ---
+# --- 対象ファイル定義（JSON から読み込み） ---
 
-HEALTH_FILES=(
-  ".github/CODE_OF_CONDUCT.md"
-  ".github/CONTRIBUTING.md"
-  ".github/GOVERNANCE.md"
-  ".github/SECURITY.md"
-  ".github/SUPPORT.md"
-  ".github/PULL_REQUEST_TEMPLATE.md"
-  ".github/ISSUE_TEMPLATE/config.yml"
-)
+CONFIG_DIR="${SCRIPT_DIR}/config"
+HEALTH_FILE_DEFINITIONS="${CONFIG_DIR}/health-file-definitions.json"
 
+if [[ ! -f "${HEALTH_FILE_DEFINITIONS}" ]]; then
+  echo "::error::設定ファイルが見つかりません: ${HEALTH_FILE_DEFINITIONS}"
+  exit 1
+fi
+
+mapfile -t HEALTH_FILES < <(jq -r '.[].path' "${HEALTH_FILE_DEFINITIONS}")
 FILE_COUNT=${#HEALTH_FILES[@]}
+
+if [[ "${FILE_COUNT}" -eq 0 ]]; then
+  echo "::error::設定ファイルに対象ファイルが定義されていません。"
+  exit 1
+fi
 
 # --- デフォルトブランチの取得 ---
 

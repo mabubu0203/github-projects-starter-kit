@@ -46,6 +46,9 @@
 
 ### 対象ファイル
 
+対象ファイルは [`scripts/config/health-file-definitions.json`](../../scripts/config/health-file-definitions.json) で定義されています。
+JSON ファイルを編集することで、スクリプトを変更せずに登録対象をカスタマイズできます。
+
 | ファイル | パス |
 |----------|------|
 | `CODE_OF_CONDUCT.md` | `.github/CODE_OF_CONDUCT.md` |
