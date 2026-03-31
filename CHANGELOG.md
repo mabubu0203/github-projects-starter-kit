@@ -1,5 +1,102 @@
 # Changelog
 
+## [1.3.0](https://github.com/lurest-inc/github-projects-ops-kit/compare/v1.2.0...v1.3.0) (2026-03-31)
+
+
+### 新機能
+
+* Community Health Files 一括登録ワークフロー・スクリプトを追加 ([94f06fd](https://github.com/lurest-inc/github-projects-ops-kit/commit/94f06fd15140d65f798b994320cc800bfc1e650a))
+* Community Health Files 一括登録ワークフロー・スクリプトを追加 ([9fb9b26](https://github.com/lurest-inc/github-projects-ops-kit/commit/9fb9b26381ace1fed1bb1f84dfc9d0d27fbbeb75)), closes [#379](https://github.com/lurest-inc/github-projects-ops-kit/issues/379)
+* GitHub Pages 推奨 Jekyll プラグイン6種を追加導入 ([accd17c](https://github.com/lurest-inc/github-projects-ops-kit/commit/accd17c37d0acdf0c49f304414b0c03f405c14c2))
+* GitHub Pages 推奨 Jekyll プラグイン6種を追加導入 ([e927d68](https://github.com/lurest-inc/github-projects-ops-kit/commit/e927d68f80e9449044e809adde824ce4c733c1ee))
+* Jekyll プラグイン（jekyll-feed / jemoji / jekyll-mentions）を導入 ([e2aa133](https://github.com/lurest-inc/github-projects-ops-kit/commit/e2aa13354da98474e01bca4568b87e496be787cc))
+* Jekyll プラグイン（jekyll-feed / jemoji / jekyll-mentions）を導入 ([ee47f77](https://github.com/lurest-inc/github-projects-ops-kit/commit/ee47f77306876e0b4f0f67e498e131ead24964ec))
+* Repository Ruleset 一括作成スクリプトを追加 ([a5d3299](https://github.com/lurest-inc/github-projects-ops-kit/commit/a5d32992aa99494a184e3e1bc63687c2cc9793f4))
+* Repository Ruleset 一括作成スクリプトを追加 ([587d96d](https://github.com/lurest-inc/github-projects-ops-kit/commit/587d96d856c0bf0c56be3f71349f345649024abf)), closes [#456](https://github.com/lurest-inc/github-projects-ops-kit/issues/456)
+* Scaffold ファイル一括登録機能を追加 ([62ff7f6](https://github.com/lurest-inc/github-projects-ops-kit/commit/62ff7f61a8974d8c090400c33fc8ab1620b47e71))
+* Scaffold ファイル一括登録機能を追加 ([0d33089](https://github.com/lurest-inc/github-projects-ops-kit/commit/0d33089d077a7ed0b4cd5102306da932d0df6280))
+* Scaffold 定義に .github/release.yml を追加 ([ab7cdac](https://github.com/lurest-inc/github-projects-ops-kit/commit/ab7cdac3ba804788a9198dfbeb9f044e63f46c2e))
+* Scaffold 定義に IDE・生成 AI 系ファイルを追加 ([15a2028](https://github.com/lurest-inc/github-projects-ops-kit/commit/15a2028fe73f07e928c191bd7427626c9264676c))
+* Scaffold 定義に IDE・生成 AI 系ファイルを追加 ([6c62854](https://github.com/lurest-inc/github-projects-ops-kit/commit/6c62854c1591a515d278681b78db6ceb29f48694))
+* Scaffold 定義に生成 AI ツール・共通ファイルを追加しソート ([e7f7c92](https://github.com/lurest-inc/github-projects-ops-kit/commit/e7f7c9267d0f0e34f0b7c958e9c2172698cfc59a))
+* ワークフロー⑤に setup_types パラメータを追加 ([c5c0bf6](https://github.com/lurest-inc/github-projects-ops-kit/commit/c5c0bf66a758147c2728535c6b3327cb9cb50021))
+
+
+### バグ修正
+
+* create-special-repos.sh のドキュメントリンクをスクリプトリファレンスに修正 ([4c74c6e](https://github.com/lurest-inc/github-projects-ops-kit/commit/4c74c6ec9523a942af6da46e8cbd776ea809fe63))
+* google-site-verification の値から不要な .html 拡張子を除去 ([a932378](https://github.com/lurest-inc/github-projects-ops-kit/commit/a9323783d3b2bd874e287493f1850c6c199fa8f9))
+* quickstart-gui.md の画像相対パスを修正 ([a4e0553](https://github.com/lurest-inc/github-projects-ops-kit/commit/a4e0553857265f3d678e8741dadd2fe3c6fa0c26))
+* quickstart-gui.md の画像相対パスを修正 ([24fafc2](https://github.com/lurest-inc/github-projects-ops-kit/commit/24fafc2f4ccfd251d251c93367bceed046ac0952)), closes [#424](https://github.com/lurest-inc/github-projects-ops-kit/issues/424)
+* Ruleset 定義の pull_request パラメータ不足を修正し、プラン制約時のエラーハンドリングを改善 ([134a916](https://github.com/lurest-inc/github-projects-ops-kit/commit/134a916a47500a89e3c48587132fefcfd0bdfe82))
+* ワークフローから project_owner 入力を削除し github.repository_owner を使用 ([190284b](https://github.com/lurest-inc/github-projects-ops-kit/commit/190284bf629e89f389df2093f34b8ec4077f36dd))
+
+
+### ドキュメント
+
+* about.md で jekyll-mentions の [@username](https://github.com/username) 記法を活用 ([53a3df6](https://github.com/lurest-inc/github-projects-ops-kit/commit/53a3df6b105b35d66591b60fcee9b3aef0359989))
+* add Qiita release article link to docs/index.md ([b0d2311](https://github.com/lurest-inc/github-projects-ops-kit/commit/b0d2311363109a92c1f471a2cd89b3052cee3f3f)), closes [#422](https://github.com/lurest-inc/github-projects-ops-kit/issues/422)
+* AGENTS.md のリポジトリ構成のコメント追記とインデント修正 ([b828280](https://github.com/lurest-inc/github-projects-ops-kit/commit/b8282805d028e1a5e04834c84d16a77787278abc))
+* Community Health Files ワークフロー・スクリプトのドキュメントを追加 ([a0d11d1](https://github.com/lurest-inc/github-projects-ops-kit/commit/a0d11d19b6d69cc7e0282ec0beb32f0acd34e55e))
+* create-special-repos.sh のスクリプトリファレンスを作成 ([5b7884b](https://github.com/lurest-inc/github-projects-ops-kit/commit/5b7884bcf66e81d32e4ff3eb631fc15a7f354861))
+* create-special-repos.sh のスクリプトリファレンスを作成 ([46b7526](https://github.com/lurest-inc/github-projects-ops-kit/commit/46b7526e42eff1bb921639b47eeed57ec3bdb543)), closes [#430](https://github.com/lurest-inc/github-projects-ops-kit/issues/430)
+* developers.md の Workflow 全体像・構成ファイルを最新化 ([aa09296](https://github.com/lurest-inc/github-projects-ops-kit/commit/aa09296df5da6e766c94579eb73d051aa26af997))
+* developers.md のコードブロック内コメントインデントを統一 ([e6af29d](https://github.com/lurest-inc/github-projects-ops-kit/commit/e6af29d64d0007d6b0334a2c338c3ffa89d23bca))
+* index.md のカテゴリ一覧からリンクを除去 ([fbb143b](https://github.com/lurest-inc/github-projects-ops-kit/commit/fbb143bd5e5b102f445db68aa582cd2d843ea44c))
+* Qiita リリース記事への導線を docs/index.md に追加 ([84c22d8](https://github.com/lurest-inc/github-projects-ops-kit/commit/84c22d89030a70ce11f90c87bcc54cd7c9572b35))
+* Qiita記事のバージョンをv1.2.0に更新 ([0080c48](https://github.com/lurest-inc/github-projects-ops-kit/commit/0080c48afa1bc38ba21eefd592f10a196d6a44da))
+* Qiita記事のバージョンをv1.2.0に更新 ([aba974b](https://github.com/lurest-inc/github-projects-ops-kit/commit/aba974ba8a26fabde0e5302a0d5711a8c7d78b17)), closes [#394](https://github.com/lurest-inc/github-projects-ops-kit/issues/394)
+* Qiita記事をブランディングガイド・最新ドキュメントに合わせて改善 ([ce456da](https://github.com/lurest-inc/github-projects-ops-kit/commit/ce456daa3cd5708691ad7cb2b6f2d0399b417a2d))
+* quickstart-cli.md に PAT 作成画面のスクリーンショットを追加 ([f7a8c9b](https://github.com/lurest-inc/github-projects-ops-kit/commit/f7a8c9b0b75869c6f8422e4c0eb9944366a41b61))
+* README の Workflow 一覧の概要文のトンマナを統一 ([26a3867](https://github.com/lurest-inc/github-projects-ops-kit/commit/26a38674bdc3c6576a7cf1752ef9aab5a1d4b615))
+* Scaffold ドキュメントを定義ファイルに合わせて更新 ([62e8da7](https://github.com/lurest-inc/github-projects-ops-kit/commit/62e8da7b8a6e886c8f058c254570306e8b3fbbc6))
+* support/index.md に「それでも解決しない場合」セクションを復元 ([0a2a501](https://github.com/lurest-inc/github-projects-ops-kit/commit/0a2a5011b46b1cf93a92ae62629c61c3d065e2cc))
+* Workflow セクションの見出し構造を整理 ([48c3777](https://github.com/lurest-inc/github-projects-ops-kit/commit/48c377717e310f889e65139f7935400855003b92))
+* workflow-summary.md に⑤初期ファイル一括作成の使用例を追加 ([b757d6e](https://github.com/lurest-inc/github-projects-ops-kit/commit/b757d6e8ce4739fa958e4ec08d630293526c49d6))
+* workflows/index.md の概要文を README.md に合わせて統一 ([a084f6d](https://github.com/lurest-inc/github-projects-ops-kit/commit/a084f6d9fbcbdb5ac6a25b7d7040c7bc22ac339d))
+* インデックスページのレビュー指摘を修正 ([d000f75](https://github.com/lurest-inc/github-projects-ops-kit/commit/d000f756f52a09b19cb91f4b9cc4034b30e8c23f))
+* インデックスページの目次挿入位置をタイトル・概要の下に移動 ([3cfcd4d](https://github.com/lurest-inc/github-projects-ops-kit/commit/3cfcd4d2910638e80b125375731cb088fe15bbef))
+* インデックスページの目次挿入位置をタイトル・概要の下に移動 ([09e2451](https://github.com/lurest-inc/github-projects-ops-kit/commit/09e2451b4747389afe11a2600199ed167a16a1b4))
+* クイックスタート（コマンド版）に ③ ⑥ の Workflow 実行コマンドを追加 ([41a5bde](https://github.com/lurest-inc/github-projects-ops-kit/commit/41a5bde777be7f104151da3b892999b0e01e6941))
+* クイックスタート（コマンド版）に ③ ⑥ の Workflow 実行コマンドを追加 ([1784cad](https://github.com/lurest-inc/github-projects-ops-kit/commit/1784cadf8d0a9e6569196d99fdbbe2bfe8d1f177)), closes [#441](https://github.com/lurest-inc/github-projects-ops-kit/issues/441)
+* クイックスタートに⑤初期ファイル一括作成を追加 ([91c6ce6](https://github.com/lurest-inc/github-projects-ops-kit/commit/91c6ce619c9f8cdd888adedb4bd56189bf538ef1))
+* 各ドキュメントカテゴリのインデックスページを作成 ([a29f467](https://github.com/lurest-inc/github-projects-ops-kit/commit/a29f4677e795704791404b099208384eadad99c8))
+* 各ドキュメントカテゴリのインデックスページを作成 ([a5fd811](https://github.com/lurest-inc/github-projects-ops-kit/commit/a5fd811f63e46ae6973137dd3a4f2c0f9cb57403))
+* 各ドキュメントカテゴリのインデックスページを作成 ([8357c66](https://github.com/lurest-inc/github-projects-ops-kit/commit/8357c662adba718a9ede44a0ac0711ed69ea2f63)), closes [#426](https://github.com/lurest-inc/github-projects-ops-kit/issues/426)
+
+
+### スタイル
+
+* plugins リストをアルファベット順にソート ([c90fe36](https://github.com/lurest-inc/github-projects-ops-kit/commit/c90fe3642c7efa6a9699f013a6c622d0f31a9775))
+
+
+### その他の変更
+
+* **docs:** update TOC ([880f036](https://github.com/lurest-inc/github-projects-ops-kit/commit/880f0360e986045953729c7e9a9f5184b7d0ec19))
+* **docs:** update TOC ([df6c471](https://github.com/lurest-inc/github-projects-ops-kit/commit/df6c4715f623fb932bc354ac19a9d48686f28041))
+* **docs:** update TOC ([19c36c0](https://github.com/lurest-inc/github-projects-ops-kit/commit/19c36c0fcad0807965413c683891a3ec5be5c055))
+* 不要な Google サイト所有権確認 HTML ファイルを削除 ([2fcf81d](https://github.com/lurest-inc/github-projects-ops-kit/commit/2fcf81d1e31775e387c49e012d8d1a1e81d1684b))
+
+
+### リファクタリング
+
+* ④⑤のワークフロー論理名を「一括作成」に統一 ([6009bc9](https://github.com/lurest-inc/github-projects-ops-kit/commit/6009bc96580f13956c87849bad782c955ecf6f79))
+* config JSON ファイル名を repo-XXX 命名規則に統一 ([b187be7](https://github.com/lurest-inc/github-projects-ops-kit/commit/b187be729b6701aa63b0bc1ed61b647f4b9692ac))
+* docs 内の相対リンクに .md 拡張子を付与 ([80ba50e](https://github.com/lurest-inc/github-projects-ops-kit/commit/80ba50e951097008b38ce8cfe11605bf4ca4b9d4))
+* docs 内の相対リンクに .md 拡張子を付与 ([a57ed43](https://github.com/lurest-inc/github-projects-ops-kit/commit/a57ed437676875b2d6e113376d5beb3c9e655998)), closes [#436](https://github.com/lurest-inc/github-projects-ops-kit/issues/436)
+* README.md の Workflow 一覧に相対リンクを付与 ([658d4bd](https://github.com/lurest-inc/github-projects-ops-kit/commit/658d4bd1455230bfa464f7ba044334b9454ebe25))
+* README.md の Workflow 一覧に相対リンクを付与 ([3cb11ae](https://github.com/lurest-inc/github-projects-ops-kit/commit/3cb11ae6938a1eb4fa5e19947eb33a5c4f88ad3c)), closes [#439](https://github.com/lurest-inc/github-projects-ops-kit/issues/439)
+* scripts 配下の共通処理を common.sh に集約 ([bc6d66f](https://github.com/lurest-inc/github-projects-ops-kit/commit/bc6d66ff904465f90b1aed617f8667da0aa81af8))
+* scripts 配下の共通処理を common.sh に集約しコード品質を改善 ([87f8d75](https://github.com/lurest-inc/github-projects-ops-kit/commit/87f8d7525351b83dda491281ecfb53b8a04688a5))
+* setup-repository-health-files の対象ファイル定義を JSON 化 ([a7b9926](https://github.com/lurest-inc/github-projects-ops-kit/commit/a7b99269af3b0c72de1067f7ff40a2927149612b))
+* setup-repository-health-files の対象ファイル定義を JSON 化 ([d9f157a](https://github.com/lurest-inc/github-projects-ops-kit/commit/d9f157af6088b69ca34bfadfe393ecc903d1bcb4))
+* Workflow の採番を変更 (⑤⑥⑦ の並び替え) ([2fc3a1a](https://github.com/lurest-inc/github-projects-ops-kit/commit/2fc3a1af0120f0560425783e3c757c24ee1876e3))
+* Workflow の採番を変更 (⑤⑥⑦ の並び替え) ([4f2fa04](https://github.com/lurest-inc/github-projects-ops-kit/commit/4f2fa046d1bc4cbd3ab33ebe36a2d7aa6e705633)), closes [#446](https://github.com/lurest-inc/github-projects-ops-kit/issues/446)
+* ファイル名を setup-repository-health-files に統一 ([ed95264](https://github.com/lurest-inc/github-projects-ops-kit/commit/ed95264528ac74172593c536d58fc9903e686e05))
+* ワークフロー⑤のファイル名を 05-setup-repository-files に変更 ([d6789e9](https://github.com/lurest-inc/github-projects-ops-kit/commit/d6789e9303f697605e61290de97e5aeb47044cee))
+* ワークフロー⑤の論理名から「Repository」を削除 ([3f349a0](https://github.com/lurest-inc/github-projects-ops-kit/commit/3f349a0441c4c67353b5b27979bea602249e039e))
+* 入力パラメータを target_repo (owner/repo 形式) に統一 ([d5cf6cf](https://github.com/lurest-inc/github-projects-ops-kit/commit/d5cf6cfc84cc232f9d63f432500d8c8fa31e2be4))
+
 ## [1.2.0](https://github.com/lurest-inc/github-projects-ops-kit/compare/v1.1.3...v1.2.0) (2026-03-23)
 
 
