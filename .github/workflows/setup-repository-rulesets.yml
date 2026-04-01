@@ -1,0 +1,69 @@
+# ---------------------------------------------------------
+# secrets.PROJECT_PAT には GitHub の Personal Access Token を設定します。
+# PAT の形式（ghp_ または github_pat_ で始まる）を検証し、
+# 無効な値の場合はステップをスキップします。
+# ---------------------------------------------------------
+name: "Repository Ruleset 一括作成"
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: "対象 Repository（owner/repo 形式）"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  setup-repository-rulesets:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.PROJECT_PAT }}
+      TARGET_REPO: ${{ inputs.target_repo }}
+      PROJECT_PAT: ${{ secrets.PROJECT_PAT }}
+    # 前提: ubuntu-latest には gh (GitHub CLI) と jq がプリインストール済み
+    # スクリプト内の require_command チェックはローカル実行時の UX 向上目的で残している
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: Ruleset を一括作成
+        if: ${{ startsWith(env.PROJECT_PAT, 'ghp_') || startsWith(env.PROJECT_PAT, 'github_pat_') }}
+        run: |
+          # トリム（前後の空白のみ削除、内部空白は保持）
+          TARGET_REPO="$(echo "$TARGET_REPO" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+          bash scripts/setup-repository-rulesets.sh
+
+  workflow-summary-failure:
+    needs: [setup-repository-rulesets]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 失敗サマリーを出力
+        uses: ./.github/actions/workflow-summary
+        with:
+          status: failure
+          project-owner: ${{ github.repository_owner }}
+          job-results: |
+            {"setup-repository-rulesets": "${{ needs.setup-repository-rulesets.result }}"}
+
+  workflow-summary-success:
+    needs: [setup-repository-rulesets]
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6.0.2
+
+      - name: 成功サマリーを出力
+        uses: ./.github/actions/workflow-summary
+        with:
+          status: success
+          project-owner: ${{ github.repository_owner }}
+          job-results: |
+            {"setup-repository-rulesets": "${{ needs.setup-repository-rulesets.result }}"}
