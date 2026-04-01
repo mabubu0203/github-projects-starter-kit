@@ -34,7 +34,7 @@ scripts/
   03-create-special-repos.yml    # 特殊 Repository 一括作成
   04-setup-repository-labels.yml # Issue Label 一括作成
   05-setup-repository-files.yml  # 初期ファイル一括作成
-  06-setup-repository-rulesets.yml # Repository Ruleset 一括作成
+  06-setup-repository-rulesets.yml # Ruleset 一括作成
   07-add-items-to-project.yml    # Issue/PR 一括紐付け
   08-analyze-project.yml         # 統合分析 (エクスポート・停滞検出・レポート)
 ```

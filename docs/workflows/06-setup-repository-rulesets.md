@@ -1,4 +1,4 @@
-# ⑥ Repository Ruleset 一括作成
+# ⑥ Ruleset 一括作成
 
 指定 Repository に対して、設定ファイルで定義した Branch Ruleset を一括作成します。
 既存 Ruleset と同名の Ruleset が存在する場合はスキップします。
@@ -32,7 +32,7 @@
 ## 📖 使い方
 
 1. `Actions` タブを開く
-2. `⑥ Repository Ruleset 一括作成` を選択
+2. `⑥ Ruleset 一括作成` を選択
 3. `Run workflow` をクリック
 4. パラメータを入力して実行
 
@@ -88,4 +88,4 @@ flowchart TD
 
 ## 📜 関連スクリプト
 
-- [setup-repository-rulesets.sh](../scripts/setup-repository-rulesets.md) — Repository Ruleset 一括作成スクリプト
+- [setup-repository-rulesets.sh](../scripts/setup-repository-rulesets.md) — Ruleset 一括作成スクリプト

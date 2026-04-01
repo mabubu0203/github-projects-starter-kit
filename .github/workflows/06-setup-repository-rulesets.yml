@@ -3,7 +3,7 @@
 # PAT の形式（ghp_ または github_pat_ で始まる）を検証し、
 # 無効な値の場合はステップをスキップします。
 # ---------------------------------------------------------
-name: "⑥ Repository Ruleset 一括作成"
+name: "⑥ Ruleset 一括作成"
 
 on:
   workflow_dispatch:

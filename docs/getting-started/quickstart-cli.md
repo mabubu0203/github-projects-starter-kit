@@ -119,7 +119,7 @@ gh workflow run 05-setup-repository-files.yml \
   --field setup_types="all"
 ```
 
-### ⑥ Repository Ruleset 一括作成
+### ⑥ Ruleset 一括作成
 
 ```bash
 gh workflow run 06-setup-repository-rulesets.yml \
@@ -163,6 +163,6 @@ gh run watch
 - [③ 特殊 Repository 一括作成](../workflows/03-create-special-repos.md)
 - [④ Issue Label 一括作成](../workflows/04-setup-repository-labels.md)
 - [⑤ 初期ファイル一括作成](../workflows/05-setup-repository-files.md)
-- [⑥ Repository Ruleset 一括作成](../workflows/06-setup-repository-rulesets.md)
+- [⑥ Ruleset 一括作成](../workflows/06-setup-repository-rulesets.md)
 - [⑦ Issue/PR 一括紐付け](../workflows/07-add-items-to-project.md)
 - [⑧ 統合 Project 分析](../workflows/08-analyze-project.md)
