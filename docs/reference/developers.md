@@ -167,9 +167,9 @@ scripts/
   ├── setup-repository-rulesets Job
   │   └── scripts/setup-repository-rulesets.sh     # Ruleset 一括作成
   ├── workflow-summary-failure Job（失敗時）
-  │   └── .github/actions/workflow-summary       # 失敗サマリー出力
+  │   └── .github/actions/workflow-summary         # 失敗サマリー出力
   └── workflow-summary-success Job（成功時）
-      └── .github/actions/workflow-summary       # 成功サマリー出力
+      └── .github/actions/workflow-summary         # 成功サマリー出力
 ```
 
 ### ⑦ Issue/PR 一括紐付け

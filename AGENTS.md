@@ -28,15 +28,15 @@ scripts/
   generate-*-report.sh      # レポート生成系
 
 .github/workflows/
-  01-create-project.yml          # 新規プロジェクト作成
-  02-extend-project.yml          # 既存プロジェクト拡張
-  _reusable-extend-project.yml   # 再利用可能ワークフロー
-  03-create-special-repos.yml    # 特殊 Repository 一括作成
-  04-setup-repository-labels.yml # Issue Label 一括作成
-  05-setup-repository-files.yml  # 初期ファイル一括作成
+  01-create-project.yml            # 新規プロジェクト作成
+  02-extend-project.yml            # 既存プロジェクト拡張
+  _reusable-extend-project.yml     # 再利用可能ワークフロー
+  03-create-special-repos.yml      # 特殊 Repository 一括作成
+  04-setup-repository-labels.yml   # Issue Label 一括作成
+  05-setup-repository-files.yml    # 初期ファイル一括作成
   06-setup-repository-rulesets.yml # Ruleset 一括作成
-  07-add-items-to-project.yml    # Issue/PR 一括紐付け
-  08-analyze-project.yml         # 統合分析 (エクスポート・停滞検出・レポート)
+  07-add-items-to-project.yml      # Issue/PR 一括紐付け
+  08-analyze-project.yml           # 統合分析 (エクスポート・停滞検出・レポート)
 ```
 
 ## アーキテクチャ上の重要ポイント
