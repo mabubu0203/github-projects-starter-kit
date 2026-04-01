@@ -160,14 +160,14 @@ Docs サイトは以下のカテゴリで構成されています。目的に応
 
 ## 📚 詳しく知りたい方へ
 
-| トピック | 説明 |
-|---------|------|
-| [認証・トークンガイド](guide/auth-tokens.md) | PAT の権限設定、Fine-grained / Classic token の選び方 |
-| [入力値ガイド](guide/input-values.md) | `project_number`・`target_repo` などの確認方法 |
-| [運用ルール](guide/kanban-rules.md) | カンバンフロー、カスタム Field、View 構成 |
-| [Label 運用ルール](guide/label-rules.md) | Issue Label のカテゴリ分類、用途、付与タイミング |
-| [Artifact の手動削除](guide/delete-artifacts.md) | Workflow で生成された Artifact の削除手順（GUI / CLI） |
-| [用語集](reference/glossary.md) | GitHub 関連の専門用語の解説 |
+| ページ | 内容 |
+|--------|------|
+| [🔑 認証・トークンガイド](guide/auth-tokens.md) | PAT の権限設定、Fine-grained / Classic token の選び方 |
+| [📝 入力値ガイド](guide/input-values.md) | `project_number`・`target_repo` などの確認方法 |
+| [📏 カンバン運用ルール](guide/kanban-rules.md) | カンバンフロー、カスタム Field、View 構成 |
+| [🏷️ Label 運用ルール](guide/label-rules.md) | Issue Label のカテゴリ分類、用途、付与タイミング |
+| [🗑️ Artifact の手動削除](guide/delete-artifacts.md) | Workflow で生成された Artifact の削除手順（GUI / CLI） |
+| [📖 用語集](reference/glossary.md) | GitHub 関連の専門用語の解説 |
 
 ---
 
