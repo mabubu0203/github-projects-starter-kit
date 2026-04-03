@@ -1,3 +1,11 @@
+---
+image:
+  path: /assets/images/ogp.png
+  width: 1200
+  height: 630
+  alt: GitHub Projects Ops Kit — GitHub Projects の初期構築から運用分析までを自動実行する運用キット
+---
+
 # 📖 GitHub Projects Ops Kit ドキュメント
 
 ![Platform: macOS/Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-blue.svg)

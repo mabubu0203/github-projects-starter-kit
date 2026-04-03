@@ -1,6 +1,9 @@
 title: GitHub Projects Ops Kit
 description: GitHub Projects の初期構築から運用分析までを自動実行する運用キット
+url: https://lurest-inc.github.io
+baseurl: /github-projects-ops-kit
 theme: jekyll-theme-cayman
+locale: ja_JP
 google_analytics:
 google-site-verification: google94e25d982f8dafc6
 plugins:
@@ -14,3 +17,14 @@ plugins:
   - jekyll-sitemap
   - jekyll-titles-from-headings
   - jemoji
+twitter:
+  card: summary_large_image
+defaults:
+  - scope:
+      path: ""
+    values:
+      image:
+        path: /assets/images/ogp.png
+        width: 1200
+        height: 630
+        alt: GitHub Projects Ops Kit
